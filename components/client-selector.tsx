@@ -121,20 +121,13 @@ export function ClientSelector({ selectedClientId, onClientSelect, trigger }: Cl
     try {
       setLoading(true)
       
-      // Usar datos de muestra temporalmente
-      await new Promise(resolve => setTimeout(resolve, 300)) // Simular carga
-      setClientes(sampleClientes)
-      setFilteredClientes(sampleClientes)
-      
-      // TODO: Reactivar cuando el backend esté funcionando
-      /*
-      const data = await clientesAPI.getAll({ activo: true })
+      // Cargar clientes desde la API
+      const data = await clientesAPI.getAll()
       setClientes(data)
       setFilteredClientes(data)
-      */
     } catch (error) {
       console.error('Error loading clientes:', error)
-      // Fallback a datos de muestra
+      // Fallback a datos de muestra si falla
       setClientes(sampleClientes)
       setFilteredClientes(sampleClientes)
     } finally {

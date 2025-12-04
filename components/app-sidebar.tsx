@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { LayoutDashboard, FileText, Calendar, Users, DollarSign, Bell, Settings, Scale, Gavel, X, Menu, LogOut } from "lucide-react"
@@ -22,14 +22,25 @@ const navItemsConfig = [
   { title: "Notificaciones", url: "/notificaciones", icon: Bell, resource: "notificaciones" },
 ]
 
-const settingsItems = [{ title: "Configuración", url: "/configuracion", icon: Settings }]
-
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname()
   const router = useRouter()
   const { hasPermission, isLoading } = usePermission()
   const { user, isLoading: authLoading, logout } = useAuth()
   const [isMobileOpen, setIsMobileOpen] = useState(false)
+  const [showLoadingSpinner, setShowLoadingSpinner] = useState(false)
+
+  // Solo mostrar el spinner después de 300ms de loading
+  useEffect(() => {
+    if (isLoading || authLoading) {
+      const timer = setTimeout(() => {
+        setShowLoadingSpinner(true)
+      }, 300)
+      return () => clearTimeout(timer)
+    } else {
+      setShowLoadingSpinner(false)
+    }
+  }, [isLoading, authLoading])
 
   // Filtrar items según permisos (solo si está cargado)
   const visibleNavItems = !isLoading && !authLoading ? navItemsConfig.filter(item => 
@@ -100,7 +111,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
           {/* Navigation */}
           <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4 sm:p-4">
-            {isLoading || authLoading ? (
+            {showLoadingSpinner ? (
               <div className="flex items-center justify-center py-8">
                 <div className="text-center">
                   <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-primary mb-2"></div>
@@ -128,29 +139,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 )
               })
             )}
-          </nav>
-
-          {/* Settings */}
-          <nav className="space-y-1 border-t border-border px-3 py-4 sm:p-4">
-            {settingsItems.map((item) => {
-              const isActive = pathname.startsWith(item.url)
-              return (
-                <Link
-                  key={item.title}
-                  href={item.url}
-                  onClick={() => setIsMobileOpen(false)}
-                  className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2 sm:py-2.5 text-sm font-medium transition-colors whitespace-nowrap",
-                    isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                  )}
-                >
-                  <item.icon className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-                  <span className="hidden sm:inline">{item.title}</span>
-                </Link>
-              )
-            })}
           </nav>
 
           {/* User info - Profile menu */}
