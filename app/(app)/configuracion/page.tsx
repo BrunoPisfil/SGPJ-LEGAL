@@ -44,6 +44,16 @@ export default function ConfiguracionPage() {
   // 2FA settings
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false)
 
+  // Notification settings
+  const [notificationSettings, setNotificationSettings] = useState({
+    emailAudiencias: true,
+    emailProcesos: true,
+    emailPagos: true,
+    pushAudiencias: true,
+    pushProcesos: false,
+    pushPagos: true,
+  })
+
   // Cargar datos cuando el usuario esté disponible
   useEffect(() => {
     if (user) {
