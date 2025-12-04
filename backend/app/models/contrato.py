@@ -38,7 +38,7 @@ class Contrato(Base):
     fecha_actualizacion = Column(DateTime, onupdate=func.now(), nullable=True)
     
     # Relaciones
-    cliente = relationship("Cliente", back_populates="contratos", foreign_keys=[], viewonly=True)
+    # cliente fue removido porque cliente_id ahora viene del directorio, no de la tabla clientes
     proceso = relationship("Proceso", back_populates="contratos")
     pagos = relationship("Pago", back_populates="contrato", cascade="all, delete-orphan")
     

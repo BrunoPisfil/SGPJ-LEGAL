@@ -38,8 +38,8 @@ class Cliente(Base):
         Index('idx_clientes_razon', 'razon_social'),
     )
 
-    # Relaciones
-    contratos = relationship("Contrato", back_populates="cliente")
+    # Relaciones - contratos ahora se relacionan con directorio, no con clientes
+    # contratos = relationship("Contrato", back_populates="cliente")
 
     def __repr__(self):
         if self.tipo_persona == 'natural':
