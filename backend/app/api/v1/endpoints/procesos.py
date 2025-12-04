@@ -153,7 +153,7 @@ async def create_proceso(
             proceso_id=db_proceso.id,
             tipo_parte="demandante",  # Minúscula según el enum
             tipo_persona="cliente",   # 'cliente' o 'entidad' según el enum
-            cliente_id=proceso.cliente_id,  # Usar el cliente_id si está disponible
+            cliente_id=None,  # No usar cliente_id ya que viene del directorio, no de la tabla clientes
             es_nuestro_cliente=True,  # Por ahora asumimos que es nuestro cliente
             nombre_completo=proceso.demandante
         )
@@ -165,6 +165,7 @@ async def create_proceso(
             proceso_id=db_proceso.id,
             tipo_parte="demandado",   # Minúscula según el enum
             tipo_persona="entidad",   # Asumimos que la parte contraria es entidad
+            entidad_id=None,  # No usar entidad_id
             es_nuestro_cliente=False, # El demandado generalmente no es nuestro cliente
             nombre_completo=proceso.demandado
         )
