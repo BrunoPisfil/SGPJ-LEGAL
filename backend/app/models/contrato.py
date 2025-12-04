@@ -15,8 +15,8 @@ class Contrato(Base):
     id = Column(BIGINT(unsigned=True), primary_key=True, autoincrement=True)
     codigo = Column(String(50), nullable=False, unique=True)
     
-    # Relaciones
-    cliente_id = Column(BIGINT(unsigned=True), ForeignKey('clientes.id'), nullable=False)
+    # Relaciones - cliente_id viene del directorio, no tiene foreign key
+    cliente_id = Column(BIGINT(unsigned=True), nullable=False)
     proceso_id = Column(BIGINT(unsigned=True), ForeignKey('procesos.id'), nullable=False)
     
     # Montos
@@ -38,7 +38,7 @@ class Contrato(Base):
     fecha_actualizacion = Column(DateTime, onupdate=func.now(), nullable=True)
     
     # Relaciones
-    cliente = relationship("Cliente", back_populates="contratos")
+    cliente = relationship("Cliente", back_populates="contratos", foreign_keys=[], viewonly=True)
     proceso = relationship("Proceso", back_populates="contratos")
     pagos = relationship("Pago", back_populates="contrato", cascade="all, delete-orphan")
     
