@@ -15,7 +15,7 @@ class Contrato(Base):
     id = Column(BIGINT(unsigned=True), primary_key=True, autoincrement=True)
     codigo = Column(String(50), nullable=False, unique=True)
     
-    # Relaciones - cliente_id viene del directorio, no tiene foreign key
+    # Relaciones
     cliente_id = Column(BIGINT(unsigned=True), nullable=False)
     proceso_id = Column(BIGINT(unsigned=True), ForeignKey('procesos.id'), nullable=False)
     
