@@ -177,4 +177,5 @@ const directorioAPI = {
   },
 };
 
+export { directorioAPI };
 export default directorioAPI;

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { directorioAPI, type DirectorioEntry } from "@/lib/directorio"
+import directorioAPI, { type DirectorioEntry } from "@/lib/directorio"
 
 interface Abogado {
   id: number

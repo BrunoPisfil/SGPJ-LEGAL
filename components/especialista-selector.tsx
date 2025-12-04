@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { directorioAPI, type DirectorioEntry } from "@/lib/directorio"
+import directorioAPI, { type DirectorioEntry } from "@/lib/directorio"
 
 interface Especialista {
   id: number
@@ -59,8 +59,13 @@ export function EspecialistaSelector({ selectedEspecialistaId, onEspecialistaSel
   const loadEspecialistas = async () => {
     try {
       setLoading(true)
-      // Llamar a la API real para obtener especialistas
-      const data = await directorioAPI.getEspecialistas()
+      // Intentar obtener desde el endpoint específico
+      let data = await directorioAPI.getEspecialistas()
+      
+      // Si el endpoint específico retorna vacío, intentar filtrar desde getAll
+      if (!data || data.length === 0) {
+        data = await directorioAPI.getAll(0, 100, 'especialista')
+      }
       
       // Transformar DirectorioEntry a Especialista
       const especialistasFormateados: Especialista[] = data.map((entry: DirectorioEntry) => ({
