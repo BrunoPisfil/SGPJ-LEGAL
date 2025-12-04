@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { User, Building2, Bell, Shield, Palette, Save } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,182 +9,71 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/hooks/use-toast"
-import { useAuth } from "@/hooks/use-auth"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function ConfiguracionPage() {
   const { toast } = useToast()
-  const { user } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
 
-  // Profile settings - Traer datos del usuario autenticado
+  // Profile settings
   const [profileData, setProfileData] = useState({
-    nombre: "",
-    email: "",
-    telefono: "",
-    cargo: "",
+    nombre: "María López",
+    email: "maria.lopez@estudio.com",
+    telefono: "+51 987 654 321",
+    cargo: "Abogada Senior",
   })
 
-  // Firm settings - Datos del estudio (pueden venir de una tabla de configuración)
+  // Firm settings
   const [firmData, setFirmData] = useState({
-    razonSocial: "",
-    ruc: "",
-    direccion: "",
-    telefono: "",
-    email: "",
+    razonSocial: "Estudio Jurídico López & Asociados",
+    ruc: "20123456789",
+    direccion: "Av. Javier Prado 123, San Isidro, Lima",
+    telefono: "+51 01 234 5678",
+    email: "contacto@estudiojuridico.com",
   })
 
-  // Password change settings
-  const [passwordData, setPasswordData] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
+  // Notification settings
+  const [notificationSettings, setNotificationSettings] = useState({
+    emailAudiencias: true,
+    emailProcesos: true,
+    emailPagos: true,
+    pushAudiencias: true,
+    pushProcesos: false,
+    pushPagos: true,
+    recordatorioAudiencias: 24, // hours before
   })
 
-  // 2FA settings
-  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false)
-
-  // Cargar datos cuando el usuario esté disponible
-  useEffect(() => {
-    if (user) {
-      setProfileData({
-        nombre: user.nombre || "",
-        email: user.email || "",
-        telefono: user.telefono || "",
-        cargo: user.rol || "", // Usar el rol como cargo
-      })
-      
-      // TODO: Aquí podrías cargar los datos del estudio desde una API
-      // Por ahora, mantener datos vacíos/placeholder
-      setFirmData({
-        razonSocial: "",
-        ruc: "",
-        direccion: "",
-        telefono: "",
-        email: "",
-      })
-    }
-  }, [user])
-
-  const handleSaveProfile = async () => {
+  const handleSaveProfile = () => {
     setIsLoading(true)
-    try {
-      // Aquí iría una llamada a una API para actualizar el perfil del usuario
-      // await userAPI.updateProfile(profileData)
-      
-      // Por ahora, solo mostrar un toast de éxito (simulado)
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
+    setTimeout(() => {
       toast({
         title: "Perfil actualizado",
         description: "Tus datos personales han sido actualizados exitosamente",
       })
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "No se pudieron guardar los cambios",
-        variant: "destructive",
-      })
-    } finally {
       setIsLoading(false)
-    }
+    }, 1000)
   }
 
-  const handleSaveFirm = async () => {
+  const handleSaveFirm = () => {
     setIsLoading(true)
-    try {
-      // Aquí iría una llamada a una API para actualizar los datos del estudio
-      // await firmAPI.update(firmData)
-      
-      // Por ahora, solo mostrar un toast de éxito (simulado)
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
+    setTimeout(() => {
       toast({
         title: "Datos del estudio actualizados",
         description: "La información del estudio ha sido actualizada exitosamente",
       })
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "No se pudieron guardar los cambios",
-        variant: "destructive",
-      })
-    } finally {
       setIsLoading(false)
-    }
+    }, 1000)
   }
 
-  const handleSaveNotifications = async () => {
+  const handleSaveNotifications = () => {
     setIsLoading(true)
-    try {
-      // Aquí iría una llamada a una API para guardar las preferencias de notificaciones
-      // await notificacionesAPI.updatePreferences(notificationSettings)
-      
-      // Por ahora, solo mostrar un toast de éxito (simulado)
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
+    setTimeout(() => {
       toast({
         title: "Preferencias guardadas",
         description: "Tus preferencias de notificaciones han sido actualizadas",
       })
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "No se pudieron guardar los cambios",
-        variant: "destructive",
-      })
-    } finally {
       setIsLoading(false)
-    }
-  }
-
-  const handleChangePassword = async () => {
-    if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
-      toast({
-        title: "Error de validación",
-        description: "Por favor completa todos los campos",
-        variant: "destructive",
-      })
-      return
-    }
-
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast({
-        title: "Error de validación",
-        description: "Las contraseñas nuevas no coinciden",
-        variant: "destructive",
-      })
-      return
-    }
-
-    setIsLoading(true)
-    try {
-      // Aquí iría una llamada a una API para cambiar la contraseña
-      // await authAPI.changePassword(passwordData.currentPassword, passwordData.newPassword)
-      
-      // Por ahora, solo mostrar un toast de éxito (simulado)
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      toast({
-        title: "Contraseña actualizada",
-        description: "Tu contraseña ha sido cambiada exitosamente",
-      })
-      
-      // Limpiar el formulario
-      setPasswordData({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      })
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "No se pudo cambiar la contraseña. Verifica tu contraseña actual.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
+    }, 1000)
   }
 
   return (
@@ -468,30 +357,15 @@ export default function ConfiguracionPage() {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="currentPassword">Contraseña Actual</Label>
-                    <Input 
-                      id="currentPassword" 
-                      type="password" 
-                      value={passwordData.currentPassword}
-                      onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                    />
+                    <Input id="currentPassword" type="password" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="newPassword">Nueva Contraseña</Label>
-                    <Input 
-                      id="newPassword" 
-                      type="password" 
-                      value={passwordData.newPassword}
-                      onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                    />
+                    <Input id="newPassword" type="password" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="confirmPassword">Confirmar Nueva Contraseña</Label>
-                    <Input 
-                      id="confirmPassword" 
-                      type="password" 
-                      value={passwordData.confirmPassword}
-                      onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                    />
+                    <Input id="confirmPassword" type="password" />
                   </div>
                 </div>
               </div>
@@ -505,29 +379,16 @@ export default function ConfiguracionPage() {
                     <Label>Habilitar 2FA</Label>
                     <p className="text-sm text-muted-foreground">Agrega una capa adicional de seguridad a tu cuenta</p>
                   </div>
-                  <Switch 
-                    checked={twoFactorEnabled}
-                    onCheckedChange={setTwoFactorEnabled}
-                  />
+                  <Switch />
                 </div>
               </div>
 
               <Separator />
 
-              <div className="flex justify-end gap-3">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" })}
-                  disabled={isLoading}
-                >
-                  Cancelar
-                </Button>
-                <Button 
-                  onClick={handleChangePassword}
-                  disabled={isLoading}
-                >
+              <div className="flex justify-end">
+                <Button disabled={isLoading}>
                   <Save className="mr-2 h-4 w-4" />
-                  {isLoading ? "Guardando..." : "Cambiar Contraseña"}
+                  Actualizar Seguridad
                 </Button>
               </div>
             </CardContent>

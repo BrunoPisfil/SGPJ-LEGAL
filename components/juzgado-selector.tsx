@@ -7,13 +7,80 @@ import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { juzgadosAPI, type Juzgado } from "@/lib/juzgados"
+
+interface Juzgado {
+  id: number
+  nombre: string
+  distrito_judicial: string
+  direccion?: string
+  telefono?: string
+}
 
 interface JuzgadoSelectorProps {
   selectedJuzgadoId?: string
   onJuzgadoSelect: (juzgado: Juzgado) => void
   trigger?: React.ReactNode
 }
+
+// Mock data - En el futuro esto vendrá de una API
+const mockJuzgados: Juzgado[] = [
+  {
+    id: 1,
+    nombre: "1º Juzgado Civil de Lima",
+    distrito_judicial: "Lima",
+    direccion: "Jr. Miró Quesada 350, Cercado de Lima",
+    telefono: "01-4268000"
+  },
+  {
+    id: 2,
+    nombre: "2º Juzgado Civil de Lima",
+    distrito_judicial: "Lima",
+    direccion: "Jr. Miró Quesada 350, Cercado de Lima",
+    telefono: "01-4268000"
+  },
+  {
+    id: 3,
+    nombre: "3º Juzgado Civil de Lima",
+    distrito_judicial: "Lima",
+    direccion: "Jr. Miró Quesada 350, Cercado de Lima",
+    telefono: "01-4268000"
+  },
+  {
+    id: 4,
+    nombre: "1º Juzgado Laboral de Lima",
+    distrito_judicial: "Lima",
+    direccion: "Av. Abancay 471, Cercado de Lima",
+    telefono: "01-4268000"
+  },
+  {
+    id: 5,
+    nombre: "2º Juzgado Laboral del Callao",
+    distrito_judicial: "Callao",
+    direccion: "Av. Sáenz Peña 150, Callao",
+    telefono: "01-4291000"
+  },
+  {
+    id: 6,
+    nombre: "1º Juzgado Comercial de Lima",
+    distrito_judicial: "Lima",
+    direccion: "Jr. Miró Quesada 350, Cercado de Lima",
+    telefono: "01-4268000"
+  },
+  {
+    id: 7,
+    nombre: "1º Juzgado Penal de Lima",
+    distrito_judicial: "Lima",
+    direccion: "Jr. Miró Quesada 350, Cercado de Lima",
+    telefono: "01-4268000"
+  },
+  {
+    id: 8,
+    nombre: "2º Juzgado Penal de Lima",
+    distrito_judicial: "Lima",
+    direccion: "Jr. Miró Quesada 350, Cercado de Lima",
+    telefono: "01-4268000"
+  }
+]
 
 export function JuzgadoSelector({ selectedJuzgadoId, onJuzgadoSelect, trigger }: JuzgadoSelectorProps) {
   const [open, setOpen] = useState(false)
@@ -47,14 +114,12 @@ export function JuzgadoSelector({ selectedJuzgadoId, onJuzgadoSelect, trigger }:
   const loadJuzgados = async () => {
     try {
       setLoading(true)
-      // Llamar a la API real para obtener juzgados
-      const data = await juzgadosAPI.getAll()
-      setJuzgados(data)
-      setFilteredJuzgados(data)
+      // Simular carga de API
+      await new Promise(resolve => setTimeout(resolve, 300))
+      setJuzgados(mockJuzgados)
+      setFilteredJuzgados(mockJuzgados)
     } catch (error) {
       console.error('Error loading juzgados:', error)
-      setJuzgados([])
-      setFilteredJuzgados([])
     } finally {
       setLoading(false)
     }

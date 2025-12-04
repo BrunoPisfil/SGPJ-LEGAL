@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { directorioAPI, type DirectorioEntry } from "@/lib/directorio"
 
 interface Especialista {
   id: number
@@ -24,6 +23,11 @@ interface EspecialistaSelectorProps {
   onEspecialistaSelect: (especialista: Especialista) => void
   trigger?: React.ReactNode
 }
+
+// Mock data - En el futuro esto vendrá de una API
+const mockEspecialistas: Especialista[] = [
+ 
+]
 
 export function EspecialistaSelector({ selectedEspecialistaId, onEspecialistaSelect, trigger }: EspecialistaSelectorProps) {
   const [open, setOpen] = useState(false)
@@ -59,26 +63,12 @@ export function EspecialistaSelector({ selectedEspecialistaId, onEspecialistaSel
   const loadEspecialistas = async () => {
     try {
       setLoading(true)
-      // Llamar a la API real para obtener especialistas
-      const data = await directorioAPI.getEspecialistas()
-      
-      // Transformar DirectorioEntry a Especialista
-      const especialistasFormateados: Especialista[] = data.map((entry: DirectorioEntry) => ({
-        id: entry.id,
-        nombres: entry.nombres || entry.nombre || "",
-        apellidos: entry.apellidos || "",
-        cargo: entry.especialidad || "Especialista",
-        juzgado: entry.nombre || "",
-        telefono: entry.telefono,
-        email: entry.email,
-      }))
-      
-      setEspecialistas(especialistasFormateados)
-      setFilteredEspecialistas(especialistasFormateados)
+      // Simular carga de API
+      await new Promise(resolve => setTimeout(resolve, 300))
+      setEspecialistas(mockEspecialistas)
+      setFilteredEspecialistas(mockEspecialistas)
     } catch (error) {
       console.error('Error loading especialistas:', error)
-      setEspecialistas([])
-      setFilteredEspecialistas([])
     } finally {
       setLoading(false)
     }
