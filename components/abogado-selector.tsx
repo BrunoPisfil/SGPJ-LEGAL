@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { directorioAPI, type DirectorioEntry } from "@/lib/directorio"
 
 interface Abogado {
   id: number
@@ -23,82 +24,6 @@ interface AbogadoSelectorProps {
   onAbogadoSelect: (abogado: Abogado) => void
   trigger?: React.ReactNode
 }
-
-// Mock data - En el futuro esto vendrá de una API
-const mockAbogados: Abogado[] = [
-  {
-    id: 1,
-    nombres: "Roberto Carlos",
-    apellidos: "Díaz Mendoza",
-    colegiatura: "CAL-12345",
-    especialidad: "Civil y Comercial",
-    telefono: "987-654-321",
-    email: "rdiaz@bufete.com"
-  },
-  {
-    id: 2,
-    nombres: "Patricia Isabel",
-    apellidos: "Vega Morales",
-    colegiatura: "CAL-23456",
-    especialidad: "Laboral",
-    telefono: "987-654-322",
-    email: "pvega@bufete.com"
-  },
-  {
-    id: 3,
-    nombres: "Carlos Alberto",
-    apellidos: "Mendoza Silva",
-    colegiatura: "CAL-34567",
-    especialidad: "Penal",
-    telefono: "987-654-323",
-    email: "cmendoza@bufete.com"
-  },
-  {
-    id: 4,
-    nombres: "Ana Sofía",
-    apellidos: "Torres Vega",
-    colegiatura: "CAL-45678",
-    especialidad: "Familia",
-    telefono: "987-654-324",
-    email: "atorres@bufete.com"
-  },
-  {
-    id: 5,
-    nombres: "Luis Fernando",
-    apellidos: "Ramírez Castro",
-    colegiatura: "CAL-56789",
-    especialidad: "Civil y Comercial",
-    telefono: "987-654-325",
-    email: "lramirez@bufete.com"
-  },
-  {
-    id: 6,
-    nombres: "María Elena",
-    apellidos: "López García",
-    colegiatura: "CAL-67890",
-    especialidad: "Administrativo",
-    telefono: "987-654-326",
-    email: "mlopez@bufete.com"
-  },
-  {
-    id: 7,
-    nombres: "José Miguel",
-    apellidos: "Flores Huamán",
-    colegiatura: "CAL-78901",
-    especialidad: "Tributario",
-    telefono: "987-654-327",
-    email: "jflores@bufete.com"
-  },
-  {
-    id: 8,
-    nombres: "Carmen Rosa",
-    apellidos: "Sánchez Paredes",
-    colegiatura: "CAL-89012",
-    especialidad: "Laboral",
-    telefono: "987-654-328",
-    email: "csanchez@bufete.com"
-  }
-]
 
 export function AbogadoSelector({ selectedAbogadoId, onAbogadoSelect, trigger }: AbogadoSelectorProps) {
   const [open, setOpen] = useState(false)
@@ -134,12 +59,29 @@ export function AbogadoSelector({ selectedAbogadoId, onAbogadoSelect, trigger }:
   const loadAbogados = async () => {
     try {
       setLoading(true)
-      // Simular carga de API
-      await new Promise(resolve => setTimeout(resolve, 300))
-      setAbogados(mockAbogados)
-      setFilteredAbogados(mockAbogados)
+      // Llamar a la API real para obtener abogados (usando directorioAPI con filtro tipo cliente)
+      // Alternativa: podrías tener un endpoint específico /directorio/abogados si existe
+      const data = await directorioAPI.getAll(0, 500, 'cliente')
+      
+      // Transformar DirectorioEntry a Abogado (filtrando por tipo_persona = juridica o específicos)
+      const abogadosFormateados: Abogado[] = data
+        .filter(entry => entry.nombres && entry.apellidos) // Filtrar abogados reales (con nombres/apellidos)
+        .map((entry: DirectorioEntry) => ({
+          id: entry.id,
+          nombres: entry.nombres || "",
+          apellidos: entry.apellidos || "",
+          colegiatura: entry.numero_colegiado,
+          especialidad: entry.especialidad || "General",
+          telefono: entry.telefono,
+          email: entry.email,
+        }))
+      
+      setAbogados(abogadosFormateados)
+      setFilteredAbogados(abogadosFormateados)
     } catch (error) {
       console.error('Error loading abogados:', error)
+      setAbogados([])
+      setFilteredAbogados([])
     } finally {
       setLoading(false)
     }

@@ -1,9 +1,9 @@
 import { useAuth } from './use-auth'
 
 export function usePermission() {
-  const { user } = useAuth()
+  const { user, isLoading } = useAuth()
   
-  const userRole = user?.rol?.toLowerCase() || 'practicante'
+  const userRole = user?.rol?.toLowerCase() || null
   
   // Definición de permisos por rol (sincronizada con backend)
   const permissions = {
@@ -31,10 +31,11 @@ export function usePermission() {
 
   
   const hasPermission = (resource: string, action: string): boolean => {
+    if (!userRole) return false
     const userPermissions = permissions[userRole as keyof typeof permissions] || {}
     const resourcePermissions = userPermissions[resource as keyof typeof userPermissions] || []
     return resourcePermissions.includes(action)
   }
   
-  return { hasPermission, userRole }
+  return { hasPermission, userRole, isLoading }
 }

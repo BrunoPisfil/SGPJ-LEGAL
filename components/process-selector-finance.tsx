@@ -146,20 +146,13 @@ export function ProcessSelectorFinance({ selectedProcessId, onProcessSelect, tri
     try {
       setLoading(true)
       
-      // Usar datos de muestra temporalmente
-      await new Promise(resolve => setTimeout(resolve, 300)) // Simular carga
-      setProcesos(sampleProcesos)
-      setFilteredProcesos(sampleProcesos)
-      
-      // TODO: Reactivar cuando el backend esté funcionando
-      /*
-      const data = await procesosAPI.getAll({ activo: true })
+      // Llamar a la API real para obtener procesos
+      const data = await procesosAPI.getAll({ skip: 0, limit: 500 })
       setProcesos(data)
       setFilteredProcesos(data)
-      */
     } catch (error) {
       console.error('Error loading procesos:', error)
-      // Fallback a datos de muestra
+      // Si falla, usar datos de muestra como fallback
       setProcesos(sampleProcesos)
       setFilteredProcesos(sampleProcesos)
     } finally {

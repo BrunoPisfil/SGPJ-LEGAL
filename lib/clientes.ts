@@ -60,13 +60,16 @@ export const clientesAPI = {
   async getAll(params: ClientesParams = {}): Promise<Cliente[]> {
     const queryParams = new URLSearchParams();
     
+    // Agregar tipo='cliente' para filtrar solo clientes del directorio
+    queryParams.append('tipo', 'cliente');
+    
     if (params.skip !== undefined) queryParams.append('skip', params.skip.toString());
     if (params.limit !== undefined) queryParams.append('limit', params.limit.toString());
     if (params.search) queryParams.append('search', params.search);
     if (params.tipo_persona) queryParams.append('tipo_persona', params.tipo_persona);
     if (params.activo !== undefined) queryParams.append('activo', params.activo.toString());
 
-    const url = `/directorio${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    const url = `/directorio?${queryParams.toString()}`;
     return apiClient.get<Cliente[]>(url);
   },
 
@@ -105,6 +108,7 @@ export const clientesAPI = {
   // Búsqueda de clientes para selector (optimizada)
   async search(query: string, limit: number = 20): Promise<Cliente[]> {
     const queryParams = new URLSearchParams();
+    queryParams.append('tipo', 'cliente'); // Filtrar solo clientes
     queryParams.append('search', query);
     queryParams.append('limit', limit.toString());
     queryParams.append('activo', 'true'); // Solo clientes activos
