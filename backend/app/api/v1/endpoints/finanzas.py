@@ -8,6 +8,7 @@ import uuid
 from app.core.database import get_db
 from app.models.contrato import Contrato
 from app.models.cliente import Cliente
+from app.models.directorio import Directorio
 from app.models.proceso import Proceso
 from app.models.pago import Pago
 from app.schemas.contrato import (
@@ -209,13 +210,13 @@ async def search_contratos(
     contratos = db.query(Contrato).options(
         joinedload(Contrato.cliente),
         joinedload(Contrato.proceso)
-    ).join(Cliente).join(Proceso).filter(
+    ).join(Directorio, Contrato.cliente_id == Directorio.id).join(Proceso).filter(
         or_(
             Contrato.codigo.contains(q),
             Proceso.expediente.contains(q),
-            Cliente.nombres.contains(q),
-            Cliente.apellidos.contains(q),
-            Cliente.razon_social.contains(q)
+            Directorio.nombres.contains(q),
+            Directorio.apellidos.contains(q),
+            Directorio.razon_social.contains(q)
         )
     ).limit(20).all()
     
