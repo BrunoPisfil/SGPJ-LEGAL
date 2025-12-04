@@ -60,7 +60,6 @@ async def get_contratos(
 ):
     """Obtener lista de contratos con filtros"""
     query = db.query(Contrato).options(
-        joinedload(Contrato.cliente),
         joinedload(Contrato.proceso)
     )
     
@@ -207,7 +206,6 @@ async def search_contratos(
     """Buscar contratos por texto"""
     # Buscar en código, nombre del cliente, expediente
     contratos = db.query(Contrato).options(
-        joinedload(Contrato.cliente),
         joinedload(Contrato.proceso)
     ).join(Cliente).join(Proceso).filter(
         or_(
@@ -263,8 +261,7 @@ async def get_contrato(contrato_id: int, db: Session = Depends(get_db)):
     """Obtener contrato por ID"""
     contrato = db.query(Contrato).options(
         joinedload(Contrato.cliente),
-        joinedload(Contrato.proceso)
-    ).filter(Contrato.id == contrato_id).first()
+        joinedload(Contrato.contrato_id).first()
     
     if not contrato:
         raise HTTPException(status_code=404, detail="Contrato no encontrado")
