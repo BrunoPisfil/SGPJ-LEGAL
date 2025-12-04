@@ -180,16 +180,18 @@ export default function EditarDirectorioPage() {
             <CardDescription>Actualiza los datos del registro</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Nombre */}
-            <div className="space-y-2">
-              <Label htmlFor="nombre">Nombre</Label>
-              <Input
-                id="nombre"
-                value={formData.nombre}
-                onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-                required
-              />
-            </div>
+            {/* Nombre - Solo para JUZGADO */}
+            {entrada.tipo === "juzgado" && (
+              <div className="space-y-2">
+                <Label htmlFor="nombre">Nombre del Juzgado</Label>
+                <Input
+                  id="nombre"
+                  value={formData.nombre}
+                  onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                  required
+                />
+              </div>
+            )}
 
             {/* Campos específicos para CLIENTE */}
             {entrada.tipo === "cliente" && (
