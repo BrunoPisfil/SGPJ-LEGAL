@@ -59,11 +59,15 @@ export function AbogadoSelector({ selectedAbogadoId, onAbogadoSelect, trigger }:
   const loadAbogados = async () => {
     try {
       setLoading(true)
-      // Llamar a la API real para obtener abogados (usando directorioAPI con filtro tipo cliente)
-      // Alternativa: podrías tener un endpoint específico /directorio/abogados si existe
-      const data = await directorioAPI.getAll(0, 500, 'cliente')
+      // Obtener especialistas/abogados del directorio (no clientes)
+      let data = await directorioAPI.getEspecialistas()
       
-      // Transformar DirectorioEntry a Abogado (filtrando por tipo_persona = juridica o específicos)
+      // Si el endpoint específico retorna vacío, intentar filtrar desde getAll
+      if (!data || data.length === 0) {
+        data = await directorioAPI.getAll(0, 500, 'especialista')
+      }
+      
+      // Transformar DirectorioEntry a Abogado
       const abogadosFormateados: Abogado[] = data
         .filter(entry => entry.nombres && entry.apellidos) // Filtrar abogados reales (con nombres/apellidos)
         .map((entry: DirectorioEntry) => ({
