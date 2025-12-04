@@ -135,10 +135,8 @@ async def create_contrato(
     db: Session = Depends(get_db)
 ):
     """Crear nuevo contrato"""
-    # Verificar que el cliente existe
-    cliente = db.query(Cliente).filter(Cliente.id == contrato_data.cliente_id).first()
-    if not cliente:
-        raise HTTPException(status_code=404, detail="Cliente no encontrado")
+    # El cliente_id viene del directorio, no validamos contra la tabla Cliente
+    # ya que los clientes están migrados a la tabla directorio
     
     # Verificar que el proceso existe
     proceso = db.query(Proceso).filter(Proceso.id == contrato_data.proceso_id).first()
