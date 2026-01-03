@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.api.v1.api import api_router
+from sqlalchemy import text
+from app.core.database import engine  # ajusta si tu engine está en otra ruta
 
 # Crear la instancia de FastAPI
 app = FastAPI(
@@ -39,3 +41,11 @@ async def root():
 async def health_check():
     """Endpoint de salud de la API"""
     return {"status": "healthy", "service": settings.app_name}
+
+
+
+@app.get("/db-check")
+async def db_check():
+    with engine.connect() as conn:
+        conn.execute(text("SELECT 1"))
+    return {"db": "connected"}
