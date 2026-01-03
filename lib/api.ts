@@ -1,8 +1,11 @@
 // Configuración de la API
 export const API_CONFIG = {
-  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001/api/v1',
-  TIMEOUT: 30000, // Aumentar timeout a 30 segundos
+  BASE_URL: process.env.NEXT_PUBLIC_API_URL
+    ? `${process.env.NEXT_PUBLIC_API_URL}/api/v1`
+    : 'http://localhost:8000/api/v1',
+  TIMEOUT: 30000,
 } as const;
+
 
 // Callback para manejar errores de autenticación
 let onUnauthorizedCallback: (() => void) | null = null;

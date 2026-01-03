@@ -80,8 +80,15 @@ export const authAPI = {
 // Verificar salud del backend
 export const healthAPI = {
   async checkHealth(): Promise<{ status: string; service: string }> {
-    // Para health check, usar la URL base sin /api/v1
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:8000';
+    const baseUrl =
+      process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/v1\/?$/, "") ||
+      process.env.NEXT_PUBLIC_API_URL ||
+      "";
+
+    if (!baseUrl) {
+      throw new Error("NEXT_PUBLIC_API_URL no está configurado");
+    }
+
     const response = await fetch(`${baseUrl}/health`);
     return response.json();
   },
