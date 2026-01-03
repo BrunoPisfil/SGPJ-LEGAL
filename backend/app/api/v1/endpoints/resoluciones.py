@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from backend.app.core.database import get_db
-from backend.app.models.resolucion import Resolucion
-from backend.app.schemas.resolucion import ResolucionResponse, ResolucionCreate, ResolucionUpdate
-from backend.app.services.resolucion import ResolucionService
-from backend.app.api.dependencies import get_current_user
-from backend.app.models.usuario import Usuario
-from backend.app.api.permissions import require_permission
+from app.core.database import get_db
+from app.models.resolucion import Resolucion
+from app.schemas.resolucion import ResolucionResponse, ResolucionCreate, ResolucionUpdate
+from app.services.resolucion import ResolucionService
+from app.api.dependencies import get_current_user
+from app.models.usuario import Usuario
+from app.api.permissions import require_permission
 
 router = APIRouter()
 

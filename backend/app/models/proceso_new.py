@@ -9,7 +9,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-from backend.app.core.database import Base
+from app.core.database import Base
 
 
 class Proceso(Base):
@@ -103,7 +103,7 @@ class Proceso(Base):
                      cliente_id=None, entidad_id=None, nombre_completo=None, 
                      documento=None, observaciones=None):
         """Método helper para agregar una parte al proceso"""
-        from backend.app.models.parte_proceso import ParteProceso
+        from app.models.parte_proceso import ParteProceso
         
         nueva_parte = ParteProceso(
             proceso_id=self.id,

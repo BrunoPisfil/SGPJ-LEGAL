@@ -1,9 +1,9 @@
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import and_
 from typing import List, Optional
-from backend.app.models.resolucion import Resolucion
-from backend.app.models.proceso import Proceso
-from backend.app.schemas.resolucion import ResolucionCreate, ResolucionUpdate
+from app.models.resolucion import Resolucion
+from app.models.proceso import Proceso
+from app.schemas.resolucion import ResolucionCreate, ResolucionUpdate
 from datetime import datetime
 
 

@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from backend.app.core.database import get_db
-from backend.app.models.proceso import Proceso
-from backend.app.schemas.proceso import ProcesoResponse, ProcesoCreate, ProcesoUpdate
-from backend.app.api.dependencies import get_current_user
-from backend.app.models.usuario import Usuario
-from backend.app.api.permissions import require_permission, check_permission
+from app.core.database import get_db
+from app.models.proceso import Proceso
+from app.schemas.proceso import ProcesoResponse, ProcesoCreate, ProcesoUpdate
+from app.api.dependencies import get_current_user
+from app.models.usuario import Usuario
+from app.api.permissions import require_permission, check_permission
 
 router = APIRouter()
 
@@ -88,7 +88,7 @@ async def create_proceso(
     # Buscar o crear juzgado
     juzgado_id = None
     if proceso.juzgado:
-        from backend.app.models.juzgado import Juzgado
+        from app.models.juzgado import Juzgado
         juzgado = db.query(Juzgado).filter(Juzgado.nombre == proceso.juzgado).first()
         if not juzgado:
             # Crear juzgado si no existe
@@ -104,7 +104,7 @@ async def create_proceso(
     # Buscar o crear especialista (juez)
     especialista_id = None
     if proceso.juez:
-        from backend.app.models.especialista import Especialista
+        from app.models.especialista import Especialista
         nombres_apellidos = proceso.juez.split(' ', 1)
         nombres = nombres_apellidos[0] if len(nombres_apellidos) > 0 else proceso.juez
         apellidos = nombres_apellidos[1] if len(nombres_apellidos) > 1 else ""
@@ -145,7 +145,7 @@ async def create_proceso(
     db.flush()
     
     # Crear partes del proceso en la tabla partes_proceso
-    from backend.app.models.parte_proceso import ParteProceso
+    from app.models.parte_proceso import ParteProceso
     
     # Crear demandante
     if proceso.demandante:
@@ -208,7 +208,7 @@ async def update_proceso(
     update_data = proceso_update.dict(exclude_unset=True)
     
     # Importar modelo de bitácora
-    from backend.app.models.bitacora_proceso import BitacoraProceso
+    from app.models.bitacora_proceso import BitacoraProceso
     
     # Campos que se pueden actualizar directamente
     valid_fields = ['tipo', 'materia', 'estado', 'estado_juridico', 'monto_pretension', 

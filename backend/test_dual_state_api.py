@@ -3,7 +3,7 @@ Script para probar la funcionalidad del sistema dual-state
 """
 import requests
 import json
-from backend.app.core.config import Settings
+from app.core.config import Settings
 
 settings = Settings()
 BASE_URL = "http://localhost:8000"

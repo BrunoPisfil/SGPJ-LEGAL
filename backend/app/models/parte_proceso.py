@@ -6,7 +6,7 @@ Maneja las partes involucradas en un proceso (demandantes, demandados, terceros)
 from sqlalchemy import Column, BigInteger, String, Text, DateTime, ForeignKey, Enum, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from backend.app.core.database import Base
+from app.core.database import Base
 
 
 class ParteProceso(Base):

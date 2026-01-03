@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from backend.app.api.v1.endpoints import auth, procesos, audiencias, finanzas, directorio, dashboard, notificaciones, partes_proceso, bitacora, resoluciones
+from app.api.v1.endpoints import auth, procesos, audiencias, finanzas, directorio, dashboard, notificaciones, partes_proceso, bitacora, resoluciones
 
 api_router = APIRouter()
 

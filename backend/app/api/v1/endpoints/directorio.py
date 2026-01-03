@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from backend.app.core.database import get_db
-from backend.app.api.deps import get_current_user
-from backend.app.models.usuario import Usuario
-from backend.app.schemas.directorio import DirectorioCreate, DirectorioUpdate, DirectorioResponse
-from backend.app.services.directorio import DirectorioService
-from backend.app.api.permissions import require_permission
+from app.core.database import get_db
+from app.api.deps import get_current_user
+from app.models.usuario import Usuario
+from app.schemas.directorio import DirectorioCreate, DirectorioUpdate, DirectorioResponse
+from app.services.directorio import DirectorioService
+from app.api.permissions import require_permission
 
 router = APIRouter(tags=["directorio"])
 

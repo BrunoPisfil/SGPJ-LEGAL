@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field, validator
 from typing import Optional, List
 from datetime import datetime, date
 from enum import Enum
-from backend.app.schemas.parte_proceso import ParteProcesoSchema, ParteProcesoCreate
+from app.schemas.parte_proceso import ParteProcesoSchema, ParteProcesoCreate
 
 
 class EstadoProcesoEnum(str, Enum):

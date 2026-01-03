@@ -8,7 +8,7 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from sqlalchemy import create_engine, text
-from backend.app.core.config import settings
+from app.core.config import settings
 
 def limpiar_desastre_tablas():
     """Limpiar el desastre y dejar solo las tablas necesarias"""

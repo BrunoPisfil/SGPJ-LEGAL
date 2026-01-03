@@ -4,8 +4,8 @@ from typing import Optional, List
 from datetime import date, datetime
 from fastapi import HTTPException
 
-from backend.app.models.audiencia import Audiencia
-from backend.app.schemas.audiencia import AudienciaCreate, AudienciaUpdate
+from app.models.audiencia import Audiencia
+from app.schemas.audiencia import AudienciaCreate, AudienciaUpdate
 
 
 class AudienciaService:
@@ -54,7 +54,7 @@ class AudienciaService:
     def create(db: Session, audiencia_data: AudienciaCreate) -> Audiencia:
         """Crear nueva audiencia"""
         # Verificar que el proceso existe
-        from backend.app.models.proceso import Proceso
+        from app.models.proceso import Proceso
         proceso = db.query(Proceso).filter(Proceso.id == audiencia_data.proceso_id).first()
         if not proceso:
             raise HTTPException(status_code=400, detail=f"Proceso con ID {audiencia_data.proceso_id} no existe")
@@ -90,7 +90,7 @@ class AudienciaService:
         
         # Validar proceso si se está actualizando
         if 'proceso_id' in update_data:
-            from backend.app.models.proceso import Proceso
+            from app.models.proceso import Proceso
             proceso = db.query(Proceso).filter(Proceso.id == update_data['proceso_id']).first()
             if not proceso:
                 raise HTTPException(status_code=400, detail=f"Proceso con ID {update_data['proceso_id']} no existe")

@@ -4,8 +4,8 @@ Define qué acciones puede realizar cada rol.
 """
 
 from fastapi import Depends, HTTPException, status
-from backend.app.models.usuario import Usuario
-from backend.app.api.deps import get_current_user
+from app.models.usuario import Usuario
+from app.api.deps import get_current_user
 
 # Definición de permisos por rol
 ROLE_PERMISSIONS = {

@@ -10,9 +10,9 @@ from sqlalchemy.orm import Session
 # Agregar el directorio padre al path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from backend.app.core.database import SessionLocal
-from backend.app.models.proceso import Proceso
-from backend.app.models.usuario import Usuario
+from app.core.database import SessionLocal
+from app.models.proceso import Proceso
+from app.models.usuario import Usuario
 
 def create_sample_processes():
     """Crear procesos de prueba"""

@@ -3,7 +3,7 @@ Script para verificar que la migración se aplicó correctamente
 """
 import pymysql
 from sqlalchemy import text, create_engine
-from backend.app.core.config import Settings
+from app.core.config import Settings
 
 settings = Settings()
 DATABASE_URL = settings.database_url

@@ -2,9 +2,9 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
-from backend.app.core.database import get_db
-from backend.app.core.config import settings
-from backend.app.models.usuario import Usuario
+from app.core.database import get_db
+from app.core.config import settings
+from app.models.usuario import Usuario
 
 security = HTTPBearer()
 

@@ -1,6 +1,6 @@
 from sqlalchemy import Column, BigInteger, String, DateTime, Text, Index
 from sqlalchemy.sql import func
-from backend.app.core.database import Base
+from app.core.database import Base
 
 
 class Entidad(Base):

@@ -2,13 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import Optional
 
-from backend.app.api.dependencies import get_current_user, get_db
-from backend.app.schemas.notificacion import (
+from app.api.dependencies import get_current_user, get_db
+from app.schemas.notificacion import (
     NotificacionCreate, NotificacionUpdate, NotificacionResponse, 
     NotificacionList, EnviarNotificacionRequest, 
     EstadoNotificacionEnum, TipoNotificacionEnum, CanalNotificacionEnum
 )
-from backend.app.services.notificacion import NotificacionService
+from app.services.notificacion import NotificacionService
 
 router = APIRouter()
 
@@ -173,7 +173,7 @@ async def get_stats_notificaciones(
 
 
 # Importar servicio de notificaciones automáticas
-from backend.app.services.auto_notifications import AutoNotificationService
+from app.services.auto_notifications import AutoNotificationService
 
 @router.post("/auto-check", response_model=dict)
 async def ejecutar_notificaciones_automaticas(

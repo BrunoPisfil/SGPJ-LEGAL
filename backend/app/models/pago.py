@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, DECIMAL, DateTime, Text, Foreign
 from sqlalchemy.dialects.mysql import BIGINT, TIMESTAMP
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from backend.app.core.database import Base
+from app.core.database import Base
 from datetime import datetime, date
 
 class Pago(Base):
