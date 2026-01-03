@@ -8,6 +8,7 @@ engine = create_engine(
     echo=settings.debug,  # Log SQL queries en modo debug
     pool_pre_ping=True,   # Verificar conexiones antes de usarlas
     pool_recycle=300      # Reciclar conexiones cada 5 minutos
+    connect_args={"ssl": {"ssl_disabled": False}},
 )
 
 # Crear la clase SessionLocal
