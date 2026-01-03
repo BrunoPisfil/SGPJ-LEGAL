@@ -1,0 +1,21 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Balanza moderna -->
+  <circle cx="16" cy="16" r="15" fill="hsl(var(--primary))" stroke="hsl(var(--primary-foreground))" stroke-width="2"/>
+  
+  <!-- Base de la balanza -->
+  <line x1="16" y1="8" x2="16" y2="20" stroke="white" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Brazo horizontal -->
+  <line x1="10" y1="12" x2="22" y2="12" stroke="white" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Platos izquierdo -->
+  <circle cx="10" cy="15" r="3" fill="none" stroke="white" stroke-width="1.5"/>
+  <line x1="10" y1="12" x2="10" y2="15" stroke="white" stroke-width="1"/>
+  
+  <!-- Platos derecho -->
+  <circle cx="22" cy="15" r="3" fill="none" stroke="white" stroke-width="1.5"/>
+  <line x1="22" y1="12" x2="22" y2="15" stroke="white" stroke-width="1"/>
+  
+  <!-- Base -->
+  <line x1="12" y1="20" x2="20" y2="20" stroke="white" stroke-width="2" stroke-linecap="round"/>
+</svg>

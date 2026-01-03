@@ -1,0 +1,57 @@
+# Archivos de entorno
+.env
+.env.local
+.env.production
+
+# Cache de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Logs
+*.log
+
+# Base de datos local
+*.db
+*.sqlite3
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Documentos generados
+uploads/
+exports/
+
+# Testing
+.coverage
+.pytest_cache/
+htmlcov/
+
+# Alembic
+alembic/versions/*.py

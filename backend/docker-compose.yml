@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # Aplicación FastAPI
+  backend:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=mysql+pymysql://root:sgpj_password@mysql:3306/sgpj_legal
+      - DEBUG=True
+    depends_on:
+      - mysql
+    volumes:
+      - .:/app
+    networks:
+      - sgpj_network
+
+  # Base de datos MySQL
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: sgpj_password
+      MYSQL_DATABASE: sgpj_legal
+      MYSQL_USER: sgpj_user
+      MYSQL_PASSWORD: sgpj_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
+    networks:
+      - sgpj_network
+
+  # phpMyAdmin para administrar la BD
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: root
+      PMA_PASSWORD: sgpj_password
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+    networks:
+      - sgpj_network
+
+volumes:
+  mysql_data:
+
+networks:
+  sgpj_network:
+    driver: bridge
