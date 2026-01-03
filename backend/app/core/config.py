@@ -12,7 +12,10 @@ class Settings(BaseSettings):
     debug: bool = False
     
     # Base de datos
-    database_url: str = "mysql+pymysql://root:@localhost:3306/sgpj_legal"
+    database_url: str = os.getenv(
+        "DATABASE_URL",
+        "mysql+pymysql://root:@localhost:3306/sgpj_legal"
+    )
     db_host: str = "localhost"
     db_port: int = 3306
     db_user: str = "root"
