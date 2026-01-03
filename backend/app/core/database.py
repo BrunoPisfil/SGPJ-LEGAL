@@ -1,25 +1,22 @@
+import pymysql
+pymysql.install_as_MySQLdb()
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 from app.core.config import settings
 
-# Crear el engine de la base de datos
 engine = create_engine(
     settings.database_url,
-    echo=settings.debug,  # Log SQL queries en modo debug
-    pool_pre_ping=True,   # Verificar conexiones antes de usarlas
-    pool_recycle=300      # Reciclar conexiones cada 5 minutos
-    connect_args={"ssl": {"ssl_disabled": False}},
+    echo=settings.debug,
+    pool_pre_ping=True,
+    pool_recycle=300,          # <- OJO la coma aquí
+    connect_args={"ssl": {}},  # <- SSL para Aiven con PyMySQL
 )
 
-# Crear la clase SessionLocal
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Crear la clase Base para los modelos
 Base = declarative_base()
 
-
 def get_db():
-    """Generador de sesiones de base de datos"""
     db = SessionLocal()
     try:
         yield db
