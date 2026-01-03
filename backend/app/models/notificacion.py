@@ -2,7 +2,7 @@ from sqlalchemy import Column, BigInteger, String, DateTime, Text, Boolean, Fore
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from enum import Enum
-from app.core.database import Base
+from backend.app.core.database import Base
 
 
 class TipoNotificacion(str, Enum):

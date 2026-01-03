@@ -3,12 +3,12 @@ from sqlalchemy.orm import Session
 from typing import Optional
 from datetime import date
 
-from app.api.dependencies import get_current_user, get_db
-from app.schemas.audiencia import (
+from backend.app.api.dependencies import get_current_user, get_db
+from backend.app.schemas.audiencia import (
     AudienciaCreate, AudienciaUpdate, AudienciaResponse, AudienciaList
 )
-from app.services.audiencia import AudienciaService
-from app.api.permissions import require_permission
+from backend.app.services.audiencia import AudienciaService
+from backend.app.api.permissions import require_permission
 
 router = APIRouter()
 

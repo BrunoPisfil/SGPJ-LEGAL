@@ -9,7 +9,7 @@ import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from sqlalchemy import create_engine, text
-from app.core.config import settings
+from backend.app.core.config import settings
 
 def verificar_bitacora():
     """Verificar el contenido de la tabla bitacora_procesos"""

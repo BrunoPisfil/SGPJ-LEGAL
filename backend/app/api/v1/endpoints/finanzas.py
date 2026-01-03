@@ -5,16 +5,16 @@ from typing import Optional, List
 from datetime import datetime
 import uuid
 
-from app.core.database import get_db
-from app.models.contrato import Contrato
-from app.models.cliente import Cliente
-from app.models.proceso import Proceso
-from app.models.pago import Pago
-from app.schemas.contrato import (
+from backend.app.core.database import get_db
+from backend.app.models.contrato import Contrato
+from backend.app.models.cliente import Cliente
+from backend.app.models.proceso import Proceso
+from backend.app.models.pago import Pago
+from backend.app.schemas.contrato import (
     ContratoCreate, ContratoUpdate, Contrato as ContratoSchema,
     ContratoDetalle, ContratoStats, ContratoListResponse, ContratoSearch
 )
-from app.schemas.pago import PagoCreate, PagoUpdate, PagoSchema, PagoDetalle
+from backend.app.schemas.pago import PagoCreate, PagoUpdate, PagoSchema, PagoDetalle
 
 router = APIRouter()
 

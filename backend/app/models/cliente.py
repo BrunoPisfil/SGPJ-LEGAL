@@ -1,7 +1,7 @@
 from sqlalchemy import Column, BigInteger, String, DateTime, Boolean, Enum, Index
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-from app.core.database import Base
+from backend.app.core.database import Base
 
 
 class Cliente(Base):

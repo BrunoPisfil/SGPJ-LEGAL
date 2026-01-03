@@ -11,9 +11,9 @@ import time
 import logging
 from datetime import datetime
 
-from app.core.database import SessionLocal
-from app.services.auto_notifications import AutoNotificationService
-from app.core.config import settings
+from backend.app.core.database import SessionLocal
+from backend.app.services.auto_notifications import AutoNotificationService
+from backend.app.core.config import settings
 
 # Configurar logging
 logging.basicConfig(

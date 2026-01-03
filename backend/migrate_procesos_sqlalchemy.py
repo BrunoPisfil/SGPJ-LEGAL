@@ -9,8 +9,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
-from app.core.config import settings
-from app.core.database import get_db
+from backend.app.core.config import settings
+from backend.app.core.database import get_db
 
 def migrate_with_sqlalchemy():
     """Ejecutar migración usando SQLAlchemy"""

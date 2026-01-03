@@ -2,8 +2,8 @@
 
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_
-from app.models.directorio import Directorio
-from app.schemas.directorio import DirectorioCreate, DirectorioUpdate
+from backend.app.models.directorio import Directorio
+from backend.app.schemas.directorio import DirectorioCreate, DirectorioUpdate
 from typing import List, Optional
 
 

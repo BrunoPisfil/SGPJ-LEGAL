@@ -12,12 +12,12 @@ from datetime import datetime, timedelta
 from typing import List, Tuple
 import logging
 
-from app.core.config import settings
-from app.models.audiencia import Audiencia
-from app.models.proceso import Proceso
-from app.models.notificacion import Notificacion, TipoNotificacion, CanalNotificacion, EstadoNotificacion
-from app.services.notificacion import NotificacionService
-from app.schemas.notificacion import EnviarNotificacionRequest
+from backend.app.core.config import settings
+from backend.app.models.audiencia import Audiencia
+from backend.app.models.proceso import Proceso
+from backend.app.models.notificacion import Notificacion, TipoNotificacion, CanalNotificacion, EstadoNotificacion
+from backend.app.services.notificacion import NotificacionService
+from backend.app.schemas.notificacion import EnviarNotificacionRequest
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)

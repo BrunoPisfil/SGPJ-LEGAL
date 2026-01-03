@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_
 from typing import List, Optional
-from app.models.cliente import Cliente
-from app.schemas.cliente import ClienteCreate, ClienteUpdate, ClienteListParams
+from backend.app.models.cliente import Cliente
+from backend.app.schemas.cliente import ClienteCreate, ClienteUpdate, ClienteListParams
 
 
 class ClienteService:

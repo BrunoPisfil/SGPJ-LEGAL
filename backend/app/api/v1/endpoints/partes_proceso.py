@@ -6,10 +6,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 
-from app.core.database import get_db
-from app.models.parte_proceso import ParteProceso
-from app.models.proceso import Proceso
-from app.schemas.parte_proceso import (
+from backend.app.core.database import get_db
+from backend.app.models.parte_proceso import ParteProceso
+from backend.app.models.proceso import Proceso
+from backend.app.schemas.parte_proceso import (
     ParteProcesoCreate, 
     ParteProcesoUpdate, 
     ParteProcesoSchema,

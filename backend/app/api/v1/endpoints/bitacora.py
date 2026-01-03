@@ -6,16 +6,16 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 
-from app.core.database import get_db
-from app.models.bitacora_proceso import BitacoraProceso
-from app.models.usuario import Usuario
-from app.models.proceso import Proceso
-from app.schemas.bitacora_proceso import (
+from backend.app.core.database import get_db
+from backend.app.models.bitacora_proceso import BitacoraProceso
+from backend.app.models.usuario import Usuario
+from backend.app.models.proceso import Proceso
+from backend.app.schemas.bitacora_proceso import (
     BitacoraProcesoCreate, 
     BitacoraProcesoResponse, 
     BitacoraProcesoDetalle
 )
-from app.api.dependencies import get_current_user
+from backend.app.api.dependencies import get_current_user
 
 router = APIRouter()
 

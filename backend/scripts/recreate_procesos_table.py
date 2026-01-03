@@ -9,8 +9,8 @@ from sqlalchemy import text
 # Agregar el directorio padre al path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from app.core.database import SessionLocal, Base, engine
-from app.models.proceso import Proceso
+from backend.app.core.database import SessionLocal, Base, engine
+from backend.app.models.proceso import Proceso
 
 def recreate_procesos_table():
     """Recrear tabla procesos con nueva estructura"""
