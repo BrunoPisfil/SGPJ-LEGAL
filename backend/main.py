@@ -43,7 +43,6 @@ async def health_check():
     return {"status": "healthy", "service": settings.app_name}
 
 
-
 @app.get("/db-check")
 async def db_check():
     with engine.connect() as conn:
