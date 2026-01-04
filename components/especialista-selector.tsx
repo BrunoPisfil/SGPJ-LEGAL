@@ -26,78 +26,7 @@ interface EspecialistaSelectorProps {
 
 // Mock data - En el futuro esto vendrá de una API
 const mockEspecialistas: Especialista[] = [
-  {
-    id: 1,
-    nombres: "María Elena",
-    apellidos: "López García",
-    cargo: "Juez",
-    juzgado: "1º Juzgado Civil de Lima",
-    telefono: "01-4268000",
-    email: "mlopez@pj.gob.pe"
-  },
-  {
-    id: 2,
-    nombres: "Carlos Alberto",
-    apellidos: "Mendoza Silva",
-    cargo: "Especialista Judicial",
-    juzgado: "2º Juzgado Civil de Lima",
-    telefono: "01-4268000",
-    email: "cmendoza@pj.gob.pe"
-  },
-  {
-    id: 3,
-    nombres: "Ana Sofía",
-    apellidos: "Torres Vega",
-    cargo: "Juez",
-    juzgado: "1º Juzgado Laboral de Lima",
-    telefono: "01-4268000",
-    email: "atorres@pj.gob.pe"
-  },
-  {
-    id: 4,
-    nombres: "Roberto",
-    apellidos: "Díaz Ruiz",
-    cargo: "Especialista Judicial",
-    juzgado: "3º Juzgado Civil de Lima",
-    telefono: "01-4268000",
-    email: "rdiaz@pj.gob.pe"
-  },
-  {
-    id: 5,
-    nombres: "Patricia Isabel",
-    apellidos: "Vega Morales",
-    cargo: "Juez",
-    juzgado: "2º Juzgado Laboral del Callao",
-    telefono: "01-4291000",
-    email: "pvega@pj.gob.pe"
-  },
-  {
-    id: 6,
-    nombres: "Luis Fernando",
-    apellidos: "Ramírez Castro",
-    cargo: "Especialista Judicial",
-    juzgado: "1º Juzgado Comercial de Lima",
-    telefono: "01-4268000",
-    email: "lramirez@pj.gob.pe"
-  },
-  {
-    id: 7,
-    nombres: "Carmen Rosa",
-    apellidos: "Flores Huamán",
-    cargo: "Juez",
-    juzgado: "1º Juzgado Penal de Lima",
-    telefono: "01-4268000",
-    email: "cflores@pj.gob.pe"
-  },
-  {
-    id: 8,
-    nombres: "Miguel Ángel",
-    apellidos: "Sánchez Paredes",
-    cargo: "Especialista Judicial",
-    juzgado: "2º Juzgado Penal de Lima",
-    telefono: "01-4268000",
-    email: "msanchez@pj.gob.pe"
-  }
+ 
 ]
 
 export function EspecialistaSelector({ selectedEspecialistaId, onEspecialistaSelect, trigger }: EspecialistaSelectorProps) {
