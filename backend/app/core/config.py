@@ -53,7 +53,9 @@ class Settings(BaseSettings):
     smtp_use_tls: bool = True
     
     # Email configuration
-    email_from: str = "noreply@sgpj-legal.com"
+    # Para producción, usa onboarding@resend.dev (dominio de prueba)
+    # Una vez verifiques tu dominio en Resend, cambia a noreply@tundominio.com
+    email_from: str = "onboarding@resend.dev"
     email_from_name: str = "Pisfil Leon Abogados & Asociados"
     
     # Configuración de SMS (Twilio) - Opcional
