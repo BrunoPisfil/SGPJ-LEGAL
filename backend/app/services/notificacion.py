@@ -12,16 +12,6 @@ from app.models.proceso import Proceso
 from app.schemas.notificacion import NotificacionCreate, NotificacionUpdate, EnviarNotificacionRequest
 from app.core.config import settings
 
-# Intentar importar Resend, si no está disponible usar SMTP
-try:
-    from resend import Resend
-    RESEND_AVAILABLE = True
-except ImportError:
-    RESEND_AVAILABLE = False
-    import smtplib
-    from email.mime.multipart import MIMEMultipart
-    from email.mime.text import MIMEText
-
 # Configurar logging
 logger = logging.getLogger(__name__)
 
@@ -161,6 +151,7 @@ class NotificacionService:
             
             # Intentar enviar la notificación
             try:
+                logger.info(f"[NOTIF] Enviando por canal={canal} a {request.email_destinatario or request.telefono_destinatario}")
                 if canal == CanalNotificacion.EMAIL:
                     NotificacionService._enviar_email(notificacion, audiencia, proceso)
                 elif canal == CanalNotificacion.SMS:
@@ -175,8 +166,10 @@ class NotificacionService:
                         fecha_envio=datetime.now()
                     )
                 )
+                logger.info(f"[NOTIF] Notificación enviada exitosamente")
                 
             except Exception as e:
+                logger.error(f"[NOTIF] Error al enviar notificación: {e}", exc_info=True)
                 # Marcar como error
                 NotificacionService.update(
                     db,
@@ -266,9 +259,12 @@ class NotificacionService:
         </html>
         """
 
-        # Usar Resend si está disponible (producción en Vercel)
-        if RESEND_AVAILABLE and settings.resend_api_key:
+        # Usar Resend si la API key está configurada
+        if settings.resend_api_key:
             try:
+                logger.info(f"[EMAIL] Intentando usar Resend para {notificacion.email_destinatario}")
+                from resend import Resend
+                
                 client = Resend(api_key=settings.resend_api_key)
                 response = client.emails.send({
                     "from": f"{settings.email_from_name} <{settings.email_from}>",
@@ -277,15 +273,18 @@ class NotificacionService:
                     "html": html_body,
                     "text": notificacion.mensaje
                 })
-                logger.info(f"Email enviado mediante Resend: {response}")
+                logger.info(f"[EMAIL] Resend response: {response}")
                 return
+            except ImportError:
+                logger.warning("[EMAIL] Resend no está instalado, intentando SMTP...")
             except Exception as e:
-                logger.error(f"Error al enviar email con Resend: {e}")
-                # Continuar con SMTP fallback
+                logger.error(f"[EMAIL] Error al enviar email con Resend: {e}", exc_info=True)
+                raise
         
         # Fallback a SMTP (desarrollo local)
+        logger.info(f"[EMAIL] Usando SMTP fallback para {notificacion.email_destinatario}")
         if not settings.smtp_username or not settings.smtp_password:
-            raise ValueError("Credenciales SMTP ni Resend configuradas")
+            raise ValueError("RESEND_API_KEY y credenciales SMTP no configuradas")
         
         try:
             import smtplib
