@@ -5,6 +5,7 @@ from datetime import datetime
 from fastapi import HTTPException
 import json
 import logging
+import httpx
 
 from app.models.notificacion import Notificacion, TipoNotificacion, CanalNotificacion, EstadoNotificacion
 from app.models.audiencia import Audiencia
@@ -262,23 +263,38 @@ class NotificacionService:
         # Usar Resend si la API key está configurada
         if settings.resend_api_key:
             try:
-                logger.info(f"[EMAIL] Intentando usar Resend para {notificacion.email_destinatario}")
-                from resend import Resend
+                logger.info(f"[EMAIL] Enviando con Resend API para {notificacion.email_destinatario}")
                 
-                client = Resend(api_key=settings.resend_api_key)
-                response = client.emails.send({
+                # Llamar directamente a la API REST de Resend
+                headers = {
+                    "Authorization": f"Bearer {settings.resend_api_key}",
+                    "Content-Type": "application/json"
+                }
+                
+                payload = {
                     "from": f"{settings.email_from_name} <{settings.email_from}>",
                     "to": notificacion.email_destinatario,
                     "subject": notificacion.titulo,
                     "html": html_body,
                     "text": notificacion.mensaje
-                })
-                logger.info(f"[EMAIL] Resend response: {response}")
-                return
-            except ImportError:
-                logger.warning("[EMAIL] Resend no está instalado, intentando SMTP...")
+                }
+                
+                response = httpx.post(
+                    "https://api.resend.com/emails",
+                    headers=headers,
+                    json=payload,
+                    timeout=10
+                )
+                
+                if response.status_code == 200:
+                    logger.info(f"[EMAIL] Email enviado exitosamente con Resend: {response.text}")
+                    return
+                else:
+                    logger.error(f"[EMAIL] Error de Resend ({response.status_code}): {response.text}")
+                    raise Exception(f"Resend API error: {response.status_code} - {response.text}")
+                    
             except Exception as e:
-                logger.error(f"[EMAIL] Error al enviar email con Resend: {e}", exc_info=True)
+                logger.error(f"[EMAIL] Error al enviar con Resend: {e}", exc_info=True)
                 raise
         
         # Fallback a SMTP (desarrollo local)

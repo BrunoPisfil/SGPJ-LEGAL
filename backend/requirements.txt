@@ -35,9 +35,6 @@ reportlab==4.0.7
 # Cliente HTTP
 httpx==0.25.2
 
-# Email
-resend
-
 # Testing
 pytest==7.4.3
 pytest-asyncio==0.21.1
