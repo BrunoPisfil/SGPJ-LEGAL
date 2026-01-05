@@ -39,13 +39,20 @@ class Settings(BaseSettings):
         "https://sgpj-legal.vercel.app",       # 👈 si ese es tu front
     ]
     
-    # Configuración de Email (SMTP)
+    # Configuración de Email (SMTP o Resend)
     email_enabled: bool = True
+    
+    # Resend (para producción en Vercel)
+    resend_api_key: str = ""
+    
+    # SMTP (para desarrollo local)
     smtp_server: str = "smtp.gmail.com"
     smtp_port: int = 587
     smtp_username: str = ""
     smtp_password: str = ""
     smtp_use_tls: bool = True
+    
+    # Email configuration
     email_from: str = "noreply@sgpj-legal.com"
     email_from_name: str = "Pisfil Leon Abogados & Asociados"
     

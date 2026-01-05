@@ -136,15 +136,23 @@ async def create_contrato(
     db: Session = Depends(get_db)
 ):
     """Crear nuevo contrato"""
-    # El cliente_id viene del directorio
-    cliente = db.query(Directorio).filter(Directorio.id == contrato_data.cliente_id).first()
+    # El cliente_id viene del directorio (debe ser tipo='cliente')
+    cliente = db.query(Directorio).filter(
+        Directorio.id == contrato_data.cliente_id,
+        Directorio.tipo == 'cliente',
+        Directorio.activo == True
+    ).first()
+    
     if not cliente:
-        raise HTTPException(status_code=404, detail="Cliente no encontrado en directorio")
+        raise HTTPException(
+            status_code=404, 
+            detail=f"Cliente con ID {contrato_data.cliente_id} no encontrado en directorio o no está activo"
+        )
     
     # Verificar que el proceso existe
     proceso = db.query(Proceso).filter(Proceso.id == contrato_data.proceso_id).first()
     if not proceso:
-        raise HTTPException(status_code=404, detail="Proceso no encontrado")
+        raise HTTPException(status_code=404, detail=f"Proceso con ID {contrato_data.proceso_id} no encontrado")
     
     # Generar código único
     codigo = generate_contrato_code()
@@ -160,11 +168,17 @@ async def create_contrato(
         notas=contrato_data.notas
     )
     
-    db.add(db_contrato)
-    db.commit()
-    db.refresh(db_contrato)
-    
-    return db_contrato
+    try:
+        db.add(db_contrato)
+        db.commit()
+        db.refresh(db_contrato)
+        return db_contrato
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=400,
+            detail=f"Error al crear contrato: {str(e)}"
+        )
 
 
 @router.get("/contratos/stats", response_model=ContratoStats)

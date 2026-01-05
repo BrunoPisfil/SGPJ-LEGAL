@@ -4,15 +4,26 @@ from typing import Optional, List
 from datetime import datetime
 from fastapi import HTTPException
 import json
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+import logging
 
 from app.models.notificacion import Notificacion, TipoNotificacion, CanalNotificacion, EstadoNotificacion
 from app.models.audiencia import Audiencia
 from app.models.proceso import Proceso
 from app.schemas.notificacion import NotificacionCreate, NotificacionUpdate, EnviarNotificacionRequest
 from app.core.config import settings
+
+# Intentar importar Resend, si no está disponible usar SMTP
+try:
+    from resend import Resend
+    RESEND_AVAILABLE = True
+except ImportError:
+    RESEND_AVAILABLE = False
+    import smtplib
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
+
+# Configurar logging
+logger = logging.getLogger(__name__)
 
 
 class NotificacionService:
@@ -210,17 +221,14 @@ class NotificacionService:
 
     @staticmethod
     def _enviar_email(notificacion: Notificacion, audiencia: Audiencia, proceso: Proceso):
-        """Enviar notificación por email"""
+        """Enviar notificación por email usando Resend o SMTP fallback"""
         if not settings.email_enabled:
             raise ValueError("El envío de emails está deshabilitado")
             
         if not notificacion.email_destinatario:
             raise ValueError("Email destinatario no especificado")
 
-        if not settings.smtp_username or not settings.smtp_password:
-            raise ValueError("Credenciales SMTP no configuradas")
-
-        # Crear el mensaje HTML más completo
+        # Crear el mensaje HTML
         html_body = f"""
         <!DOCTYPE html>
         <html>
@@ -258,22 +266,51 @@ class NotificacionService:
         </html>
         """
 
-        # Crear el mensaje
-        msg = MIMEMultipart('alternative')
-        msg['From'] = f"{settings.email_from_name} <{settings.email_from}>"
-        msg['To'] = notificacion.email_destinatario
-        msg['Subject'] = notificacion.titulo
+        # Usar Resend si está disponible (producción en Vercel)
+        if RESEND_AVAILABLE and settings.resend_api_key:
+            try:
+                client = Resend(api_key=settings.resend_api_key)
+                response = client.emails.send({
+                    "from": f"{settings.email_from_name} <{settings.email_from}>",
+                    "to": notificacion.email_destinatario,
+                    "subject": notificacion.titulo,
+                    "html": html_body,
+                    "text": notificacion.mensaje
+                })
+                logger.info(f"Email enviado mediante Resend: {response}")
+                return
+            except Exception as e:
+                logger.error(f"Error al enviar email con Resend: {e}")
+                # Continuar con SMTP fallback
         
-        # Agregar versión texto plano y HTML
-        msg.attach(MIMEText(notificacion.mensaje, 'plain', 'utf-8'))
-        msg.attach(MIMEText(html_body, 'html', 'utf-8'))
+        # Fallback a SMTP (desarrollo local)
+        if not settings.smtp_username or not settings.smtp_password:
+            raise ValueError("Credenciales SMTP ni Resend configuradas")
         
-        # Enviar el email
-        with smtplib.SMTP(settings.smtp_server, settings.smtp_port) as server:
-            if settings.smtp_use_tls:
-                server.starttls()
-            server.login(settings.smtp_username, settings.smtp_password)
-            server.send_message(msg)
+        try:
+            import smtplib
+            from email.mime.multipart import MIMEMultipart
+            from email.mime.text import MIMEText
+            
+            msg = MIMEMultipart('alternative')
+            msg['From'] = f"{settings.email_from_name} <{settings.email_from}>"
+            msg['To'] = notificacion.email_destinatario
+            msg['Subject'] = notificacion.titulo
+            
+            # Agregar versión texto plano y HTML
+            msg.attach(MIMEText(notificacion.mensaje, 'plain', 'utf-8'))
+            msg.attach(MIMEText(html_body, 'html', 'utf-8'))
+            
+            # Enviar el email
+            with smtplib.SMTP(settings.smtp_server, settings.smtp_port) as server:
+                if settings.smtp_use_tls:
+                    server.starttls()
+                server.login(settings.smtp_username, settings.smtp_password)
+                server.send_message(msg)
+            logger.info(f"Email enviado mediante SMTP a {notificacion.email_destinatario}")
+        except Exception as e:
+            logger.error(f"Error al enviar email con SMTP: {e}")
+            raise
 
     @staticmethod
     def _enviar_sms(notificacion: Notificacion, audiencia: Audiencia, proceso: Proceso):
