@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Mail, MessageSquare, Bell, Send } from "lucide-react"
 import {
   Dialog,
@@ -18,6 +18,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { type EnviarNotificacionRequest } from "@/lib/notificaciones"
+import { useAuth } from "@/hooks/use-auth"
 
 interface NotificationDialogProps {
   audienciaId: number
@@ -32,12 +33,20 @@ export function NotificationDialog({
   onSend,
   children,
 }: NotificationDialogProps) {
+  const { user } = useAuth()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [canales, setCanales] = useState<string[]>(['sistema', 'email'])
-  const [email, setEmail] = useState("bunopisfil11@gmail.com")
+  const [email, setEmail] = useState("")
   const [telefono, setTelefono] = useState("")
   const [mensajePersonalizado, setMensajePersonalizado] = useState("")
+
+  // Llenar el email del usuario autenticado cuando se abre el diálogo
+  useEffect(() => {
+    if (user?.email && open) {
+      setEmail(user.email)
+    }
+  }, [user, open])
 
   const handleChannelChange = (canal: string, checked: boolean) => {
     if (checked) {
@@ -67,7 +76,7 @@ export function NotificationDialog({
       
       // Reset form
       setCanales(['sistema', 'email'])
-      setEmail("bunopisfil11@gmail.com")
+      setEmail(user?.email || "")
       setTelefono("")
       setMensajePersonalizado("")
       
@@ -92,25 +101,6 @@ export function NotificationDialog({
         </DialogHeader>
         
           <div className="space-y-6 py-4">
-          {/* Modo de prueba rápida */}
-          <div className="bg-blue-50 dark:bg-blue-950 p-3 rounded-lg border">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-800 dark:text-blue-200">Modo de Prueba</p>
-                <p className="text-xs text-blue-600 dark:text-blue-400">
-                  Email configurado: bunopisfil11@gmail.com
-                </p>
-              </div>
-              <Button 
-                size="sm" 
-                onClick={handleSend}
-                disabled={loading}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                {loading ? "Enviando..." : "Enviar Prueba"}
-              </Button>
-            </div>
-          </div>
           
           {/* Selección de canales */}
           <div className="space-y-3">

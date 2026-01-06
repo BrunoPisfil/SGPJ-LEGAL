@@ -11,6 +11,7 @@ import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/hooks/use-auth"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { apiClient } from "@/lib/api"
 
 export default function ConfiguracionPage() {
   const { toast } = useToast()
@@ -22,7 +23,6 @@ export default function ConfiguracionPage() {
     nombre: "",
     email: "",
     telefono: "",
-    cargo: "",
   })
 
   // Firm settings - Datos del estudio (pueden venir de una tabla de configuración)
@@ -61,7 +61,6 @@ export default function ConfiguracionPage() {
         nombre: user.nombre || "",
         email: user.email || "",
         telefono: user.telefono || "",
-        cargo: user.rol || "", // Usar el rol como cargo
       })
       
       // TODO: Aquí podrías cargar los datos del estudio desde una API
@@ -79,11 +78,11 @@ export default function ConfiguracionPage() {
   const handleSaveProfile = async () => {
     setIsLoading(true)
     try {
-      // Aquí iría una llamada a una API para actualizar el perfil del usuario
-      // await userAPI.updateProfile(profileData)
-      
-      // Por ahora, solo mostrar un toast de éxito (simulado)
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Llamar a la API para actualizar el perfil del usuario
+      await apiClient.put('/usuarios/profile', {
+        nombre: profileData.nombre,
+        telefono: profileData.telefono,
+      })
       
       toast({
         title: "Perfil actualizado",
@@ -245,14 +244,6 @@ export default function ConfiguracionPage() {
                     id="nombre"
                     value={profileData.nombre}
                     onChange={(e) => setProfileData({ ...profileData, nombre: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="cargo">Cargo</Label>
-                  <Input
-                    id="cargo"
-                    value={profileData.cargo}
-                    onChange={(e) => setProfileData({ ...profileData, cargo: e.target.value })}
                   />
                 </div>
               </div>

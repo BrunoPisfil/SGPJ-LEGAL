@@ -92,7 +92,7 @@ export default function DashboardPage() {
       <div className="space-y-4 sm:space-y-6">
         <div className="text-center py-8 sm:py-12">
           <Loader className="h-6 w-6 sm:h-8 sm:w-8 animate-spin mx-auto mb-4" />
-          <h2 className="text-base sm:text-lg font-semibold">Cargando dashboard...</h2>
+          <h2 className="text-base sm:text-lg font-semibold">Cargando panel...</h2>
         </div>
       </div>
     )
@@ -102,7 +102,7 @@ export default function DashboardPage() {
     <div className="space-y-4 sm:space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Dashboard</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Panel</h1>
         <p className="text-sm sm:text-base text-muted-foreground mt-1">Resumen general del sistema de gestión judicial</p>
       </div>
 
