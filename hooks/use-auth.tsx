@@ -65,8 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(response.user);
       // Limpiar estado de sesión expirada
       setSessionExpired(false);
-      // Delay más largo para asegurar que el estado se sincronice antes del redirect
-      await new Promise(resolve => setTimeout(resolve, 300));
+      // El usuario ya está cargado del response, no necesita delay adicional
     } catch (error) {
       console.error('Error en login:', error);
       throw error;

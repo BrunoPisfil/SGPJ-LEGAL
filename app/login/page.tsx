@@ -41,8 +41,8 @@ export default function LoginPage() {
         description: `Sesión iniciada como ${response.user.nombre}`,
       })
       
-      // Pequeño delay adicional para asegurar que el contexto de autenticación esté completamente actualizado
-      await new Promise(resolve => setTimeout(resolve, 400))
+      // Pequeño delay para asegurar que el estado se actualice
+      await new Promise(resolve => setTimeout(resolve, 100))
       
       // Redirigir según el rol
       const redirectPath = response.user.rol === 'practicante' ? '/procesos' : '/dashboard'

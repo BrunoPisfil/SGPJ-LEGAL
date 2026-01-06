@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 
 const navItemsConfig = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, resource: "dashboard" },
+  { title: "Panel", url: "/dashboard", icon: LayoutDashboard, resource: "dashboard" },
   { title: "Procesos", url: "/procesos", icon: FileText, resource: "procesos" },
   { title: "Audiencias", url: "/audiencias", icon: Calendar, resource: "audiencias" },
   { title: "Resoluciones", url: "/resoluciones", icon: Gavel, resource: "resoluciones" },
@@ -30,12 +30,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [showLoadingSpinner, setShowLoadingSpinner] = useState(false)
 
-  // Solo mostrar el spinner después de 300ms de loading
+  // Solo mostrar el spinner después de 100ms de loading (para evitar parpadeos)
   useEffect(() => {
     if (isLoading || authLoading) {
       const timer = setTimeout(() => {
         setShowLoadingSpinner(true)
-      }, 300)
+      }, 100)
       return () => clearTimeout(timer)
     } else {
       setShowLoadingSpinner(false)
@@ -46,6 +46,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const visibleNavItems = !isLoading && !authLoading ? navItemsConfig.filter(item => 
     hasPermission(item.resource, 'read')
   ) : []
+
+  // No mostrar datos del usuario hasta que estén cargados
+  const userLoaded = !authLoading && user !== null
 
   const handleLogout = () => {
     logout()
@@ -147,18 +150,40 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <DropdownMenuTrigger asChild>
                 <button className="w-full flex items-center gap-2 sm:gap-3 rounded-lg px-2 sm:px-3 py-2 sm:py-2.5 hover:bg-accent transition-colors cursor-pointer">
                   <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-xs sm:text-sm font-semibold text-primary">{user?.nombre?.substring(0, 2).toUpperCase() || "AD"}</span>
+                    {userLoaded ? (
+                      <span className="text-xs sm:text-sm font-semibold text-primary">{user?.nombre?.substring(0, 2).toUpperCase()}</span>
+                    ) : (
+                      <div className="h-4 w-4 bg-primary/30 rounded animate-pulse" />
+                    )}
                   </div>
                   <div className="flex-1 min-w-0 hidden sm:block text-left">
-                    <p className="text-xs sm:text-sm font-medium truncate">{user?.nombre || "Admin Usuario"}</p>
-                    <p className="text-xs text-muted-foreground truncate">{getRolDisplay(user?.rol)}</p>
+                    {userLoaded ? (
+                      <>
+                        <p className="text-xs sm:text-sm font-medium truncate">{user?.nombre}</p>
+                        <p className="text-xs text-muted-foreground truncate">{getRolDisplay(user?.rol)}</p>
+                      </>
+                    ) : (
+                      <>
+                        <div className="h-3 w-20 bg-muted rounded animate-pulse" />
+                        <div className="h-2 w-16 bg-muted rounded animate-pulse mt-1" />
+                      </>
+                    )}
                   </div>
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <div className="px-2 py-1.5 text-sm">
-                  <p className="font-semibold">{user?.nombre || "Usuario"}</p>
-                  <p className="text-xs text-muted-foreground">{user?.email || ""}</p>
+                  {userLoaded ? (
+                    <>
+                      <p className="font-semibold">{user?.nombre}</p>
+                      <p className="text-xs text-muted-foreground">{user?.email}</p>
+                    </>
+                  ) : (
+                    <>
+                      <div className="h-3 w-24 bg-muted rounded animate-pulse" />
+                      <div className="h-2 w-32 bg-muted rounded animate-pulse mt-1" />
+                    </>
+                  )}
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
