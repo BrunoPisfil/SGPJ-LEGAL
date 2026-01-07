@@ -75,9 +75,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <>
-      {/* No renderizar en servidor para evitar mismatch de hidratación */}
-      {!isMounted ? null : (
-        <>
       {/* Mobile Menu Button - Solo en móvil */}
       <div className="fixed top-4 left-4 z-50 md:hidden">
         <Button
@@ -98,6 +95,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         )}
       >
+        {isMounted ? (
         <div className="flex h-full flex-col">
           {/* Logo */}
           <div className="flex flex-col items-center gap-3 border-b border-border px-4 py-4 sm:px-6">
@@ -209,10 +207,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </DropdownMenu>
           </div>
         </div>
+        ) : (
+          <div className="w-full h-full" />
+        )}
       </aside>
 
       {/* Backdrop - Solo en móvil */}
-      {isMobileOpen && (
+      {isMounted && isMobileOpen && (
         <div
           className="fixed inset-0 z-30 bg-black/50 md:hidden"
           onClick={() => setIsMobileOpen(false)}
