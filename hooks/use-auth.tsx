@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, ReactNode, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { authAPI, User, LoginRequest, RegisterRequest } from '@/lib/auth';
 import { setUnauthorizedHandler } from '@/lib/api';
 
@@ -20,6 +21,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [sessionExpired, setSessionExpired] = useState(false);
@@ -81,10 +83,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       registerUnauthorizedHandler();
       // Limpiar estado de sesión expirada
       setSessionExpired(false);
-      // Recargar la página después de login para asegurar hidratación correcta
-      setTimeout(() => {
-        window.location.href = '/dashboard';
-      }, 100);
+      // Redirigir a dashboard después del login
+      router.push('/dashboard');
     } catch (error) {
       console.error('Error en login:', error);
       throw error;
