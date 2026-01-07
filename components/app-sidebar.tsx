@@ -75,7 +75,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       'abogado': 'Abogado',
       'asistente': 'Asistente',
       'cliente': 'Cliente',
-      'practicante': 'Practicante'
+      'practicante': 'Pc'
     }
     return rolMap[rol.toLowerCase()] || rol
   }
