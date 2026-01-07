@@ -41,12 +41,11 @@ export default function LoginPage() {
         description: `Sesión iniciada como ${response.user.nombre}`,
       })
       
-      // Pequeño delay para asegurar que el estado se actualice
-      await new Promise(resolve => setTimeout(resolve, 100))
-      
-      // Redirigir según el rol
+      // Usar location.href en lugar de router.push para forzar un refresh
+      // Esto asegura que el contexto esté completamente sincronizado
+      await new Promise(resolve => setTimeout(resolve, 500))
       const redirectPath = response.user.rol === 'practicante' ? '/procesos' : '/dashboard'
-      router.push(redirectPath)
+      window.location.href = redirectPath
     } catch (error) {
       toast({
         title: "Error",

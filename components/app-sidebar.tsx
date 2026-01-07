@@ -28,39 +28,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { hasPermission, isLoading } = usePermission()
   const { user, isLoading: authLoading, logout } = useAuth()
   const [isMobileOpen, setIsMobileOpen] = useState(false)
-  const [showLoadingSpinner, setShowLoadingSpinner] = useState(false)
-  const [prevUserId, setPrevUserId] = useState<string | null>(null)
 
-  // Detectar cambio de usuario y resetear estados
-  useEffect(() => {
-    const currentUserId = user?.id || null
-    if (prevUserId !== currentUserId) {
-      setPrevUserId(currentUserId)
-      // Cerrar sidebar móvil si estaba abierto
-      setIsMobileOpen(false)
-      console.log(`👤 Cambio de usuario detectado: ${prevUserId} → ${currentUserId}`)
-    }
-  }, [user?.id, prevUserId])
-
-  // Solo mostrar el spinner después de 100ms de loading (para evitar parpadeos)
-  useEffect(() => {
-    if (isLoading || authLoading) {
-      const timer = setTimeout(() => {
-        setShowLoadingSpinner(true)
-      }, 100)
-      return () => clearTimeout(timer)
-    } else {
-      setShowLoadingSpinner(false)
-    }
-  }, [isLoading, authLoading])
-
-  // Filtrar items según permisos (solo si está cargado)
-  const visibleNavItems = !isLoading && !authLoading ? navItemsConfig.filter(item => 
-    hasPermission(item.resource, 'read')
-  ) : []
-
-  // No mostrar datos del usuario hasta que estén cargados
-  const userLoaded = !authLoading && user !== null
+  // No mostrar datos del usuario hasta que estén completamente cargados
+  const userReady = !authLoading && user !== null
+  const navigationReady = !isLoading && !authLoading
 
   const handleLogout = () => {
     logout()
@@ -163,14 +134,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <DropdownMenuTrigger asChild>
                 <button className="w-full flex items-center gap-2 sm:gap-3 rounded-lg px-2 sm:px-3 py-2 sm:py-2.5 hover:bg-accent transition-colors cursor-pointer">
                   <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    {userLoaded ? (
+                    {userReady ? (
                       <span className="text-xs sm:text-sm font-semibold text-primary">{user?.nombre?.substring(0, 2).toUpperCase()}</span>
                     ) : (
                       <div className="h-4 w-4 bg-primary/30 rounded animate-pulse" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0 hidden sm:block text-left">
-                    {userLoaded ? (
+                    {userReady ? (
                       <>
                         <p className="text-xs sm:text-sm font-medium truncate">{user?.nombre}</p>
                         <p className="text-xs text-muted-foreground truncate">{getRolDisplay(user?.rol)}</p>
@@ -186,7 +157,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <div className="px-2 py-1.5 text-sm">
-                  {userLoaded ? (
+                  {userReady ? (
                     <>
                       <p className="font-semibold">{user?.nombre}</p>
                       <p className="text-xs text-muted-foreground">{user?.email}</p>
