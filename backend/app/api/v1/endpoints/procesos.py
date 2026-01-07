@@ -263,7 +263,7 @@ async def delete_proceso(
     db: Session = Depends(get_db),
     current_user: Usuario = Depends(require_permission("procesos", "delete"))
 ):
-    """Eliminar proceso - Solo admin puede eliminar"""
+    """Eliminar proceso y todas sus dependencias"""
     proceso = db.query(Proceso).filter(Proceso.id == proceso_id).first()
     
     if not proceso:
@@ -276,7 +276,14 @@ async def delete_proceso(
             detail="No tiene permisos para eliminar este proceso"
         )
     
-    db.delete(proceso)
-    db.commit()
-    
-    return {"message": "Proceso eliminado correctamente"}
+    try:
+        # El cascade="all, delete-orphan" en las relaciones se encargará de eliminar las dependencias
+        db.delete(proceso)
+        db.commit()
+        return {"message": f"Proceso {proceso.expediente} y todas sus dependencias eliminados correctamente"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=400,
+            detail=f"Error al eliminar el proceso: {str(e)}"
+        )

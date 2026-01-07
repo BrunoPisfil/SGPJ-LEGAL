@@ -168,11 +168,11 @@ export default function ConfiguracionPage() {
 
     setIsLoading(true)
     try {
-      // Aquí iría una llamada a una API para cambiar la contraseña
-      // await authAPI.changePassword(passwordData.currentPassword, passwordData.newPassword)
-      
-      // Por ahora, solo mostrar un toast de éxito (simulado)
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Llamar a la API para cambiar la contraseña
+      await apiClient.post('/usuarios/change-password', {
+        current_password: passwordData.currentPassword,
+        new_password: passwordData.newPassword,
+      })
       
       toast({
         title: "Contraseña actualizada",
@@ -188,7 +188,7 @@ export default function ConfiguracionPage() {
     } catch (error) {
       toast({
         title: "Error",
-        description: "No se pudo cambiar la contraseña. Verifica tu contraseña actual.",
+        description: error instanceof Error ? error.message : "No se pudo cambiar la contraseña. Verifica tu contraseña actual.",
         variant: "destructive",
       })
     } finally {

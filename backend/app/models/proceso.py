@@ -59,9 +59,9 @@ class Proceso(Base):
     abogado_responsable = relationship("Usuario", foreign_keys=[abogado_responsable_id])
     juzgado = relationship("Juzgado", foreign_keys=[juzgado_id])
     especialista = relationship("Especialista", foreign_keys=[especialista_id])
-    audiencias = relationship("Audiencia", back_populates="proceso")
-    notificaciones = relationship("Notificacion", back_populates="proceso")
-    contratos = relationship("Contrato", back_populates="proceso")
+    audiencias = relationship("Audiencia", back_populates="proceso", cascade="all, delete-orphan")
+    notificaciones = relationship("Notificacion", back_populates="proceso", cascade="all, delete-orphan")
+    contratos = relationship("Contrato", back_populates="proceso", cascade="all, delete-orphan")
     resoluciones = relationship("Resolucion", back_populates="proceso", cascade="all, delete-orphan")
     
     # Relación con las partes del proceso (nueva estructura)

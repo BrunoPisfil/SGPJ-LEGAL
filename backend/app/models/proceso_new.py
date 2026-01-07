@@ -59,11 +59,11 @@ class Proceso(Base):
     # Relación con las partes del proceso (nueva estructura)
     partes = relationship("ParteProceso", back_populates="proceso", cascade="all, delete-orphan")
     
-    # Relaciones existentes
-    audiencias = relationship("Audiencia", back_populates="proceso")
-    notificaciones = relationship("Notificacion", back_populates="proceso")
-    contratos = relationship("Contrato", back_populates="proceso")
-    resoluciones = relationship("Resolucion", back_populates="proceso")
+    # Relaciones existentes con cascade para eliminar dependencias
+    audiencias = relationship("Audiencia", back_populates="proceso", cascade="all, delete-orphan")
+    notificaciones = relationship("Notificacion", back_populates="proceso", cascade="all, delete-orphan")
+    contratos = relationship("Contrato", back_populates="proceso", cascade="all, delete-orphan")
+    resoluciones = relationship("Resolucion", back_populates="proceso", cascade="all, delete-orphan")
 
     @property
     def demandantes(self):
