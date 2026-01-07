@@ -16,17 +16,14 @@ class ContratoBase(BaseModel):
     cliente_id: int = Field(..., description="ID del cliente")
     proceso_id: int = Field(..., description="ID del proceso")
     monto_total: Decimal = Field(..., ge=0, description="Monto total del contrato")
-    monto_inicial: Decimal = Field(default=Decimal('0.00'), ge=0, description="Monto inicial/adelanto/seña")
-    monto_pagado: Decimal = Field(default=Decimal('0.00'), ge=0, description="Monto pagado (sin incluir inicial)")
+    monto_pagado: Decimal = Field(default=Decimal('0.00'), ge=0, description="Monto pagado")
     estado: EstadoContrato = Field(default=EstadoContrato.activo, description="Estado del contrato")
     notas: Optional[str] = Field(None, description="Notas adicionales")
 
     @validator('monto_pagado')
     def validate_monto_pagado(cls, v, values):
-        if 'monto_total' in values and 'monto_inicial' in values:
-            total_pagado = v + values.get('monto_inicial', 0)
-            if total_pagado > values['monto_total']:
-                raise ValueError('El monto pagado + monto inicial no puede ser mayor al monto total')
+        if 'monto_total' in values and v > values['monto_total']:
+            raise ValueError('El monto pagado no puede ser mayor al monto total')
         return v
 
 
@@ -38,7 +35,6 @@ class ContratoCreate(ContratoBase):
 # Schema para actualizar contrato
 class ContratoUpdate(BaseModel):
     monto_total: Optional[Decimal] = Field(None, ge=0)
-    monto_inicial: Optional[Decimal] = Field(None, ge=0)
     monto_pagado: Optional[Decimal] = Field(None, ge=0)
     estado: Optional[EstadoContrato] = None
     notas: Optional[str] = None
@@ -46,9 +42,8 @@ class ContratoUpdate(BaseModel):
     @validator('monto_pagado')
     def validate_monto_pagado(cls, v, values):
         if v is not None and 'monto_total' in values and values['monto_total'] is not None:
-            total_pagado = v + values.get('monto_inicial', 0)
-            if total_pagado > values['monto_total']:
-                raise ValueError('El monto pagado + monto inicial no puede ser mayor al monto total')
+            if v > values['monto_total']:
+                raise ValueError('El monto pagado no puede ser mayor al monto total')
         return v
 
 
