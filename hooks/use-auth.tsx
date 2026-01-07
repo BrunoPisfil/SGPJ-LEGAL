@@ -105,6 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     authAPI.logout();
+    // Limpiar estado ANTES de limpiar el handler
     setUser(null);
     setSessionExpired(false);
     // Limpiar el handler al hacer logout

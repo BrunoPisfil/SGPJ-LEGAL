@@ -29,6 +29,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, isLoading: authLoading, logout } = useAuth()
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [showLoadingSpinner, setShowLoadingSpinner] = useState(false)
+  const [prevUserId, setPrevUserId] = useState<string | null>(null)
+
+  // Detectar cambio de usuario y resetear estados
+  useEffect(() => {
+    const currentUserId = user?.id || null
+    if (prevUserId !== currentUserId) {
+      setPrevUserId(currentUserId)
+      // Cerrar sidebar móvil si estaba abierto
+      setIsMobileOpen(false)
+      console.log(`👤 Cambio de usuario detectado: ${prevUserId} → ${currentUserId}`)
+    }
+  }, [user?.id, prevUserId])
 
   // Solo mostrar el spinner después de 100ms de loading (para evitar parpadeos)
   useEffect(() => {
@@ -146,7 +158,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </nav>
 
           {/* User info - Profile menu */}
-          <div className="border-t border-border p-2 sm:p-3">
+          <div className="border-t border-border p-2 sm:p-3" key={user?.id || 'no-user'}>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="w-full flex items-center gap-2 sm:gap-3 rounded-lg px-2 sm:px-3 py-2 sm:py-2.5 hover:bg-accent transition-colors cursor-pointer">
