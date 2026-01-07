@@ -32,6 +32,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // No mostrar datos del usuario hasta que estén completamente cargados
   const userReady = !authLoading && user !== null
   const navigationReady = !isLoading && !authLoading
+  
+  // Determinar si mostrar spinner de carga
+  const isLoading_nav = isLoading || authLoading
 
   const handleLogout = () => {
     logout()
@@ -98,7 +101,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
           {/* Navigation */}
           <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4 sm:p-4">
-            {showLoadingSpinner ? (
+            {isLoading_nav ? (
               <div className="flex items-center justify-center py-8">
                 <div className="text-center">
                   <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-primary mb-2"></div>
