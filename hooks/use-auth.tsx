@@ -83,8 +83,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       registerUnauthorizedHandler();
       // Limpiar estado de sesión expirada
       setSessionExpired(false);
-      // Recargar la página después del login para asegurar que el token esté disponible
-      window.location.reload();
+      // Redirigir a dashboard después del login para asegurar que el token esté disponible y la UI se hidrate correctamente
+      window.location.href = '/dashboard';
     } catch (error) {
       console.error('Error en login:', error);
       throw error;
