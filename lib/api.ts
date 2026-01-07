@@ -12,6 +12,10 @@ let onUnauthorizedCallback: (() => void) | null = null;
 
 export function setUnauthorizedHandler(callback: () => void) {
   onUnauthorizedCallback = callback;
+  // Retornar una función de limpieza
+  return () => {
+    onUnauthorizedCallback = null;
+  };
 }
 
 // Cliente HTTP para la API

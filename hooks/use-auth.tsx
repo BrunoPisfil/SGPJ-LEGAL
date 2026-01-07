@@ -39,9 +39,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkAuth();
     
     // Configurar el callback para errores 401 en el APIClient
-    setUnauthorizedHandler(() => {
+    const unsubscribe = setUnauthorizedHandler(() => {
       handleSessionExpired('unauthorized');
     });
+    
+    // Cleanup: remover el handler cuando el componente se desmonte
+    return () => {
+      if (typeof unsubscribe === 'function') {
+        unsubscribe();
+      }
+    };
   }, [handleSessionExpired]);
 
   const checkAuth = async () => {
