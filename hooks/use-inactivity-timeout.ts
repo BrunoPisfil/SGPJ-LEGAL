@@ -13,7 +13,7 @@ export interface UseInactivityTimeoutOptions {
  * Por defecto se activa después de 30 minutos sin actividad
  */
 export function useInactivityTimeout({
-  timeout = 30 * 60 * 1000, // 30 minutos por defecto
+  timeout = 60 * 60 * 1000, // 1 hora por defecto
   events = ['mousedown', 'keydown', 'scroll', 'touchstart'],
   onTimeout,
 }: UseInactivityTimeoutOptions = {}) {
