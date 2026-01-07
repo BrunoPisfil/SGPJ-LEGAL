@@ -29,13 +29,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, isLoading: authLoading, logout } = useAuth()
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [showLoadingSpinner, setShowLoadingSpinner] = useState(false)
-  const [isMounted, setIsMounted] = useState(false)
 
   // Solo mostrar el spinner después de 100ms de loading (para evitar parpadeos)
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
-
   useEffect(() => {
     if (isLoading || authLoading) {
       const timer = setTimeout(() => {
@@ -89,13 +84,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
       {/* Sidebar - Fixed en desktop, Modal en mobile */}
       <aside 
+        suppressHydrationWarning
         className={cn(
           "fixed left-0 top-0 z-40 h-screen w-80 border-r border-border bg-card transition-transform duration-300 ease-in-out",
           // En móvil: se desliza desde la izquierda
           isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         )}
       >
-        {isMounted ? (
         <div className="flex h-full flex-col">
           {/* Logo */}
           <div className="flex flex-col items-center gap-3 border-b border-border px-4 py-4 sm:px-6">
@@ -207,19 +202,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </DropdownMenu>
           </div>
         </div>
-        ) : (
-          <div className="w-full h-full" />
-        )}
       </aside>
 
       {/* Backdrop - Solo en móvil */}
-      {isMounted && isMobileOpen && (
+      {isMobileOpen && (
         <div
           className="fixed inset-0 z-30 bg-black/50 md:hidden"
           onClick={() => setIsMobileOpen(false)}
         />
-      )}
-        </>
       )}
     </>
   )
