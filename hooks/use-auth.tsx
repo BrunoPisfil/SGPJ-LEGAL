@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { authAPI, User, LoginRequest, RegisterRequest } from '@/lib/auth';
 import { setUnauthorizedHandler } from '@/lib/api';
 
@@ -25,22 +25,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [sessionExpired, setSessionExpired] = useState(false);
   const [sessionExpiredReason, setSessionExpiredReason] = useState<'inactivity' | 'unauthorized'>('unauthorized');
 
-  // Manejar sesión expirada por inactividad o error 401
-  const handleSessionExpired = useCallback((reason: 'inactivity' | 'unauthorized' = 'unauthorized') => {
-    console.log(`⏰ Sesión expirada por: ${reason}`);
-    setSessionExpired(true);
-    setSessionExpiredReason(reason);
-    // Limpiar usuario
-    setUser(null);
-  }, []);
-
   // Verificar autenticación al cargar
   useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        if (authAPI.isAuthenticated()) {
+          const userData = await authAPI.getCurrentUser();
+          setUser(userData);
+        }
+      } catch (error) {
+        console.error('Error verificando autenticación:', error);
+        authAPI.logout();
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     checkAuth();
     
     // Configurar el callback para errores 401 en el APIClient
     const unsubscribe = setUnauthorizedHandler(() => {
-      handleSessionExpired('unauthorized');
+      console.log(`⏰ Sesión expirada por: unauthorized`);
+      setSessionExpired(true);
+      setSessionExpiredReason('unauthorized');
+      setUser(null);
     });
     
     // Cleanup: remover el handler cuando el componente se desmonte
@@ -49,21 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         unsubscribe();
       }
     };
-  }, [handleSessionExpired]);
-
-  const checkAuth = async () => {
-    try {
-      if (authAPI.isAuthenticated()) {
-        const userData = await authAPI.getCurrentUser();
-        setUser(userData);
-      }
-    } catch (error) {
-      console.error('Error verificando autenticación:', error);
-      authAPI.logout();
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, []);
 
   const login = async (credentials: LoginRequest) => {
     setIsLoading(true);
