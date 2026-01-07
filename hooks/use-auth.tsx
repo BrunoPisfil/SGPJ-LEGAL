@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, ReactNode, useRef } from 'react';
 import { authAPI, User, LoginRequest, RegisterRequest } from '@/lib/auth';
 import { setUnauthorizedHandler } from '@/lib/api';
 
@@ -24,6 +24,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [sessionExpired, setSessionExpired] = useState(false);
   const [sessionExpiredReason, setSessionExpiredReason] = useState<'inactivity' | 'unauthorized'>('unauthorized');
+  const unsubscribeRef = useRef<(() => void) | null>(null);
+
+  // Registrar el handler de unauthorized
+  const registerUnauthorizedHandler = () => {
+    // Limpiar el anterior si existe
+    if (unsubscribeRef.current) {
+      unsubscribeRef.current();
+    }
+    
+    // Registrar el nuevo handler
+    const unsubscribe = setUnauthorizedHandler(() => {
+      console.log(`⏰ Sesión expirada por: unauthorized`);
+      setSessionExpired(true);
+      setSessionExpiredReason('unauthorized');
+      setUser(null);
+    });
+    unsubscribeRef.current = unsubscribe || null;
+  };
 
   // Verificar autenticación al cargar
   useEffect(() => {
@@ -32,6 +50,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (authAPI.isAuthenticated()) {
           const userData = await authAPI.getCurrentUser();
           setUser(userData);
+          // Registrar handler cuando hay sesión
+          registerUnauthorizedHandler();
         }
       } catch (error) {
         console.error('Error verificando autenticación:', error);
@@ -42,19 +62,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     checkAuth();
-    
-    // Configurar el callback para errores 401 en el APIClient
-    const unsubscribe = setUnauthorizedHandler(() => {
-      console.log(`⏰ Sesión expirada por: unauthorized`);
-      setSessionExpired(true);
-      setSessionExpiredReason('unauthorized');
-      setUser(null);
-    });
-    
+
     // Cleanup: remover el handler cuando el componente se desmonte
     return () => {
-      if (typeof unsubscribe === 'function') {
-        unsubscribe();
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+        unsubscribeRef.current = null;
       }
     };
   }, []);
@@ -64,9 +77,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const response = await authAPI.login(credentials);
       setUser(response.user);
+      // Registrar el handler para el nuevo usuario
+      registerUnauthorizedHandler();
       // Limpiar estado de sesión expirada
       setSessionExpired(false);
-      // El usuario ya está cargado del response, no necesita delay adicional
     } catch (error) {
       console.error('Error en login:', error);
       throw error;
@@ -93,6 +107,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     authAPI.logout();
     setUser(null);
     setSessionExpired(false);
+    // Limpiar el handler al hacer logout
+    if (unsubscribeRef.current) {
+      unsubscribeRef.current();
+      unsubscribeRef.current = null;
+    }
+    // Registrar un nuevo handler vacío para después del logout
+    setUnauthorizedHandler(() => {
+      // No hacer nada después del logout
+      console.log('⏰ Solicitud no autenticada después de logout');
+    });
   };
 
   const refreshUser = async () => {
