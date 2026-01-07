@@ -29,8 +29,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, isLoading: authLoading, logout } = useAuth()
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [showLoadingSpinner, setShowLoadingSpinner] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
 
   // Solo mostrar el spinner después de 100ms de loading (para evitar parpadeos)
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
   useEffect(() => {
     if (isLoading || authLoading) {
       const timer = setTimeout(() => {
@@ -70,6 +75,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <>
+      {/* No renderizar en servidor para evitar mismatch de hidratación */}
+      {!isMounted ? null : (
+        <>
       {/* Mobile Menu Button - Solo en móvil */}
       <div className="fixed top-4 left-4 z-50 md:hidden">
         <Button
@@ -209,6 +217,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           className="fixed inset-0 z-30 bg-black/50 md:hidden"
           onClick={() => setIsMobileOpen(false)}
         />
+      )}
+        </>
       )}
     </>
   )

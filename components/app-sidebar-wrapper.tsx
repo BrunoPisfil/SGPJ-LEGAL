@@ -6,11 +6,7 @@ import { useAuth } from '@/hooks/use-auth'
 export function AppSidebarWrapper() {
   const { isLoading } = useAuth()
 
-  // No renderizar nada hasta que cargue la autenticación
-  // Esto evita el mismatch de hidratación
-  if (isLoading) {
-    return null
-  }
-
+  // Renderizar siempre para mantener el layout estable
+  // El sidebar manejará internamente qué mostrar mientras carga
   return <AppSidebar />
 }
