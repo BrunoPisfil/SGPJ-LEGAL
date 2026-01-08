@@ -387,6 +387,7 @@ export default function EditarProcesoPage() {
                     {editingParteId === parte.id ? (
                       <>
                         <Button
+                          type="button"
                           size="sm"
                           onClick={() => handleUpdateTipoParte(parte.id, editingTipoParte)}
                           className="h-10"
@@ -394,6 +395,7 @@ export default function EditarProcesoPage() {
                           <Check className="h-4 w-4" />
                         </Button>
                         <Button
+                          type="button"
                           size="sm"
                           variant="outline"
                           onClick={() => setEditingParteId(null)}
@@ -404,6 +406,7 @@ export default function EditarProcesoPage() {
                       </>
                     ) : (
                       <Button
+                        type="button"
                         size="sm"
                         variant="ghost"
                         onClick={() => {
