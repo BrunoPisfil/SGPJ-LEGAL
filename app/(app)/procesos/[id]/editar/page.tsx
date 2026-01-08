@@ -36,6 +36,7 @@ export default function EditarProcesoPage() {
   const [partes, setPartes] = useState<Parte[]>([])
   const [editingParteId, setEditingParteId] = useState<number | null>(null)
   const [editingTipoParte, setEditingTipoParte] = useState<string>("")
+  const [editingNombre, setEditingNombre] = useState<string>("")
   const [usuarios, setUsuarios] = useState<Usuario[]>([])
 
   const [formData, setFormData] = useState({
@@ -105,29 +106,26 @@ export default function EditarProcesoPage() {
     }
   }
 
-  const handleUpdateTipoParte = async (parteId: number, tipoParte: string) => {
+  const handleUpdateTipoParte = async (parteId: number, tipoParte: string, nombre: string) => {
     if (!proceso) return
-    
     try {
-      await apiClient.put(`/partes/${parteId}`, { 
-        tipo_parte: tipoParte 
+      await apiClient.put(`/partes/${parteId}`, {
+        tipo_parte: tipoParte,
+        nombre_completo: nombre
       })
-      
-      // Actualizar solo la parte específica en el estado local
-      setPartes(partes.map(p => p.id === parteId ? { ...p, tipo_parte: tipoParte as 'demandante' | 'demandado' | 'tercero' } : p))
-      
+      setPartes(partes.map(p =>
+        p.id === parteId ? { ...p, tipo_parte: tipoParte as 'demandante' | 'demandado' | 'tercero', nombre_mostrar: nombre } : p
+      ))
       toast({
-        title: "Rol actualizado",
-        description: "El rol de la parte ha sido actualizado",
+        title: "Parte actualizada",
+        description: "El rol y nombre de la parte han sido actualizados",
       })
-      
-      // Cerrar el modo de edición
       setEditingParteId(null)
     } catch (err) {
-      console.error('Error updating tipo_parte:', err)
+      console.error('Error updating parte:', err)
       toast({
         title: "Error",
-        description: "Error al actualizar el rol",
+        description: "Error al actualizar la parte",
         variant: "destructive",
       })
     }
@@ -346,11 +344,19 @@ export default function EditarProcesoPage() {
                   {/* Nombre del cliente (no editable) */}
                   <div className="flex-1">
                     <Label className="text-sm text-muted-foreground">Cliente</Label>
-                    <Input
-                      value={parte.nombre_mostrar}
-                      disabled
-                      className="mt-1 bg-muted"
-                    />
+                    {editingParteId === parte.id ? (
+                      <Input
+                        value={editingNombre}
+                        onChange={e => setEditingNombre(e.target.value)}
+                        className="mt-1"
+                      />
+                    ) : (
+                      <Input
+                        value={parte.nombre_mostrar}
+                        disabled
+                        className="mt-1 bg-muted"
+                      />
+                    )}
                   </div>
 
                   {/* Rol (editable) */}
@@ -389,7 +395,7 @@ export default function EditarProcesoPage() {
                         <Button
                           type="button"
                           size="sm"
-                          onClick={() => handleUpdateTipoParte(parte.id, editingTipoParte)}
+                          onClick={() => handleUpdateTipoParte(parte.id, editingTipoParte, editingNombre)}
                           className="h-10"
                         >
                           <Check className="h-4 w-4" />
@@ -412,6 +418,7 @@ export default function EditarProcesoPage() {
                         onClick={() => {
                           setEditingParteId(parte.id)
                           setEditingTipoParte(parte.tipo_parte)
+                          setEditingNombre(parte.nombre_mostrar)
                         }}
                         className="h-10"
                       >
