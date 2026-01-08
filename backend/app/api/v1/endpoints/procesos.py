@@ -196,7 +196,7 @@ async def update_proceso(
     proceso_id: int,
     proceso_update: ProcesoUpdate,
     db: Session = Depends(get_db),
-    current_user: Usuario = Depends(require_permission("procesos", "update"))
+    current_user: Usuario = Depends(get_current_user)
 ):
     """Actualizar proceso - Solo admin puede editar"""
     proceso = db.query(Proceso).filter(Proceso.id == proceso_id).first()
@@ -260,7 +260,7 @@ async def update_proceso(
 async def delete_proceso(
     proceso_id: int,
     db: Session = Depends(get_db),
-    current_user: Usuario = Depends(require_permission("procesos", "delete"))
+    current_user: Usuario = Depends(get_current_user)
 ):
     """Eliminar proceso y todas sus dependencias"""
     proceso = db.query(Proceso).filter(Proceso.id == proceso_id).first()

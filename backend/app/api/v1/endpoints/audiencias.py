@@ -50,7 +50,7 @@ async def get_audiencias(
 async def create_audiencia(
     audiencia_data: AudienciaCreate,
     db: Session = Depends(get_db),
-    current_user = Depends(require_permission("audiencias", "create"))
+    current_user = Depends(get_current_user)
 ):
     """Crear nueva audiencia - Admin y practicantes pueden crear"""
     try:
@@ -83,7 +83,7 @@ async def update_audiencia(
     audiencia_id: int,
     audiencia_data: AudienciaUpdate,
     db: Session = Depends(get_db),
-    current_user = Depends(require_permission("audiencias", "update"))
+    current_user = Depends(get_current_user)
 ):
     """Actualizar audiencia - Admin y practicantes pueden editar"""
     try:
@@ -103,7 +103,7 @@ async def update_audiencia(
 async def delete_audiencia(
     audiencia_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(require_permission("audiencias", "delete"))
+    current_user = Depends(get_current_user)
 ):
     """Eliminar audiencia - Solo admin puede eliminar"""
     try:

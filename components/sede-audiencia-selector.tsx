@@ -130,7 +130,7 @@ export function SedeAudienciaSelector({
         )}
       </DialogTrigger>
 
-      <DialogContent className='max-w-2xl'>
+      <DialogContent className='max-w-lg w-[95vw] sm:max-w-2xl'>
         <DialogHeader>
           <DialogTitle>Seleccionar Sede Judicial</DialogTitle>
         </DialogHeader>
@@ -163,41 +163,43 @@ export function SedeAudienciaSelector({
             </div>
           ) : (
             <ScrollArea className='h-[400px] w-full rounded-md border'>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Sede</TableHead>
-                    <TableHead>Distrito Judicial</TableHead>
-                    <TableHead>Dirección</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredSedes.map((sede) => (
-                    <TableRow
-                      key={sede.id}
-                      className='cursor-pointer hover:bg-muted/50'
-                      onClick={() => handleSelectSede(sede)}
-                    >
-                      <TableCell className='font-medium py-2'>
-                        <div>
-                          <p className='font-medium text-sm'>{sede.nombre}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell className='py-2'>
-                        <div className='flex items-center gap-1'>
-                          <MapPin className='h-3 w-3 text-muted-foreground shrink-0' />
-                          <span className='text-xs'>{sede.distrito_judicial}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className='py-2'>
-                        <div className='text-xs text-muted-foreground'>
-                          {sede.direccion || 'No disponible'}
-                        </div>
-                      </TableCell>
+              <div className='overflow-x-auto'>
+                <Table className='text-xs sm:text-sm'>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className='whitespace-nowrap'>Sede</TableHead>
+                      <TableHead className='whitespace-nowrap'>Distrito</TableHead>
+                      <TableHead className='hidden md:table-cell whitespace-nowrap'>Dirección</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredSedes.map((sede) => (
+                      <TableRow
+                        key={sede.id}
+                        className='cursor-pointer hover:bg-muted/50'
+                        onClick={() => handleSelectSede(sede)}
+                      >
+                        <TableCell className='font-medium py-2 max-w-[150px] sm:max-w-none'>
+                          <div>
+                            <p className='font-medium text-xs sm:text-sm truncate'>{sede.nombre}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell className='py-2 whitespace-nowrap'>
+                          <div className='flex items-center gap-1'>
+                            <MapPin className='h-3 w-3 text-muted-foreground shrink-0' />
+                            <span className='text-xs'>{sede.distrito_judicial}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className='py-2 hidden md:table-cell'>
+                          <div className='text-xs text-muted-foreground truncate max-w-[200px]'>
+                            {sede.direccion || 'No disponible'}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </ScrollArea>
           )}
         </div>

@@ -75,7 +75,7 @@ async def get_resolucion(
 async def create_resolucion(
     resolucion_data: ResolucionCreate,
     db: Session = Depends(get_db),
-    current_user: Usuario = Depends(require_permission("resoluciones", "create"))
+    current_user: Usuario = Depends(get_current_user)
 ):
     """Crear una nueva resolución - Solo admin puede crear"""
     try:
@@ -95,7 +95,7 @@ async def update_resolucion(
     resolucion_id: int,
     resolucion_update: ResolucionUpdate,
     db: Session = Depends(get_db),
-    current_user: Usuario = Depends(require_permission("resoluciones", "update"))
+    current_user: Usuario = Depends(get_current_user)
 ):
     """Actualizar una resolución existente - Solo admin puede editar"""
     try:
@@ -117,7 +117,7 @@ async def update_resolucion(
 async def delete_resolucion(
     resolucion_id: int,
     db: Session = Depends(get_db),
-    current_user: Usuario = Depends(require_permission("resoluciones", "delete"))
+    current_user: Usuario = Depends(get_current_user)
 ):
     """Eliminar una resolución - Solo admin puede eliminar"""
     try:

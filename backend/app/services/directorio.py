@@ -13,7 +13,15 @@ class DirectorioService:
     @staticmethod
     def create_directorio(db: Session, directorio_data: DirectorioCreate) -> Directorio:
         """Crear un nuevo registro en directorio"""
-        directorio = Directorio(**directorio_data.model_dump())
+        data = directorio_data.model_dump()
+        
+        # Generar nombre completo si se proporciona nombres y apellidos
+        nombres = data.get('nombres', '').strip()
+        apellidos = data.get('apellidos', '').strip()
+        if nombres or apellidos:
+            data['nombre'] = f"{nombres} {apellidos}".strip()
+        
+        directorio = Directorio(**data)
         db.add(directorio)
         db.commit()
         db.refresh(directorio)
@@ -84,6 +92,14 @@ class DirectorioService:
             return None
         
         update_data = directorio_data.model_dump(exclude_unset=True)
+        
+        # Si se actualizan nombres o apellidos, recalcular nombre completo
+        if 'nombres' in update_data or 'apellidos' in update_data:
+            nombres = update_data.get('nombres', directorio.nombres or '').strip()
+            apellidos = update_data.get('apellidos', directorio.apellidos or '').strip()
+            if nombres or apellidos:
+                update_data['nombre'] = f"{nombres} {apellidos}".strip()
+        
         for field, value in update_data.items():
             setattr(directorio, field, value)
         

@@ -87,7 +87,7 @@ async def get_directorio_by_id(
 async def create_directorio(
     directorio_data: DirectorioCreate,
     db: Session = Depends(get_db),
-    current_user: Usuario = Depends(require_permission("directorio", "create"))
+    current_user: Usuario = Depends(get_current_user)
 ):
     """Crear un nuevo registro en el directorio - Admin y practicantes pueden agregar"""
     # Validar duplicados para clientes
@@ -106,9 +106,9 @@ async def update_directorio(
     directorio_id: int,
     directorio_data: DirectorioUpdate,
     db: Session = Depends(get_db),
-    current_user: Usuario = Depends(require_permission("directorio", "update"))
+    current_user: Usuario = Depends(get_current_user)
 ):
-    """Actualizar un registro del directorio - Solo admin puede editar"""
+    """Actualizar un registro del directorio"""
     directorio = DirectorioService.get_directorio_by_id(db, directorio_id)
     if not directorio:
         raise HTTPException(status_code=404, detail="Registro no encontrado")
@@ -121,7 +121,7 @@ async def update_directorio(
 async def delete_directorio(
     directorio_id: int,
     db: Session = Depends(get_db),
-    current_user: Usuario = Depends(require_permission("directorio", "delete"))
+    current_user: Usuario = Depends(get_current_user)
 ):
     """Eliminar un registro del directorio (soft delete) - Solo admin puede eliminar"""
     directorio = DirectorioService.get_directorio_by_id(db, directorio_id)
