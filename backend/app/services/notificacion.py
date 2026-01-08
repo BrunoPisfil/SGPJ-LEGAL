@@ -259,53 +259,20 @@ class NotificacionService:
         </body>
         </html>
         """
-
-        
-            # Siempre usar Gmail SMTP para enviar correos
-            logger.info(f"[EMAIL] Usando SMTP Gmail para {notificacion.email_destinatario}")
-            if not settings.smtp_username or not settings.smtp_password:
-                raise ValueError("Credenciales SMTP no configuradas")
-            try:
-                import smtplib
-                from email.mime.multipart import MIMEMultipart
-                from email.mime.text import MIMEText
-                msg = MIMEMultipart('alternative')
-                msg['From'] = f"{settings.email_from_name} <{settings.email_from}>"
-                msg['To'] = notificacion.email_destinatario
-                msg['Subject'] = notificacion.titulo
-                msg.attach(MIMEText(notificacion.mensaje, 'plain', 'utf-8'))
-                msg.attach(MIMEText(html_body, 'html', 'utf-8'))
-                with smtplib.SMTP(settings.smtp_server, settings.smtp_port) as server:
-                    server.ehlo()
-                    if settings.smtp_use_tls:
-                        server.starttls()
-                        server.ehlo()
-                    server.login(settings.smtp_username, settings.smtp_password)
-                    server.sendmail(msg['From'], msg['To'], msg.as_string())
-                logger.info(f"Email enviado mediante SMTP Gmail a {notificacion.email_destinatario}")
-            except Exception as e:
-                logger.error(f"Error al enviar email con SMTP Gmail: {e}")
-                raise
-        # Fallback a SMTP (desarrollo local)
-        logger.info(f"[EMAIL] Usando SMTP fallback para {notificacion.email_destinatario}")
+        # Siempre usar Gmail SMTP para enviar correos
+        logger.info(f"[EMAIL] Usando SMTP Gmail para {notificacion.email_destinatario}")
         if not settings.smtp_username or not settings.smtp_password:
-            raise ValueError("RESEND_API_KEY y credenciales SMTP no configuradas")
-        
+            raise ValueError("Credenciales SMTP no configuradas")
         try:
             import smtplib
             from email.mime.multipart import MIMEMultipart
             from email.mime.text import MIMEText
-            
             msg = MIMEMultipart('alternative')
             msg['From'] = f"{settings.email_from_name} <{settings.email_from}>"
             msg['To'] = notificacion.email_destinatario
             msg['Subject'] = notificacion.titulo
-            
-            # Agregar versión texto plano y HTML
             msg.attach(MIMEText(notificacion.mensaje, 'plain', 'utf-8'))
             msg.attach(MIMEText(html_body, 'html', 'utf-8'))
-            
-            # Enviar el email
             with smtplib.SMTP(settings.smtp_server, settings.smtp_port) as server:
                 server.ehlo()
                 if settings.smtp_use_tls:
@@ -315,7 +282,7 @@ class NotificacionService:
                 server.sendmail(msg['From'], msg['To'], msg.as_string())
             logger.info(f"Email enviado mediante SMTP Gmail a {notificacion.email_destinatario}")
         except Exception as e:
-            logger.error(f"Error al enviar email con SMTP: {e}")
+            logger.error(f"Error al enviar email con SMTP Gmail: {e}")
             raise
 
     @staticmethod
