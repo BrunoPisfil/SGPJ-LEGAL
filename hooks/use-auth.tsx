@@ -122,8 +122,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // No hacer nada después del logout
       console.log('⏰ Solicitud no autenticada después de logout');
     });
-    // Forzar recarga completa para limpiar el estado y token
-    window.location.href = '/login';
   };
 
   const refreshUser = async () => {
