@@ -239,9 +239,9 @@ export default function ProcesosPage() {
           />
         </Card>
       ) : (
-        <Card>
-          <div className="overflow-x-auto">
-            <Table className="text-sm sm:text-base">
+        <Card className="w-full max-w-full">
+          <div className="w-full overflow-x-auto">
+            <Table className="text-sm sm:text-base min-w-full">
               <TableHeader>
                 <TableRow>
                   <TableHead className="whitespace-nowrap">Expediente</TableHead>
