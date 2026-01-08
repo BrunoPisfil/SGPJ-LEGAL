@@ -18,14 +18,14 @@ export function usePermission() {
       dashboard: ['read'],
     },
     practicante: {
-      procesos: ['read'],
+      procesos: ['read', 'create', 'update'],
       audiencias: ['read', 'create', 'update'],
-      resoluciones: ['read'],
-      directorio: ['read', 'create'],
+      resoluciones: ['read', 'create', 'update'],
+      directorio: ['read', 'create', 'update'],
       notificaciones: ['read'],
       finanzas: [],
-      bitacora: [],
-      dashboard: [],
+      bitacora: ['read'],
+      dashboard: ['read'],
     },
   } as const
 
