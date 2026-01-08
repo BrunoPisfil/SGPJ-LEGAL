@@ -59,6 +59,7 @@ class ParteProcesoUpdate(BaseModel):
     tipo_parte: Optional[TipoParteEnum] = None
     es_nuestro_cliente: Optional[bool] = None
     observaciones: Optional[str] = None
+    nombre_completo: Optional[str] = None
 
 
 class ParteProcesoSchema(ParteProcesoBase):
