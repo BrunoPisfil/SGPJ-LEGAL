@@ -146,7 +146,7 @@ const directorioAPI = {
   create: async (data: DirectorioCreate) => {
     return apiClient.request<DirectorioEntry>({
       method: 'POST',
-      url: '/directorio',
+      url: '/directorio/',
       data,
     });
   },
