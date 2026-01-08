@@ -11,7 +11,8 @@ app = FastAPI(
     version=settings.version,
     description="API para el Sistema de Gestión de Procesos Judiciales",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    redirect_slashes=False  # Evitar redirecciones CORS
 )
 
 # Configurar CORS

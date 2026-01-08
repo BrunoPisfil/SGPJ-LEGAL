@@ -146,19 +146,29 @@ export default function ProcesoDetailPage() {
 
   const handleMarkReviewed = async (procesoId: number, expediente: string) => {
     try {
-      await procesosAPI.markAsReviewed(procesoId)
+      const isCurrentlyReviewed = proceso?.fecha_ultima_revision;
       
-      // Actualizar el proceso en el estado local
-      setProceso(prev => prev ? { ...prev, fecha_ultima_revision: new Date().toISOString().split('T')[0] } : null)
-      
-      toast({
-        title: "Proceso marcado como revisado",
-        description: `El expediente ${expediente} ha sido actualizado con la fecha de hoy.`,
-      })
+      if (isCurrentlyReviewed) {
+        // Desmarcar revisión
+        await procesosAPI.clearReview(procesoId)
+        setProceso(prev => prev ? { ...prev, fecha_ultima_revision: null } : null)
+        toast({
+          title: "Revisión eliminada",
+          description: `La revisión del expediente ${expediente} ha sido eliminada.`,
+        })
+      } else {
+        // Marcar como revisado
+        await procesosAPI.markAsReviewed(procesoId)
+        setProceso(prev => prev ? { ...prev, fecha_ultima_revision: new Date().toISOString().split('T')[0] } : null)
+        toast({
+          title: "Proceso marcado como revisado",
+          description: `El expediente ${expediente} ha sido actualizado con la fecha de hoy.`,
+        })
+      }
     } catch (error) {
       toast({
         title: "Error",
-        description: "No se pudo marcar el proceso como revisado",
+        description: "No se pudo actualizar la revisión",
         variant: "destructive",
       })
     }
@@ -189,12 +199,12 @@ export default function ProcesoDetailPage() {
                 </Link>
               </Button>
               <Button
-                variant="outline"
+                variant={proceso.fecha_ultima_revision ? "secondary" : "outline"}
                 onClick={() => handleMarkReviewed(proceso.id, proceso.expediente)}
-                title="Marcar como revisado"
+                title={proceso.fecha_ultima_revision ? "Desmarcar revisión" : "Marcar como revisado"}
               >
                 <CheckCircle className="mr-2 h-4 w-4" />
-                Revisar
+                {proceso.fecha_ultima_revision ? "Desmarcar" : "Revisar"}
               </Button>
             </>
           )}

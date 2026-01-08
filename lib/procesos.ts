@@ -125,6 +125,11 @@ export const procesosAPI = {
     return this.update(id, { fecha_ultima_revision: today });
   },
 
+  // Desmarcar revisión (limpia fecha_ultima_revision)
+  async clearReview(id: number): Promise<Proceso> {
+    return this.update(id, { fecha_ultima_revision: null });
+  },
+
   // Búsqueda de procesos para selector (optimizada)
   async search(query: string, limit: number = 20): Promise<Proceso[]> {
     const queryParams = new URLSearchParams();
