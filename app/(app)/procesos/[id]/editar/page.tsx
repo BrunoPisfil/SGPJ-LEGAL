@@ -91,7 +91,8 @@ export default function EditarProcesoPage() {
     }
 
     fetchProceso()
-  }, [params.id, toast])
+    // Solo ejecutar cuando params.id cambia, toast no es una dependencia de este efecto
+  }, [params.id])
 
   const loadPartes = async (procesoId: number) => {
     try {
@@ -112,11 +113,15 @@ export default function EditarProcesoPage() {
         tipo_parte: tipoParte 
       })
       
+      // Actualizar solo la parte específica en el estado local
+      setPartes(partes.map(p => p.id === parteId ? { ...p, tipo_parte: tipoParte as 'demandante' | 'demandado' | 'tercero' } : p))
+      
       toast({
         title: "Rol actualizado",
         description: "El rol de la parte ha sido actualizado",
       })
-      await loadPartes(Number(params.id))
+      
+      // Cerrar el modo de edición
       setEditingParteId(null)
     } catch (err) {
       console.error('Error updating tipo_parte:', err)
@@ -330,7 +335,7 @@ export default function EditarProcesoPage() {
 
         {/* Partes del Proceso */}
         {partes.length > 0 && (
-          <Card>
+          <Card className="mt-8">
             <CardHeader>
               <CardTitle>Partes del Proceso</CardTitle>
               <CardDescription>Edita los roles de las partes involucradas</CardDescription>
