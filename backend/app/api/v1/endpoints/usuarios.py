@@ -81,14 +81,11 @@ async def list_usuarios(
     db: Session = Depends(get_db),
     current_user: Usuario = Depends(get_current_user)
 ):
-    """Listar todos los usuarios (solo admin puede ver y solo devuelve admins para asignar como responsables)"""
-    # Solo admin puede listar usuarios
-    if current_user.rol != "admin":
+    """Listar todos los usuarios (solo admin y practicante pueden ver)"""
+    if current_user.rol not in ["admin", "practicante"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Solo los administradores pueden listar usuarios"
+            detail="Solo administradores y practicantes pueden listar usuarios"
         )
-    
-    # Devolver solo usuarios con rol admin que pueden ser responsables
-    usuarios = db.query(Usuario).filter(Usuario.rol == "admin").all()
+    usuarios = db.query(Usuario).all()
     return [UsuarioSchema.from_orm(u) for u in usuarios]
