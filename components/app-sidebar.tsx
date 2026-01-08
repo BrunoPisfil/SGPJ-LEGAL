@@ -36,13 +36,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // Determinar si mostrar spinner de carga
   const isLoading_nav = isLoading || authLoading
 
-  // Filtrar items de navegación según permisos del usuario
-  // Si no está listo o es admin, mostrar todos
-  const visibleNavItems = navItemsConfig.filter(item => {
-    if (!navigationReady) return true // Mostrar todos mientras se carga
-    return hasPermission(item.resource)
-  })
-
   const handleLogout = () => {
     logout()
     router.push('/login')
@@ -116,7 +109,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </div>
               </div>
             ) : (
-              visibleNavItems.map((item) => {
+              navItemsConfig.map((item) => {
                 const isActive = pathname.startsWith(item.url)
                 return (
                   <Link
