@@ -29,6 +29,10 @@ class ParteProcesoBase(BaseModel):
     documento: Optional[str] = None
     observaciones: Optional[str] = None
 
+
+class ParteProcesoCreate(ParteProcesoBase):
+    proceso_id: int
+    
     @validator('cliente_id', 'entidad_id', 'nombre_completo')
     def validar_identificacion(cls, v, values):
         """Al menos uno debe estar presente: cliente_id, entidad_id o nombre_completo"""
@@ -51,10 +55,6 @@ class ParteProcesoBase(BaseModel):
         return v
 
 
-class ParteProcesoCreate(ParteProcesoBase):
-    proceso_id: int
-
-
 class ParteProcesoUpdate(BaseModel):
     tipo_parte: Optional[TipoParteEnum] = None
     es_nuestro_cliente: Optional[bool] = None
@@ -75,8 +75,22 @@ class ParteProcesoSchema(ParteProcesoBase):
         from_attributes = True
 
 
-class ParteProcesoDetalle(ParteProcesoSchema):
+class ParteProcesoDetalle(BaseModel):
     """Schema con información detallada incluyendo datos de cliente/entidad"""
+    id: int
+    proceso_id: int
+    tipo_parte: TipoParteEnum
+    tipo_persona: TipoPersonaEnum
+    cliente_id: Optional[int] = None
+    entidad_id: Optional[int] = None
+    es_nuestro_cliente: bool
+    nombre_completo: Optional[str] = None
+    documento: Optional[str] = None
+    observaciones: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+    nombre_mostrar: Optional[str] = None
+    documento_mostrar: Optional[str] = None
     cliente: Optional[dict] = None
     entidad: Optional[dict] = None
 
