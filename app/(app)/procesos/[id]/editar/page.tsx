@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Edit2, Check, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -16,6 +16,14 @@ import type { ProcessStatus, JuridicalStatus } from "@/components/process-status
 import { procesosAPI, type Proceso, type ProcesoUpdate, type EstadoProceso, type EstadoJuridico } from "@/lib/procesos"
 import Link from "next/link"
 
+interface Parte {
+  id: number;
+  cliente_id: number;
+  tipo_parte: 'demandante' | 'demandado' | 'tercero';
+  nombre_mostrar: string;
+  es_nuestro_cliente: boolean;
+}
+
 export default function EditarProcesoPage() {
   const params = useParams()
   const router = useRouter()
@@ -23,6 +31,9 @@ export default function EditarProcesoPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingData, setIsLoadingData] = useState(true)
   const [proceso, setProceso] = useState<Proceso | null>(null)
+  const [partes, setPartes] = useState<Parte[]>([])
+  const [editingParteId, setEditingParteId] = useState<number | null>(null)
+  const [editingTipoParte, setEditingTipoParte] = useState<string>("")
 
   const [formData, setFormData] = useState({
     expediente: "",
@@ -54,6 +65,9 @@ export default function EditarProcesoPage() {
           estadoJuridico: data.estado_juridico || "",
           estadoDescripcion: data.estadoDescripcion || "",
         })
+        
+        // Cargar partes del proceso
+        await loadPartes(Number(params.id))
       } catch (error) {
         console.error('Error al cargar proceso:', error)
         toast({
@@ -68,6 +82,63 @@ export default function EditarProcesoPage() {
 
     fetchProceso()
   }, [params.id, toast])
+
+  const loadPartes = async (procesoId: number) => {
+    try {
+      const response = await fetch(`/api/v1/procesos/${procesoId}/partes`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      })
+      if (response.ok) {
+        const data = await response.json()
+        setPartes(data || [])
+      }
+    } catch (err) {
+      console.error('Error loading partes:', err)
+      // No mostrar error ya que las partes son opcionales
+    }
+  }
+
+  const handleUpdateTipoParte = async (parteId: number, tipoParte: string) => {
+    if (!proceso) return
+    
+    try {
+      const response = await fetch(`/api/v1/partes/${parteId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({ 
+          tipo_parte: tipoParte 
+        }),
+      })
+      
+      if (response.ok) {
+        toast({
+          title: "Rol actualizado",
+          description: "El rol de la parte ha sido actualizado",
+        })
+        await loadPartes(Number(params.id))
+        setEditingParteId(null)
+      } else {
+        const error = await response.json()
+        toast({
+          title: "Error",
+          description: error.detail || "No se pudo actualizar el rol",
+          variant: "destructive",
+        })
+      }
+    } catch (err) {
+      console.error('Error updating tipo_parte:', err)
+      toast({
+        title: "Error",
+        description: "Error al actualizar el rol",
+        variant: "destructive",
+      })
+    }
+  }
 
   if (isLoadingData) {
     return (
@@ -247,6 +318,95 @@ export default function EditarProcesoPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Partes del Proceso */}
+        {partes.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Partes del Proceso</CardTitle>
+              <CardDescription>Edita los roles de las partes involucradas</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {partes.map((parte) => (
+                <div key={parte.id} className="flex items-center gap-4 p-4 border rounded-lg">
+                  {/* Nombre del cliente (no editable) */}
+                  <div className="flex-1">
+                    <Label className="text-sm text-muted-foreground">Cliente</Label>
+                    <Input
+                      value={parte.nombre_mostrar}
+                      disabled
+                      className="mt-1 bg-muted"
+                    />
+                  </div>
+
+                  {/* Rol (editable) */}
+                  <div className="w-40">
+                    <Label className="text-sm text-muted-foreground">Rol</Label>
+                    {editingParteId === parte.id ? (
+                      <div className="flex gap-2 mt-1">
+                        <Select value={editingTipoParte} onValueChange={setEditingTipoParte}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Selecciona rol" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="demandante">Demandante</SelectItem>
+                            <SelectItem value="demandado">Demandado</SelectItem>
+                            <SelectItem value="tercero">Tercero</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    ) : (
+                      <div className="mt-1">
+                        <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
+                          parte.tipo_parte === 'demandante' ? 'bg-blue-100 text-blue-800' :
+                          parte.tipo_parte === 'demandado' ? 'bg-red-100 text-red-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {parte.tipo_parte.charAt(0).toUpperCase() + parte.tipo_parte.slice(1)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Botones de edición */}
+                  <div className="flex gap-2 items-end">
+                    {editingParteId === parte.id ? (
+                      <>
+                        <Button
+                          size="sm"
+                          onClick={() => handleUpdateTipoParte(parte.id, editingTipoParte)}
+                          className="h-10"
+                        >
+                          <Check className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setEditingParteId(null)}
+                          className="h-10"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          setEditingParteId(parte.id)
+                          setEditingTipoParte(parte.tipo_parte)
+                        }}
+                        className="h-10"
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Actions */}
         <div className="flex justify-end gap-4 mt-6">

@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.api.deps import get_current_user
 from app.models.usuario import Usuario
-from app.models.parte_proceso import ParteProceso
 from app.schemas.directorio import DirectorioCreate, DirectorioUpdate, DirectorioResponse
 from app.services.directorio import DirectorioService
 from app.api.permissions import require_permission
@@ -70,34 +69,6 @@ async def list_directorio(
     if tipo:
         return DirectorioService.get_directorio_by_tipo(db, tipo)
     return DirectorioService.get_all_directorio(db, skip, limit)
-
-
-@router.get("/{cliente_id}/procesos", response_model=list)
-async def get_cliente_procesos(
-    cliente_id: int,
-    db: Session = Depends(get_db)
-):
-    """Obtener los procesos en los que participa un cliente del directorio"""
-    # Verificar que el cliente existe
-    directorio = DirectorioService.get_directorio_by_id(db, cliente_id)
-    if not directorio or directorio.get("tipo") != "cliente":
-        raise HTTPException(status_code=404, detail="Cliente no encontrado")
-    
-    # Obtener las partes del proceso donde este cliente participa
-    partes = db.query(ParteProceso).filter(
-        ParteProceso.cliente_id == cliente_id
-    ).all()
-    
-    result = []
-    for parte in partes:
-        result.append({
-            "proceso_id": parte.proceso_id,
-            "expediente": parte.proceso.expediente if parte.proceso else "Desconocido",
-            "tipo_parte": parte.tipo_parte,
-            "es_nuestro_cliente": parte.es_nuestro_cliente,
-        })
-    
-    return result
 
 
 @router.get("/{directorio_id}", response_model=DirectorioResponse)
