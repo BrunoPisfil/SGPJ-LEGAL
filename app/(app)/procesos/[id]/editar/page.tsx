@@ -246,7 +246,7 @@ export default function EditarProcesoPage() {
                   <SelectValue placeholder="Seleccionar abogado responsable" />
                 </SelectTrigger>
                 <SelectContent>
-                  {usuarios.map((usuario) => (
+                  {usuarios.filter(u => u.rol === "admin").map((usuario) => (
                     <SelectItem key={usuario.id} value={usuario.id.toString()}>
                       {usuario.nombre} ({usuario.email})
                     </SelectItem>
