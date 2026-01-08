@@ -36,7 +36,8 @@ class Settings(BaseSettings):
         "http://localhost:8001",
         "http://127.0.0.1:8001",
         # Frontend en Vercel (PRODUCCIÓN)
-        "https://sgpj-legal.vercel.app",       # 👈 si ese es tu front
+        "https://sgpj-legal.vercel.app",       # Frontend
+        "https://sgpj-legal-backend.vercel.app",  # Backend (para peticiones entre servicios)
     ]
     
     # Configuración de Email (SMTP o Resend)
