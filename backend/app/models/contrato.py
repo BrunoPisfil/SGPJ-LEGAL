@@ -21,6 +21,7 @@ class Contrato(Base):
     
     # Montos
     monto_total = Column(Numeric(10, 2), nullable=False)
+    monto_inicial = Column(Numeric(10, 2), nullable=False, default=0.00)  # Adelanto/seña
     monto_pagado = Column(Numeric(10, 2), nullable=False, default=0.00)
     
     # Estado del contrato
@@ -48,15 +49,20 @@ class Contrato(Base):
     
     @property
     def monto_pendiente(self) -> float:
-        """Calcula el monto pendiente de pago (monto_total - monto_pagado)"""
-        return float(self.monto_total - self.monto_pagado)
+        """Calcula el monto pendiente de pago (monto_total - monto_inicial - monto_pagado)"""
+        return float(self.monto_total - self.monto_inicial - self.monto_pagado)
+    
+    @property
+    def total_pagado_incluye_inicial(self) -> float:
+        """Total pagado incluyendo el monto inicial"""
+        return float(self.monto_inicial + self.monto_pagado)
     
     @property
     def porcentaje_pagado(self) -> float:
         """Calcula el porcentaje pagado basado en monto_total"""
         if self.monto_total == 0:
             return 0.0
-        return float((self.monto_pagado / self.monto_total) * 100)
+        return float((self.total_pagado_incluye_inicial / self.monto_total) * 100)
     
     @property
     def esta_completado(self) -> bool:
