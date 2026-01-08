@@ -37,8 +37,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const isLoading_nav = isLoading || authLoading
 
   // Filtrar items de navegación según permisos del usuario
+  // Si no está listo o es admin, mostrar todos
   const visibleNavItems = navItemsConfig.filter(item => {
-    if (!navigationReady) return false
+    if (!navigationReady) return true // Mostrar todos mientras se carga
     return hasPermission(item.resource)
   })
 
