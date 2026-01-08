@@ -73,9 +73,9 @@ async def get_procesos(
 async def create_proceso(
     proceso: ProcesoCreate,
     db: Session = Depends(get_db),
-    current_user: Usuario = Depends(require_permission("procesos", "create"))
+    current_user: Usuario = Depends(get_current_user)
 ):
-    """Crear nuevo proceso - Solo admin puede crear"""
+    """Crear nuevo proceso"""
     # Verificar que el expediente no exista
     existing = db.query(Proceso).filter(Proceso.expediente == proceso.expediente).first()
     if existing:

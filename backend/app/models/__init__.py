@@ -9,6 +9,7 @@ from app.models.proceso import Proceso
 from app.models.audiencia import Audiencia
 from app.models.contrato import Contrato
 from app.models.bitacora_proceso import BitacoraProceso
+from app.models.bitacora_resolucion import BitacoraResolucion
 from app.models.resolucion import Resolucion
 from app.models.notificacion import Notificacion
 from app.models.pago import Pago
@@ -30,5 +31,6 @@ __all__ = [
     "Pago",
     "ParteProceso",
     "BitacoraProceso",
+    "BitacoraResolucion",
     "Directorio",
 ]

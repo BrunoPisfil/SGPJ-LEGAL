@@ -1,5 +1,5 @@
 """
-Endpoints para bitácora de procesos
+Endpoints para bitácora de procesos y resoluciones
 """
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
@@ -8,12 +8,19 @@ from sqlalchemy import desc
 
 from app.core.database import get_db
 from app.models.bitacora_proceso import BitacoraProceso
+from app.models.bitacora_resolucion import BitacoraResolucion
 from app.models.usuario import Usuario
 from app.models.proceso import Proceso
+from app.models.resolucion import Resolucion
 from app.schemas.bitacora_proceso import (
     BitacoraProcesoCreate, 
     BitacoraProcesoResponse, 
     BitacoraProcesoDetalle
+)
+from app.schemas.bitacora_resolucion import (
+    BitacoraResolucionCreate,
+    BitacoraResolucionResponse,
+    BitacoraResolucionDetalle
 )
 from app.api.dependencies import get_current_user
 
@@ -129,6 +136,122 @@ async def create_bitacora_entry(
     return BitacoraProcesoResponse(
         id=bitacora_entry.id,
         proceso_id=bitacora_entry.proceso_id,
+        usuario_id=bitacora_entry.usuario_id,
+        accion=bitacora_entry.accion,
+        campo_modificado=bitacora_entry.campo_modificado,
+        valor_anterior=bitacora_entry.valor_anterior,
+        valor_nuevo=bitacora_entry.valor_nuevo,
+        descripcion=bitacora_entry.descripcion,
+        fecha_cambio=bitacora_entry.fecha_cambio,
+        usuario_nombre=usuario_nombre
+    )
+
+
+# ==================== BITÁCORA DE RESOLUCIONES ====================
+
+@router.get("/{resolucion_id}/bitacora-resolucion", response_model=List[BitacoraResolucionResponse])
+async def get_bitacora_resolucion(
+    resolucion_id: int,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
+):
+    """Obtener historial de cambios de una resolución"""
+    
+    try:
+        print(f"🔍 Solicitando bitácora para resolución: {resolucion_id}")
+        print(f"👤 Usuario actual: {current_user.email if current_user else 'None'}")
+        
+        # Verificar que la resolución existe
+        resolucion = db.query(Resolucion).filter(Resolucion.id == resolucion_id).first()
+        if not resolucion:
+            print(f"❌ Resolución {resolucion_id} no encontrada")
+            raise HTTPException(status_code=404, detail="Resolución no encontrada")
+        
+        print(f"✅ Resolución {resolucion_id} encontrada")
+        
+        # Obtener bitácora ordenada por fecha descendente
+        bitacora_query = db.query(BitacoraResolucion).filter(
+            BitacoraResolucion.resolucion_id == resolucion_id
+        ).order_by(desc(BitacoraResolucion.fecha_cambio))
+        
+        bitacora_entries = bitacora_query.all()
+        print(f"📊 Encontradas {len(bitacora_entries)} entradas de bitácora")
+        
+        # Construir respuesta con información del usuario
+        result = []
+        for entry in bitacora_entries:
+            try:
+                usuario_nombre = "Sistema"
+                if entry.usuario_id:
+                    usuario = db.query(Usuario).filter(Usuario.id == entry.usuario_id).first()
+                    if usuario:
+                        usuario_nombre = f"{usuario.nombre}".strip()
+                
+                result.append(BitacoraResolucionResponse(
+                    id=entry.id,
+                    resolucion_id=entry.resolucion_id,
+                    usuario_id=entry.usuario_id,
+                    accion=entry.accion,
+                    campo_modificado=entry.campo_modificado,
+                    valor_anterior=entry.valor_anterior,
+                    valor_nuevo=entry.valor_nuevo,
+                    descripcion=entry.descripcion,
+                    fecha_cambio=entry.fecha_cambio,
+                    usuario_nombre=usuario_nombre
+                ))
+            except Exception as e:
+                print(f"❌ Error procesando entrada de bitácora {entry.id}: {e}")
+                continue
+        
+        print(f"🚀 Devolviendo {len(result)} entradas de bitácora")
+        return result
+        
+    except HTTPException:
+        # Re-raise HTTP exceptions
+        raise
+    except Exception as e:
+        print(f"❌ Error interno en endpoint de bitácora de resolución: {e}")
+        print(f"❌ Tipo de error: {type(e).__name__}")
+        import traceback
+        print(f"❌ Traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Error interno del servidor: {str(e)}")
+
+
+@router.post("/{resolucion_id}/bitacora-resolucion", response_model=BitacoraResolucionResponse)
+async def create_bitacora_resolucion(
+    resolucion_id: int,
+    bitacora_data: BitacoraResolucionCreate,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
+):
+    """Crear nueva entrada en la bitácora de resoluciones"""
+    
+    # Verificar que la resolución existe
+    resolucion = db.query(Resolucion).filter(Resolucion.id == resolucion_id).first()
+    if not resolucion:
+        raise HTTPException(status_code=404, detail="Resolución no encontrada")
+    
+    # Crear entrada de bitácora
+    bitacora_entry = BitacoraResolucion(
+        resolucion_id=resolucion_id,
+        usuario_id=bitacora_data.usuario_id or current_user.id,
+        accion=bitacora_data.accion,
+        campo_modificado=bitacora_data.campo_modificado,
+        valor_anterior=bitacora_data.valor_anterior,
+        valor_nuevo=bitacora_data.valor_nuevo,
+        descripcion=bitacora_data.descripcion
+    )
+    
+    db.add(bitacora_entry)
+    db.commit()
+    db.refresh(bitacora_entry)
+    
+    # Obtener nombre del usuario
+    usuario_nombre = f"{current_user.nombres} {current_user.apellidos}".strip()
+    
+    return BitacoraResolucionResponse(
+        id=bitacora_entry.id,
+        resolucion_id=bitacora_entry.resolucion_id,
         usuario_id=bitacora_entry.usuario_id,
         accion=bitacora_entry.accion,
         campo_modificado=bitacora_entry.campo_modificado,
