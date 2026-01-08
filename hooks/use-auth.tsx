@@ -122,7 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // No hacer nada después del logout
       console.log('⏰ Solicitud no autenticada después de logout');
     });
-  };
+  };  
 
   const refreshUser = async () => {
     try {

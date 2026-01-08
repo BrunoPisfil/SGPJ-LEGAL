@@ -62,7 +62,7 @@ class Proceso(Base):
     audiencias = relationship("Audiencia", back_populates="proceso")
     notificaciones = relationship("Notificacion", back_populates="proceso")
     contratos = relationship("Contrato", back_populates="proceso")
-    resoluciones = relationship("Resolucion", back_populates="proceso")
+    resoluciones = relationship("Resolucion", back_populates="proceso", cascade="all, delete-orphan")
     
     # Relación con las partes del proceso (nueva estructura)
     partes = relationship("ParteProceso", back_populates="proceso", cascade="all, delete-orphan")

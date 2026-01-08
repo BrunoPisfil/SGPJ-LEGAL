@@ -29,7 +29,7 @@ class Resolucion(Base):
     __tablename__ = "resoluciones"
 
     id = Column(BIGINT(unsigned=True), primary_key=True, index=True)
-    proceso_id = Column(BIGINT(unsigned=True), ForeignKey("procesos.id"), nullable=False)
+    proceso_id = Column(BIGINT(unsigned=True), ForeignKey("procesos.id", ondelete="CASCADE"), nullable=False)
     tipo = Column(Enum(TipoResolucion), nullable=False)
     fecha_notificacion = Column(Date, nullable=False)
     accion_requerida = Column(Enum(AccionRequerida), nullable=False)

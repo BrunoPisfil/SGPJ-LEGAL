@@ -318,11 +318,13 @@ class NotificacionService:
             
             # Enviar el email
             with smtplib.SMTP(settings.smtp_server, settings.smtp_port) as server:
+                server.ehlo()
                 if settings.smtp_use_tls:
                     server.starttls()
+                    server.ehlo()
                 server.login(settings.smtp_username, settings.smtp_password)
-                server.send_message(msg)
-            logger.info(f"Email enviado mediante SMTP a {notificacion.email_destinatario}")
+                server.sendmail(msg['From'], msg['To'], msg.as_string())
+            logger.info(f"Email enviado mediante SMTP Gmail a {notificacion.email_destinatario}")
         except Exception as e:
             logger.error(f"Error al enviar email con SMTP: {e}")
             raise
