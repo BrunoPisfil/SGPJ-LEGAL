@@ -239,18 +239,17 @@ export default function ProcesosPage() {
           />
         </Card>
       ) : (
-        <Card className="w-full p-0">
-          <div className="w-full">
-            <Table className="text-xs sm:text-sm w-full">
+        <Card className="w-full p-0 overflow-x-auto">
+          <div className="w-full inline-block min-w-full">
+            <Table className="text-xs sm:text-sm w-full" style={{ tableLayout: 'fixed' }}>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="p-2 sm:p-3 whitespace-nowrap max-w-[120px] sm:max-w-none">Expediente</TableHead>
-                  <TableHead className="hidden sm:table-cell p-2 sm:p-3 whitespace-nowrap">Materia</TableHead>
-                  <TableHead className="hidden md:table-cell p-2 sm:p-3 whitespace-nowrap">Demandante</TableHead>
-                  <TableHead className="hidden md:table-cell p-2 sm:p-3 whitespace-nowrap">Demandado</TableHead>
-                  <TableHead className="p-2 sm:p-3 whitespace-nowrap">Estados</TableHead>
-                  <TableHead className="hidden sm:table-cell p-2 sm:p-3 whitespace-nowrap">Revisión</TableHead>
-                  <TableHead className="p-2 sm:p-3 text-right whitespace-nowrap">Acciones</TableHead>
+                  <TableHead className="p-1 sm:p-2 overflow-hidden text-ellipsis w-[80px] sm:w-[120px]">Expediente</TableHead>
+                  <TableHead className="hidden sm:table-cell p-1 sm:p-2 overflow-hidden text-ellipsis w-[100px]">Materia</TableHead>
+                  <TableHead className="hidden md:table-cell p-1 sm:p-2 overflow-hidden text-ellipsis w-[120px]">Demandante</TableHead>
+                  <TableHead className="hidden md:table-cell p-1 sm:p-2 overflow-hidden text-ellipsis w-[120px]">Demandado</TableHead>
+                  <TableHead className="p-1 sm:p-2 overflow-hidden text-ellipsis w-[100px]">Estados</TableHead>
+                  <TableHead className="p-1 sm:p-2 text-right overflow-hidden text-ellipsis w-[120px]">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -258,55 +257,27 @@ export default function ProcesosPage() {
                   const reviewAlert = getReviewAlert(proceso.fecha_ultima_revision)
                   return (
                     <TableRow key={proceso.id}>
-                      <TableCell className="p-2 sm:p-3 font-medium max-w-[120px] sm:max-w-none truncate text-xs sm:text-sm">{proceso.expediente}</TableCell>
-                      <TableCell className="hidden sm:table-cell p-2 sm:p-3 text-xs sm:text-sm truncate">{proceso.materia}</TableCell>
-                      <TableCell className="hidden md:table-cell p-2 sm:p-3 text-xs sm:text-sm truncate">{proceso.demandante}</TableCell>
-                      <TableCell className="hidden md:table-cell p-2 sm:p-3 text-xs sm:text-sm truncate">{proceso.demandado}</TableCell>
-                      <TableCell className="p-2 sm:p-3 whitespace-nowrap">
+                      <TableCell className="p-1 sm:p-2 font-medium overflow-hidden text-ellipsis">{proceso.expediente}</TableCell>
+                      <TableCell className="hidden sm:table-cell p-1 sm:p-2 overflow-hidden text-ellipsis">{proceso.materia}</TableCell>
+                      <TableCell className="hidden md:table-cell p-1 sm:p-2 overflow-hidden text-ellipsis">{proceso.demandante}</TableCell>
+                      <TableCell className="hidden md:table-cell p-1 sm:p-2 overflow-hidden text-ellipsis">{proceso.demandado}</TableCell>
+                      <TableCell className="p-1 sm:p-2">
                         <ProcessStatusBadge 
                           status={proceso.estado} 
                           juridicalStatus={proceso.estado_juridico}
                         />
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell p-2 sm:p-3">
-                        <div className="flex flex-col gap-1">
-                          {proceso.fecha_ultima_revision ? (
-                            <>
-                              <span className="text-xs sm:text-sm">{formatDate(proceso.fecha_ultima_revision)}</span>
-                              {reviewAlert.message && (
-                                <Badge
-                                  variant={reviewAlert.type === "critical" ? "destructive" : "secondary"}
-                                  className={`text-xs ${
-                                    reviewAlert.type === "warning"
-                                      ? "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20"
-                                      : ""
-                                  }`}
-                                >
-                                  {reviewAlert.type === "critical" && <AlertCircle className="h-3 w-3 mr-1" />}
-                                  {reviewAlert.type === "warning" && <AlertTriangle className="h-3 w-3 mr-1" />}
-                                  {reviewAlert.message}
-                                </Badge>
-                              )}
-                            </>
-                          ) : (
-                            <Badge variant="destructive" className="text-xs">
-                              <AlertCircle className="h-3 w-3 mr-1" />
-                              Sin revisión
-                            </Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-1 sm:gap-2">
+                      <TableCell className="text-right p-1 sm:p-2">
+                        <div className="flex items-center justify-end gap-0.5 sm:gap-1">
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => handleMarkReviewed(proceso.id, proceso.expediente)}
-                            className="whitespace-nowrap text-xs sm:text-sm h-8 sm:h-9"
+                            className="h-8 sm:h-9 px-2"
                             title="Marcar como revisado"
                           >
-                            <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-0 sm:mr-1" />
-                            <span className="hidden sm:inline">Revisado</span>
+                            <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+                            <span className="hidden sm:inline ml-1 text-xs">Revisado</span>
                           </Button>
                           <Button variant="ghost" size="sm" asChild className="text-xs sm:text-sm h-8 sm:h-9">
                             <Link href={`/procesos/${proceso.id}`}>Ver</Link>
