@@ -41,6 +41,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     if (!navigationReady) return false
     return hasPermission(item.resource)
   })
+
+  const handleLogout = () => {
     logout()
     router.push('/login')
   }
