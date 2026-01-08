@@ -233,6 +233,10 @@ export default function ProcesoDetailPage() {
               <p className="font-medium mt-1">{proceso.materia}</p>
             </div>
             <div>
+              <p className="text-sm text-muted-foreground">Abogado Responsable</p>
+              <p className="font-medium mt-1">{proceso.abogado_responsable_nombre || 'Sin asignar'}</p>
+            </div>
+            <div>
               <p className="text-sm text-muted-foreground">Estados</p>
               <div className="mt-2 space-y-2">
                 {proceso.estado_juridico && (

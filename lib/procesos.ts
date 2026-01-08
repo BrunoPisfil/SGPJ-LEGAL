@@ -34,6 +34,7 @@ export interface Proceso {
   fecha_ultima_revision?: string;
   observaciones?: string;
   abogado_responsable_id: number;
+  abogado_responsable_nombre?: string;
   created_at: string;
   updated_at?: string;
   // Propiedades computadas para compatibilidad

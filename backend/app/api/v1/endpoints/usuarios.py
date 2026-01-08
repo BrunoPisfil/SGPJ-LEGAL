@@ -74,3 +74,20 @@ async def get_profile(
 ):
     """Obtener el perfil del usuario autenticado"""
     return UsuarioSchema.from_orm(current_user)
+
+
+@router.get("", response_model=list[UsuarioSchema])
+async def list_usuarios(
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
+):
+    """Listar todos los usuarios (solo admin puede ver)"""
+    # Solo admin puede listar usuarios
+    if current_user.rol != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Solo los administradores pueden listar usuarios"
+        )
+    
+    usuarios = db.query(Usuario).all()
+    return [UsuarioSchema.from_orm(u) for u in usuarios]

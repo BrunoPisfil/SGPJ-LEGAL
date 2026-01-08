@@ -14,6 +14,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast"
 import type { ProcessStatus, JuridicalStatus } from "@/components/process-status-badge"
 import { procesosAPI, type Proceso, type ProcesoUpdate, type EstadoProceso, type EstadoJuridico } from "@/lib/procesos"
+import { apiClient } from "@/lib/api"
+import { usuariosAPI, type Usuario } from "@/lib/usuarios"
 import Link from "next/link"
 
 interface Parte {
@@ -34,6 +36,7 @@ export default function EditarProcesoPage() {
   const [partes, setPartes] = useState<Parte[]>([])
   const [editingParteId, setEditingParteId] = useState<number | null>(null)
   const [editingTipoParte, setEditingTipoParte] = useState<string>("")
+  const [usuarios, setUsuarios] = useState<Usuario[]>([])
 
   const [formData, setFormData] = useState({
     expediente: "",
@@ -45,6 +48,7 @@ export default function EditarProcesoPage() {
     estado: "" as ProcessStatus | "",
     estadoJuridico: "",
     estadoDescripcion: "",
+    abogadoResponsableId: 0,
   })
 
   useEffect(() => {
@@ -52,8 +56,13 @@ export default function EditarProcesoPage() {
       if (!params.id) return
       
       try {
-        const data = await procesosAPI.getById(Number(params.id))
+        const [data, abogados] = await Promise.all([
+          procesosAPI.getById(Number(params.id)),
+          usuariosAPI.getAll()
+        ])
+        
         setProceso(data)
+        setUsuarios(abogados)
         setFormData({
           expediente: data.expediente || "",
           materia: data.materia || "",
@@ -64,6 +73,7 @@ export default function EditarProcesoPage() {
           estado: data.estado || "",
           estadoJuridico: data.estado_juridico || "",
           estadoDescripcion: data.estadoDescripcion || "",
+          abogadoResponsableId: data.abogado_responsable_id || 0,
         })
         
         // Cargar partes del proceso
@@ -85,15 +95,9 @@ export default function EditarProcesoPage() {
 
   const loadPartes = async (procesoId: number) => {
     try {
-      const response = await fetch(`/api/v1/procesos/${procesoId}/partes`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-      })
-      if (response.ok) {
-        const data = await response.json()
-        setPartes(data || [])
-      }
+      const data = await apiClient.get<Parte[]>(`/procesos/${procesoId}/partes`)
+      setPartes(data || [])
+      console.log('✅ Partes cargadas:', data)
     } catch (err) {
       console.error('Error loading partes:', err)
       // No mostrar error ya que las partes son opcionales
@@ -104,32 +108,16 @@ export default function EditarProcesoPage() {
     if (!proceso) return
     
     try {
-      const response = await fetch(`/api/v1/partes/${parteId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify({ 
-          tipo_parte: tipoParte 
-        }),
+      await apiClient.put(`/partes/${parteId}`, { 
+        tipo_parte: tipoParte 
       })
       
-      if (response.ok) {
-        toast({
-          title: "Rol actualizado",
-          description: "El rol de la parte ha sido actualizado",
-        })
-        await loadPartes(Number(params.id))
-        setEditingParteId(null)
-      } else {
-        const error = await response.json()
-        toast({
-          title: "Error",
-          description: error.detail || "No se pudo actualizar el rol",
-          variant: "destructive",
-        })
-      }
+      toast({
+        title: "Rol actualizado",
+        description: "El rol de la parte ha sido actualizado",
+      })
+      await loadPartes(Number(params.id))
+      setEditingParteId(null)
     } catch (err) {
       console.error('Error updating tipo_parte:', err)
       toast({
@@ -175,6 +163,7 @@ export default function EditarProcesoPage() {
         estado_juridico: formData.estadoJuridico || null,
         expediente: formData.expediente,
         observaciones: formData.estadoDescripcion,
+        abogado_responsable_id: formData.abogadoResponsableId || null,
         // No enviamos demandante, demandado, juzgado ya que requieren manejo especial
       }
       
@@ -239,6 +228,26 @@ export default function EditarProcesoPage() {
                   required
                 />
               </div>
+            </div>
+
+            {/* Abogado Responsable */}
+            <div className="space-y-2">
+              <Label htmlFor="abogadoResponsable">Abogado Responsable</Label>
+              <Select 
+                value={formData.abogadoResponsableId.toString()} 
+                onValueChange={(value) => setFormData({ ...formData, abogadoResponsableId: parseInt(value) })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccionar abogado responsable" />
+                </SelectTrigger>
+                <SelectContent>
+                  {usuarios.map((usuario) => (
+                    <SelectItem key={usuario.id} value={usuario.id.toString()}>
+                      {usuario.nombre} ({usuario.email})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Estados */}

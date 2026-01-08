@@ -2,7 +2,9 @@
 export const API_CONFIG = {
   BASE_URL: process.env.NEXT_PUBLIC_API_URL
     ? `${process.env.NEXT_PUBLIC_API_URL}/api/v1`
-    : 'http://localhost:8000/api/v1',
+    : typeof window !== 'undefined' && window.location.hostname.includes('vercel.app')
+      ? 'https://sgpj-legal-backend.vercel.app/api/v1'
+      : 'http://localhost:8000/api/v1',
   TIMEOUT: 30000,
 } as const;
 
