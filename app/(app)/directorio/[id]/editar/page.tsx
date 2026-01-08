@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { ArrowLeft, Loader } from "lucide-react"
+import { ArrowLeft, Loader, Edit2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -12,7 +12,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import directorioAPI, { type DirectorioEntry, type DirectorioUpdate } from "@/lib/directorio"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Link from "next/link"
+
+interface ProcesoCliente {
+  proceso_id: number;
+  expediente: string;
+  tipo_parte: 'demandante' | 'demandado' | 'tercero';
+  es_nuestro_cliente: boolean;
+}
 
 export default function EditarDirectorioPage() {
   const params = useParams()
@@ -22,6 +30,9 @@ export default function EditarDirectorioPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [entrada, setEntrada] = useState<DirectorioEntry | null>(null)
+  const [procesosCliente, setProcesosCliente] = useState<ProcesoCliente[]>([])
+  const [editingProceso, setEditingProceso] = useState<number | null>(null)
+  const [nuevaTipoParte, setNuevaTipoParte] = useState<string>("")
 
   const [formData, setFormData] = useState({
     nombre: "",
@@ -67,11 +78,70 @@ export default function EditarDirectorioPage() {
         especialidad: data.especialidad || "",
         numero_colegiado: data.numero_colegiado || "",
       })
+      
+      // Cargar procesos asociados si es cliente
+      if (data.tipo === "cliente") {
+        await loadProcessosCliente(entradaId)
+      }
     } catch (err) {
       console.error('Error loading entrada:', err)
       setError('Registro no encontrado')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadProcessosCliente = async (clienteId: number) => {
+    try {
+      const response = await fetch(`/api/v1/directorio/${clienteId}/procesos`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      })
+      if (response.ok) {
+        const data = await response.json()
+        setProcesosCliente(data || [])
+      }
+    } catch (err) {
+      console.error('Error loading procesos:', err)
+      // No mostrar error toast ya que los procesos son opcionales
+    }
+  }
+
+  const handleUpdateTipoParte = async (procesoId: number, tipoParte: string) => {
+    if (!entrada) return
+    
+    try {
+      const response = await fetch(`/api/v1/procesos/${procesoId}/partes/${entrada.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({ tipo_parte: tipoParte }),
+      })
+      
+      if (response.ok) {
+        toast({
+          title: "Rol actualizado",
+          description: `El cliente ahora es ${tipoParte}`,
+        })
+        await loadProcessosCliente(entrada.id)
+        setEditingProceso(null)
+      } else {
+        toast({
+          title: "Error",
+          description: "No se pudo actualizar el rol",
+          variant: "destructive",
+        })
+      }
+    } catch (err) {
+      console.error('Error updating tipo_parte:', err)
+      toast({
+        title: "Error",
+        description: "Error al actualizar el rol",
+        variant: "destructive",
+      })
     }
   }
 
@@ -174,12 +244,21 @@ export default function EditarDirectorioPage() {
 
       {/* Form */}
       <form onSubmit={handleSubmit}>
-        <Card>
-          <CardHeader>
-            <CardTitle>Información General</CardTitle>
-            <CardDescription>Actualiza los datos del registro</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
+        <Tabs defaultValue="datos" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="datos">Información General</TabsTrigger>
+            {entrada.tipo === "cliente" && procesosCliente.length > 0 && (
+              <TabsTrigger value="procesos">Roles en Procesos ({procesosCliente.length})</TabsTrigger>
+            )}
+          </TabsList>
+
+          <TabsContent value="datos">
+            <Card>
+              <CardHeader>
+                <CardTitle>Información General</CardTitle>
+                <CardDescription>Actualiza los datos del registro</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
             {/* Nombre - Solo para JUZGADO */}
             {entrada.tipo === "juzgado" && (
               <div className="space-y-2">
@@ -358,6 +437,84 @@ export default function EditarDirectorioPage() {
             </div>
           </CardContent>
         </Card>
+
+          {/* Tab de Procesos */}
+          {entrada.tipo === "cliente" && (
+            <TabsContent value="procesos" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Roles en Procesos</CardTitle>
+                  <CardDescription>Visualiza y edita los roles del cliente en cada proceso</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {procesosCliente.length === 0 ? (
+                    <p className="text-muted-foreground text-center py-8">Este cliente no está asociado a ningún proceso</p>
+                  ) : (
+                    <div className="space-y-4">
+                      {procesosCliente.map((proceso) => (
+                        <div key={proceso.proceso_id} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div className="flex-1">
+                            <p className="font-medium">{proceso.expediente}</p>
+                            <div className="flex items-center gap-2 mt-2">
+                              <span className="text-sm text-muted-foreground">Rol:</span>
+                              {editingProceso === proceso.proceso_id ? (
+                                <div className="flex items-center gap-2">
+                                  <Select value={nuevaTipoParte} onValueChange={setNuevaTipoParte}>
+                                    <SelectTrigger className="w-40">
+                                      <SelectValue placeholder="Selecciona rol" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="demandante">Demandante</SelectItem>
+                                      <SelectItem value="demandado">Demandado</SelectItem>
+                                      <SelectItem value="tercero">Tercero</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleUpdateTipoParte(proceso.proceso_id, nuevaTipoParte)}
+                                  >
+                                    Guardar
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => setEditingProceso(null)}
+                                  >
+                                    Cancelar
+                                  </Button>
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-2">
+                                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                    proceso.tipo_parte === 'demandante' ? 'bg-blue-100 text-blue-800' :
+                                    proceso.tipo_parte === 'demandado' ? 'bg-red-100 text-red-800' :
+                                    'bg-gray-100 text-gray-800'
+                                  }`}>
+                                    {proceso.tipo_parte.charAt(0).toUpperCase() + proceso.tipo_parte.slice(1)}
+                                  </span>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => {
+                                      setEditingProceso(proceso.proceso_id)
+                                      setNuevaTipoParte(proceso.tipo_parte)
+                                    }}
+                                  >
+                                    <Edit2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
+        </Tabs>
 
         {/* Actions */}
         <div className="flex justify-end gap-4 mt-6">

@@ -2,7 +2,7 @@
 API endpoints para gestión de partes de procesos
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Body
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -83,6 +83,43 @@ def update_parte_proceso(
     # Actualizar campos
     for field, value in parte_update.dict(exclude_unset=True).items():
         setattr(parte, field, value)
+    
+    db.commit()
+    db.refresh(parte)
+    
+    return parte
+
+
+@router.patch("/procesos/{proceso_id}/partes/{cliente_id}", response_model=ParteProcesoSchema)
+def update_parte_tipo(
+    proceso_id: int,
+    cliente_id: int,
+    tipo_parte_data: dict = Body(...),
+    db: Session = Depends(get_db)
+):
+    """Actualizar el tipo de parte de un cliente en un proceso específico"""
+    tipo_parte = tipo_parte_data.get("tipo_parte")
+    
+    if not tipo_parte or tipo_parte not in ["demandante", "demandado", "tercero"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="tipo_parte debe ser 'demandante', 'demandado' o 'tercero'"
+        )
+    
+    # Buscar la parte específica
+    parte = db.query(ParteProceso).filter(
+        ParteProceso.proceso_id == proceso_id,
+        ParteProceso.cliente_id == cliente_id
+    ).first()
+    
+    if not parte:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Parte no encontrada en este proceso"
+        )
+    
+    # Actualizar tipo_parte
+    parte.tipo_parte = tipo_parte
     
     db.commit()
     db.refresh(parte)

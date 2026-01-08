@@ -63,6 +63,7 @@ class Proceso(Base):
     notificaciones = relationship("Notificacion", back_populates="proceso", cascade="all, delete-orphan")
     contratos = relationship("Contrato", back_populates="proceso", cascade="all, delete-orphan")
     resoluciones = relationship("Resolucion", back_populates="proceso", cascade="all, delete-orphan")
+    bitacora = relationship("BitacoraProceso", back_populates="proceso", cascade="all, delete-orphan")
     
     # Relación con las partes del proceso (nueva estructura)
     partes = relationship("ParteProceso", back_populates="proceso", cascade="all, delete-orphan")

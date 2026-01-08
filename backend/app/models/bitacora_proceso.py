@@ -25,7 +25,7 @@ class BitacoraProceso(Base):
     fecha_cambio = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     
     # Relaciones
-    proceso = relationship("Proceso", backref="bitacora")
+    proceso = relationship("Proceso", back_populates="bitacora")
     usuario = relationship("Usuario", foreign_keys=[usuario_id])
     
     def __repr__(self):
