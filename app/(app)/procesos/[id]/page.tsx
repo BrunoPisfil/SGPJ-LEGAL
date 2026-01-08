@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { ArrowLeft, Edit, Trash2, Calendar, History, Plus } from "lucide-react"
+import { ArrowLeft, Edit, Trash2, Calendar, History, Plus, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -144,6 +144,26 @@ export default function ProcesoDetailPage() {
     }
   }
 
+  const handleMarkReviewed = async (procesoId: number, expediente: string) => {
+    try {
+      await procesosAPI.markAsReviewed(procesoId)
+      
+      // Actualizar el proceso en el estado local
+      setProceso(prev => prev ? { ...prev, fecha_ultima_revision: new Date().toISOString().split('T')[0] } : null)
+      
+      toast({
+        title: "Proceso marcado como revisado",
+        description: `El expediente ${expediente} ha sido actualizado con la fecha de hoy.`,
+      })
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo marcar el proceso como revisado",
+        variant: "destructive",
+      })
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -161,12 +181,22 @@ export default function ProcesoDetailPage() {
         </div>
         <div className="flex gap-2">
           {hasPermission("procesos", "update") && (
-            <Button variant="outline" asChild>
-              <Link href={`/procesos/${proceso.id}/editar`}>
-                <Edit className="mr-2 h-4 w-4" />
-                Editar
-              </Link>
-            </Button>
+            <>
+              <Button variant="outline" asChild>
+                <Link href={`/procesos/${proceso.id}/editar`}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Editar
+                </Link>
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => handleMarkReviewed(proceso.id, proceso.expediente)}
+                title="Marcar como revisado"
+              >
+                <CheckCircle className="mr-2 h-4 w-4" />
+                Revisar
+              </Button>
+            </>
           )}
           {hasPermission("procesos", "delete") && (
             <Button variant="outline" onClick={() => setShowDeleteDialog(true)}>

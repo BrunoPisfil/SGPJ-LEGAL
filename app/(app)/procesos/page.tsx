@@ -249,7 +249,8 @@ export default function ProcesosPage() {
                   <TableHead className="hidden md:table-cell p-1 sm:p-2 overflow-hidden text-ellipsis w-[120px]">Demandante</TableHead>
                   <TableHead className="hidden md:table-cell p-1 sm:p-2 overflow-hidden text-ellipsis w-[120px]">Demandado</TableHead>
                   <TableHead className="p-1 sm:p-2 overflow-hidden text-ellipsis w-[100px]">Estados</TableHead>
-                  <TableHead className="p-1 sm:p-2 text-right overflow-hidden text-ellipsis w-[120px]">Acciones</TableHead>
+                  <TableHead className="hidden sm:table-cell p-1 sm:p-2 overflow-hidden text-ellipsis w-[100px]">Revisión</TableHead>
+                  <TableHead className="p-1 sm:p-2 text-right overflow-hidden text-ellipsis w-[80px]">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -267,18 +268,21 @@ export default function ProcesosPage() {
                           juridicalStatus={proceso.estado_juridico}
                         />
                       </TableCell>
-                      <TableCell className="text-right p-1 sm:p-2">
-                        <div className="flex items-center justify-end gap-0.5 sm:gap-1">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleMarkReviewed(proceso.id, proceso.expediente)}
-                            className="h-8 sm:h-9 px-2"
-                            title="Marcar como revisado"
-                          >
-                            <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4" />
-                            <span className="hidden sm:inline ml-1 text-xs">Revisado</span>
-                          </Button>
+                      <TableCell className="hidden sm:table-cell p-1 sm:p-2">
+                        {proceso.fecha_ultima_revision ? (
+                          <Badge variant="outline" className="text-xs">
+                            <CheckCircle className="h-3 w-3 mr-1" />
+                            Revisado
+                          </Badge>
+                        ) : (
+                          <Badge variant="destructive" className="text-xs">
+                            <AlertCircle className="h-3 w-3 mr-1" />
+                            Sin revisar
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-1 sm:gap-2">
                           <Button variant="ghost" size="sm" asChild className="text-xs sm:text-sm h-8 sm:h-9">
                             <Link href={`/procesos/${proceso.id}`}>Ver</Link>
                           </Button>
