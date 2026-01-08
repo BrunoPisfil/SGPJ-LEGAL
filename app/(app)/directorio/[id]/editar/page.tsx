@@ -435,8 +435,9 @@ export default function EditarDirectorioPage() {
                 onChange={(e) => setFormData({ ...formData, direccion: e.target.value })}
               />
             </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           {/* Tab de Procesos */}
           {entrada.tipo === "cliente" && (
