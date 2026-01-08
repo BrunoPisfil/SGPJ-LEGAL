@@ -248,7 +248,6 @@ export default function ProcesosPage() {
                   <TableHead className="hidden sm:table-cell whitespace-nowrap">Materia</TableHead>
                   <TableHead className="hidden md:table-cell whitespace-nowrap">Demandante</TableHead>
                   <TableHead className="hidden md:table-cell whitespace-nowrap">Demandado</TableHead>
-                  <TableHead className="hidden lg:table-cell whitespace-nowrap">Juzgado</TableHead>
                   <TableHead className="whitespace-nowrap">Estados</TableHead>
                   <TableHead className="hidden sm:table-cell whitespace-nowrap">Revisión</TableHead>
                   <TableHead className="text-right whitespace-nowrap">Acciones</TableHead>
@@ -263,7 +262,6 @@ export default function ProcesosPage() {
                       <TableCell className="hidden sm:table-cell text-xs sm:text-sm">{proceso.materia}</TableCell>
                       <TableCell className="hidden md:table-cell text-xs sm:text-sm">{proceso.demandante}</TableCell>
                       <TableCell className="hidden md:table-cell text-xs sm:text-sm">{proceso.demandado}</TableCell>
-                      <TableCell className="hidden lg:table-cell text-xs sm:text-sm text-muted-foreground">{proceso.juzgado}</TableCell>
                       <TableCell className="whitespace-nowrap">
                         <ProcessStatusBadge 
                           status={proceso.estado} 
