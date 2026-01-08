@@ -239,18 +239,18 @@ export default function ProcesosPage() {
           />
         </Card>
       ) : (
-        <Card className="w-full max-w-full">
-          <div className="w-full overflow-x-auto">
-            <Table className="text-sm sm:text-base min-w-full">
+        <Card className="w-full p-0">
+          <div className="w-full">
+            <Table className="text-xs sm:text-sm w-full">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="whitespace-nowrap">Expediente</TableHead>
-                  <TableHead className="hidden sm:table-cell whitespace-nowrap">Materia</TableHead>
-                  <TableHead className="hidden md:table-cell whitespace-nowrap">Demandante</TableHead>
-                  <TableHead className="hidden md:table-cell whitespace-nowrap">Demandado</TableHead>
-                  <TableHead className="whitespace-nowrap">Estados</TableHead>
-                  <TableHead className="hidden sm:table-cell whitespace-nowrap">Revisión</TableHead>
-                  <TableHead className="text-right whitespace-nowrap">Acciones</TableHead>
+                  <TableHead className="p-2 sm:p-3 whitespace-nowrap max-w-[120px] sm:max-w-none">Expediente</TableHead>
+                  <TableHead className="hidden sm:table-cell p-2 sm:p-3 whitespace-nowrap">Materia</TableHead>
+                  <TableHead className="hidden md:table-cell p-2 sm:p-3 whitespace-nowrap">Demandante</TableHead>
+                  <TableHead className="hidden md:table-cell p-2 sm:p-3 whitespace-nowrap">Demandado</TableHead>
+                  <TableHead className="p-2 sm:p-3 whitespace-nowrap">Estados</TableHead>
+                  <TableHead className="hidden sm:table-cell p-2 sm:p-3 whitespace-nowrap">Revisión</TableHead>
+                  <TableHead className="p-2 sm:p-3 text-right whitespace-nowrap">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -258,17 +258,17 @@ export default function ProcesosPage() {
                   const reviewAlert = getReviewAlert(proceso.fecha_ultima_revision)
                   return (
                     <TableRow key={proceso.id}>
-                      <TableCell className="font-medium whitespace-nowrap">{proceso.expediente}</TableCell>
-                      <TableCell className="hidden sm:table-cell text-xs sm:text-sm">{proceso.materia}</TableCell>
-                      <TableCell className="hidden md:table-cell text-xs sm:text-sm">{proceso.demandante}</TableCell>
-                      <TableCell className="hidden md:table-cell text-xs sm:text-sm">{proceso.demandado}</TableCell>
-                      <TableCell className="whitespace-nowrap">
+                      <TableCell className="p-2 sm:p-3 font-medium max-w-[120px] sm:max-w-none truncate text-xs sm:text-sm">{proceso.expediente}</TableCell>
+                      <TableCell className="hidden sm:table-cell p-2 sm:p-3 text-xs sm:text-sm truncate">{proceso.materia}</TableCell>
+                      <TableCell className="hidden md:table-cell p-2 sm:p-3 text-xs sm:text-sm truncate">{proceso.demandante}</TableCell>
+                      <TableCell className="hidden md:table-cell p-2 sm:p-3 text-xs sm:text-sm truncate">{proceso.demandado}</TableCell>
+                      <TableCell className="p-2 sm:p-3 whitespace-nowrap">
                         <ProcessStatusBadge 
                           status={proceso.estado} 
                           juridicalStatus={proceso.estado_juridico}
                         />
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell">
+                      <TableCell className="hidden sm:table-cell p-2 sm:p-3">
                         <div className="flex flex-col gap-1">
                           {proceso.fecha_ultima_revision ? (
                             <>
