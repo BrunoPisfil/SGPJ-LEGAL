@@ -62,7 +62,7 @@ class Contrato(Base):
         """Calcula el porcentaje pagado basado en monto_total"""
         if self.monto_total == 0:
             return 0.0
-        return float((self.total_pagado_incluye_inicial / self.monto_total) * 100)
+        return float((self.total_pagado_incluye_inicial / float(self.monto_total)) * 100)
     
     @property
     def esta_completado(self) -> bool:
