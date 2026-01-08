@@ -260,43 +260,32 @@ class NotificacionService:
         </html>
         """
 
-        # Usar Resend si la API key está configurada
-        if settings.resend_api_key:
-            try:
-                logger.info(f"[EMAIL] Enviando con Resend API para {notificacion.email_destinatario}")
-                
-                # Llamar directamente a la API REST de Resend
-                headers = {
-                    "Authorization": f"Bearer {settings.resend_api_key}",
-                    "Content-Type": "application/json"
-                }
-                
-                payload = {
-                    "from": f"{settings.email_from_name} <{settings.email_from}>",
-                    "to": notificacion.email_destinatario,
-                    "subject": notificacion.titulo,
-                    "html": html_body,
-                    "text": notificacion.mensaje
-                }
-                
-                response = httpx.post(
-                    "https://api.resend.com/emails",
-                    headers=headers,
-                    json=payload,
-                    timeout=10
-                )
-                
-                if response.status_code == 200:
-                    logger.info(f"[EMAIL] Email enviado exitosamente con Resend: {response.text}")
-                    return
-                else:
-                    logger.error(f"[EMAIL] Error de Resend ({response.status_code}): {response.text}")
-                    raise Exception(f"Resend API error: {response.status_code} - {response.text}")
-                    
-            except Exception as e:
-                logger.error(f"[EMAIL] Error al enviar con Resend: {e}", exc_info=True)
-                raise
         
+            # Siempre usar Gmail SMTP para enviar correos
+            logger.info(f"[EMAIL] Usando SMTP Gmail para {notificacion.email_destinatario}")
+            if not settings.smtp_username or not settings.smtp_password:
+                raise ValueError("Credenciales SMTP no configuradas")
+            try:
+                import smtplib
+                from email.mime.multipart import MIMEMultipart
+                from email.mime.text import MIMEText
+                msg = MIMEMultipart('alternative')
+                msg['From'] = f"{settings.email_from_name} <{settings.email_from}>"
+                msg['To'] = notificacion.email_destinatario
+                msg['Subject'] = notificacion.titulo
+                msg.attach(MIMEText(notificacion.mensaje, 'plain', 'utf-8'))
+                msg.attach(MIMEText(html_body, 'html', 'utf-8'))
+                with smtplib.SMTP(settings.smtp_server, settings.smtp_port) as server:
+                    server.ehlo()
+                    if settings.smtp_use_tls:
+                        server.starttls()
+                        server.ehlo()
+                    server.login(settings.smtp_username, settings.smtp_password)
+                    server.sendmail(msg['From'], msg['To'], msg.as_string())
+                logger.info(f"Email enviado mediante SMTP Gmail a {notificacion.email_destinatario}")
+            except Exception as e:
+                logger.error(f"Error al enviar email con SMTP Gmail: {e}")
+                raise
         # Fallback a SMTP (desarrollo local)
         logger.info(f"[EMAIL] Usando SMTP fallback para {notificacion.email_destinatario}")
         if not settings.smtp_username or not settings.smtp_password:
