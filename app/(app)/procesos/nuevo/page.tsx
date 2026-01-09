@@ -26,6 +26,43 @@ export default function NuevoProcesoPage() {
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
 
+  const distritosJudiciales = [
+    { value: "01", label: "AMAZONAS" },
+    { value: "02", label: "ANCASH" },
+    { value: "03", label: "APURIMAC" },
+    { value: "04", label: "AREQUIPA" },
+    { value: "05", label: "AYACUCHO" },
+    { value: "06", label: "CAJAMARCA" },
+    { value: "07", label: "CALLAO" },
+    { value: "08", label: "CAÑETE" },
+    { value: "09", label: "CORTE SUPERIOR NACIONAL DE JUSTICIA PENAL ESPECIALIZADA" },
+    { value: "10", label: "CUSCO" },
+    { value: "11", label: "HUANCAVELICA" },
+    { value: "12", label: "HUANUCO" },
+    { value: "13", label: "DEL SANTA" },
+    { value: "14", label: "ICA" },
+    { value: "15", label: "JUNIN" },
+    { value: "16", label: "LA LIBERTAD" },
+    { value: "17", label: "LAMBAYEQUE" },
+    { value: "18", label: "LIMA" },
+    { value: "19", label: "LIMA ESTE" },
+    { value: "20", label: "LIMA NORTE" },
+    { value: "21", label: "LIMA SUR" },
+    { value: "22", label: "LORETO" },
+    { value: "23", label: "MADRE DE DIOS" },
+    { value: "24", label: "MOQUEGUA" },
+    { value: "25", label: "PASCO" },
+    { value: "26", label: "PIURA" },
+    { value: "27", label: "PUENTE PIEDRA - VENTANILLA" },
+    { value: "28", label: "PUNO" },
+    { value: "29", label: "SAN MARTIN" },
+    { value: "30", label: "SELVA CENTRAL" },
+    { value: "31", label: "SULLANA" },
+    { value: "32", label: "TACNA" },
+    { value: "33", label: "TUMBES" },
+    { value: "34", label: "UCAYALI" }
+  ];
+
   const [formData, setFormData] = useState({
     expediente: "",
     materia: "",
@@ -45,6 +82,7 @@ export default function NuevoProcesoPage() {
     juzgadoId: "",
     especialistaId: "",
     abogadoId: "",
+    distritoJudicial: ""
   })
 
   // Handlers para los selectores
@@ -123,6 +161,7 @@ export default function NuevoProcesoPage() {
         demandado: formData.demandado,
         cliente_id: formData.clienteId ? parseInt(formData.clienteId) : undefined,
         juzgado: formData.juzgado || "Sin asignar",
+        distrito_judicial: formData.distritoJudicial || undefined,
         juez: formData.especialista || undefined,
         estado: formData.estado,
         fecha_inicio: new Date().toISOString().split('T')[0], // Fecha actual en formato YYYY-MM-DD
@@ -295,6 +334,21 @@ export default function NuevoProcesoPage() {
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="distritoJudicial">Distrito Judicial</Label>
+                <select
+                  id="distritoJudicial"
+                  className="w-full border rounded-md px-3 py-2"
+                  value={formData.distritoJudicial}
+                  onChange={e => setFormData({ ...formData, distritoJudicial: e.target.value })}
+                  required
+                >
+                  <option value="">Selecciona un distrito</option>
+                  {distritosJudiciales.map(d => (
+                    <option key={d.value} value={d.label}>{d.label}</option>
+                  ))}
+                </select>
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="juzgado">Juzgado</Label>
                 <JuzgadoSelector
