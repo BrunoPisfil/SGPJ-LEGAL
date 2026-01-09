@@ -15,6 +15,42 @@ import directorioAPI, { type DirectorioCreate } from "@/lib/directorio"
 import Link from "next/link"
 
 export default function NuevoDirectorioPage() {
+    const distritosJudiciales = [
+      { value: "01", label: "AMAZONAS" },
+      { value: "02", label: "ANCASH" },
+      { value: "03", label: "APURIMAC" },
+      { value: "04", label: "AREQUIPA" },
+      { value: "05", label: "AYACUCHO" },
+      { value: "06", label: "CAJAMARCA" },
+      { value: "07", label: "CALLAO" },
+      { value: "08", label: "CAÑETE" },
+      { value: "09", label: "CORTE SUPERIOR NACIONAL DE JUSTICIA PENAL ESPECIALIZADA" },
+      { value: "10", label: "CUSCO" },
+      { value: "11", label: "HUANCAVELICA" },
+      { value: "12", label: "HUANUCO" },
+      { value: "13", label: "DEL SANTA" },
+      { value: "14", label: "ICA" },
+      { value: "15", label: "JUNIN" },
+      { value: "16", label: "LA LIBERTAD" },
+      { value: "17", label: "LAMBAYEQUE" },
+      { value: "18", label: "LIMA" },
+      { value: "19", label: "LIMA ESTE" },
+      { value: "20", label: "LIMA NORTE" },
+      { value: "21", label: "LIMA SUR" },
+      { value: "22", label: "LORETO" },
+      { value: "23", label: "MADRE DE DIOS" },
+      { value: "24", label: "MOQUEGUA" },
+      { value: "25", label: "PASCO" },
+      { value: "26", label: "PIURA" },
+      { value: "27", label: "PUENTE PIEDRA - VENTANILLA" },
+      { value: "28", label: "PUNO" },
+      { value: "29", label: "SAN MARTIN" },
+      { value: "30", label: "SELVA CENTRAL" },
+      { value: "31", label: "SULLANA" },
+      { value: "32", label: "TACNA" },
+      { value: "33", label: "TUMBES" },
+      { value: "34", label: "UCAYALI" }
+    ];
   const router = useRouter()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
@@ -256,11 +292,18 @@ export default function NuevoDirectorioPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="distrito_judicial">Distrito Judicial</Label>
-                  <Input
+                  <select
                     id="distrito_judicial"
+                    className="w-full border rounded-md px-3 py-2"
                     value={formData.distrito_judicial}
-                    onChange={(e) => setFormData({ ...formData, distrito_judicial: e.target.value })}
-                  />
+                    onChange={e => setFormData({ ...formData, distrito_judicial: e.target.value })}
+                    required
+                  >
+                    <option value="">Selecciona un distrito</option>
+                    {distritosJudiciales.map(d => (
+                      <option key={d.value} value={d.label}>{d.label}</option>
+                    ))}
+                  </select>
                 </div>
               </>
             )}
