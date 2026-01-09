@@ -176,25 +176,25 @@ async def create_proceso(
     # Registrar en la bitácora la creación
     from app.models.bitacora_proceso import BitacoraProceso
     bitacora = BitacoraProceso(
-        proceso_id=db_proceso.id,
-        usuario_id=current_user.id,
-        accion='creacion',
-        campo_modificado=None,
-        valor_anterior=None,
-        valor_nuevo=str({
-            'expediente': db_proceso.expediente,
-            'tipo': db_proceso.tipo,
-            'materia': db_proceso.materia,
-            'estado': db_proceso.estado,
-            'estado_juridico': db_proceso.estado_juridico,
-            'monto_pretension': str(db_proceso.monto_pretension),
-                'fecha_inicio': str(db_proceso.fecha_inicio),
-                'abogado_responsable_id': db_proceso.abogado_responsable_id
-            }),
-            descripcion=f"Creación de proceso por usuario {current_user.email}"
-        )
-        db.add(bitacora)
-        db.commit()
+    proceso_id=db_proceso.id,
+    usuario_id=current_user.id,
+    accion='creacion',
+    campo_modificado=None,
+    valor_anterior=None,
+    valor_nuevo=str({
+        'expediente': db_proceso.expediente,
+        'tipo': db_proceso.tipo,
+        'materia': db_proceso.materia,
+        'estado': db_proceso.estado,
+        'estado_juridico': db_proceso.estado_juridico,
+        'monto_pretension': str(db_proceso.monto_pretension),
+        'fecha_inicio': str(db_proceso.fecha_inicio),
+        'abogado_responsable_id': db_proceso.abogado_responsable_id
+    }),
+    descripcion=f"Creación de proceso por usuario {current_user.email}"
+    )
+    db.add(bitacora)
+    db.commit()
 
     return proceso_to_response(db_proceso)
 
