@@ -335,21 +335,6 @@ export default function NuevoProcesoPage() {
 
             <div className="grid gap-6 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="distritoJudicial">Distrito Judicial</Label>
-                <select
-                  id="distritoJudicial"
-                  className="w-full border rounded-md px-3 py-2"
-                  value={formData.distritoJudicial}
-                  onChange={e => setFormData({ ...formData, distritoJudicial: e.target.value })}
-                  required
-                >
-                  <option value="">Selecciona un distrito</option>
-                  {distritosJudiciales.map(d => (
-                    <option key={d.value} value={d.label}>{d.label}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-2">
                 <Label htmlFor="juzgado">Juzgado</Label>
                 <JuzgadoSelector
                   selectedJuzgadoId={formData.juzgadoId}
