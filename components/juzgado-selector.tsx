@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Building } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
 import { apiClient } from "@/lib/api"
 import type { Juzgado } from "@/lib/juzgados"
@@ -33,6 +33,7 @@ export function JuzgadoSelector({
   const [selectedInstancia, setSelectedInstancia] = useState("")
   const [selectedEspecialidad, setSelectedEspecialidad] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [juzgadoSeleccionado, setJuzgadoSeleccionado] = useState<any>(null)
 
   // 1. Cargar distritos e instancias al abrir modal
   useEffect(() => {
@@ -109,10 +110,11 @@ export function JuzgadoSelector({
   }
 
   const handleSeleccionarJuzgado = (juzgado: any) => {
+    setJuzgadoSeleccionado(juzgado)
     onJuzgadoSelect({
       id: juzgado.id,
       nombre: juzgado.nombre,
-      distrito_judicial: juzgado.distrito,
+      distrito_judicial: juzgado.distrito_judicial,
       direccion: juzgado.direccion,
       telefono: juzgado.telefono,
       email: juzgado.email
@@ -123,6 +125,8 @@ export function JuzgadoSelector({
     setSelectedInstancia("")
     setSelectedEspecialidad("")
   }
+    setSelectedEspecialidad("")
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -130,8 +134,8 @@ export function JuzgadoSelector({
         {trigger || (
           <Button variant="outline" className="w-full justify-start text-left font-normal">
             <Building className="mr-2 h-4 w-4" />
-            {selectedJuzgadoNombre 
-              ? selectedJuzgadoNombre
+            {juzgadoSeleccionado?.nombre || selectedJuzgadoNombre 
+              ? juzgadoSeleccionado?.nombre || selectedJuzgadoNombre
               : "Seleccionar juzgado"
             }
           </Button>
@@ -141,6 +145,9 @@ export function JuzgadoSelector({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Seleccionar Juzgado</DialogTitle>
+          <DialogDescription>
+            Elige el distrito, la instancia y la especialidad para filtrar los juzgados disponibles.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
