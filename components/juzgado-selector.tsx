@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
+import { apiClient } from "@/lib/api"
 import type { Juzgado } from "@/lib/juzgados"
 
 interface JuzgadoSelectorProps {
@@ -61,10 +62,7 @@ export function JuzgadoSelector({
 
   const cargarDistritos = async () => {
     try {
-      const response = await fetch(
-        "https://sgpj-legal-backend.vercel.app/api/v1/directorio/juzgados/distritos"
-      )
-      const data = await response.json()
+      const data = await apiClient.get<any[]>("/directorio/juzgados/distritos")
       setDistritos(data)
     } catch (error) {
       console.error("Error cargando distritos:", error)
@@ -74,10 +72,7 @@ export function JuzgadoSelector({
 
   const cargarInstancias = async () => {
     try {
-      const response = await fetch(
-        "https://sgpj-legal-backend.vercel.app/api/v1/directorio/juzgados/instancias"
-      )
-      const data = await response.json()
+      const data = await apiClient.get<any[]>("/directorio/juzgados/instancias")
       setInstancias(data)
     } catch (error) {
       console.error("Error cargando instancias:", error)
@@ -87,10 +82,9 @@ export function JuzgadoSelector({
 
   const cargarEspecialidades = async (instanciaId: number) => {
     try {
-      const response = await fetch(
-        `https://sgpj-legal-backend.vercel.app/api/v1/directorio/juzgados/especialidades-por-instancia/${instanciaId}`
+      const data = await apiClient.get<any[]>(
+        `/directorio/juzgados/especialidades-por-instancia/${instanciaId}`
       )
-      const data = await response.json()
       setEspecialidades(data)
       setSelectedEspecialidad("") // Resetear especialidad seleccionada
     } catch (error) {
@@ -102,10 +96,9 @@ export function JuzgadoSelector({
   const buscarJuzgados = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch(
-        `https://sgpj-legal-backend.vercel.app/api/v1/directorio/juzgados/filtrados?distrito_id=${selectedDistrito}&instancia_id=${selectedInstancia}&especialidad_id=${selectedEspecialidad}`
+      const data = await apiClient.get<any[]>(
+        `/directorio/juzgados/filtrados?distrito_id=${selectedDistrito}&instancia_id=${selectedInstancia}&especialidad_id=${selectedEspecialidad}`
       )
-      const data = await response.json()
       setJuzgadosDisponibles(data)
     } catch (error) {
       console.error("Error buscando juzgados:", error)
