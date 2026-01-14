@@ -128,6 +128,7 @@ export function EspecialistaSelector({ selectedEspecialistaId, onEspecialistaSel
             <UserCheck className="h-5 w-5" />
             Seleccionar Juez/Especialista
           </DialogTitle>
+          <DialogDescription className="text-sm">Busca por nombre, cargo, juzgado o email.</DialogDescription>
         </DialogHeader>
         
         <div className="px-6 pb-1 space-y-2 shrink-0">

@@ -130,6 +130,7 @@ export function AbogadoSelector({ selectedAbogadoId, onAbogadoSelect, trigger }:
             <Briefcase className="h-5 w-5" />
             Seleccionar Abogado Responsable
           </DialogTitle>
+          <DialogDescription className="text-sm">Busca por nombre, especialidad, colegiatura o email.</DialogDescription>
         </DialogHeader>
         
         <div className="px-6 pb-1 space-y-2 shrink-0">

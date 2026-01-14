@@ -206,6 +206,7 @@ export function ProcessSelectorFinance({ selectedProcessId, onProcessSelect, tri
             <Scale className="h-5 w-5" />
             Seleccionar Proceso Judicial
           </DialogTitle>
+          <DialogDescription className="text-sm">Busca y selecciona el proceso para transacciones financieras.</DialogDescription>
         </DialogHeader>
 
         <div className="px-6 pb-2 shrink-0">

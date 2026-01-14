@@ -103,6 +103,7 @@ export function ClienteSelector({ selectedClienteId, onClienteSelect, trigger }:
             <User className="h-5 w-5" />
             Seleccionar Cliente
           </DialogTitle>
+          <DialogDescription className="text-sm">Busca por nombre, documento, email o teléfono.</DialogDescription>
         </DialogHeader>
         
         <div className="px-6 pb-1 space-y-2 shrink-0">

@@ -97,6 +97,7 @@ export function ProcessSelector({ selectedProcessId, onProcessSelect, trigger }:
             <FileText className="h-5 w-5" />
             Seleccionar Proceso Judicial
           </DialogTitle>
+          <DialogDescription className="text-sm">Busca y selecciona el proceso judicial.</DialogDescription>
         </DialogHeader>
         
         <div className="px-6 pb-1 space-y-2 shrink-0">
