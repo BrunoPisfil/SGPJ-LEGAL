@@ -125,8 +125,6 @@ export function JuzgadoSelector({
     setSelectedInstancia("")
     setSelectedEspecialidad("")
   }
-    setSelectedEspecialidad("")
-  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
