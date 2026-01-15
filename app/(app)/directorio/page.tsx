@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Plus, Search, Users, Building2, User, Briefcase } from "lucide-react"
+import { Plus, Search, Users, Building2, User, Briefcase, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
@@ -18,6 +18,9 @@ export default function DirectorioPage() {
   const [directorio, setDirectorio] = useState<DirectorioEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [currentPageActivos, setCurrentPageActivos] = useState(1)
+  const [currentPageInactivos, setCurrentPageInactivos] = useState(1)
+  const itemsPerPage = 10
   const { hasPermission } = usePermission()
 
   // Cargar datos del directorio
@@ -54,9 +57,27 @@ export default function DirectorioPage() {
     loadDirectorio()
   }, [searchQuery, activeTab])
 
+  // Resetear paginación cuando cambia tab o búsqueda
+  useEffect(() => {
+    setCurrentPageActivos(1)
+    setCurrentPageInactivos(1)
+  }, [searchQuery, activeTab])
+
   // Filtrar por estado activo/inactivo
   const activeEntries = directorio.filter(e => e.activo)
   const inactiveEntries = directorio.filter(e => !e.activo)
+
+  // Paginación para Activos
+  const totalPagesActivos = Math.ceil(activeEntries.length / itemsPerPage)
+  const startIndexActivos = (currentPageActivos - 1) * itemsPerPage
+  const endIndexActivos = startIndexActivos + itemsPerPage
+  const activosPaginados = activeEntries.slice(startIndexActivos, endIndexActivos)
+
+  // Paginación para Inactivos
+  const totalPagesInactivos = Math.ceil(inactiveEntries.length / itemsPerPage)
+  const startIndexInactivos = (currentPageInactivos - 1) * itemsPerPage
+  const endIndexInactivos = startIndexInactivos + itemsPerPage
+  const inactivosPaginados = inactiveEntries.slice(startIndexInactivos, endIndexInactivos)
 
   // Componente reutilizable para tarjetas
   const EntryCard = ({ entry }: { entry: DirectorioEntry }) => {
@@ -140,24 +161,88 @@ export default function DirectorioPage() {
         {/* Active Entries */}
         {activeEntries.length > 0 && (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold">Activos</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Activos</h2>
+              {totalPagesActivos > 1 && (
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setCurrentPageActivos(prev => Math.max(1, prev - 1))}
+                    disabled={currentPageActivos === 1}
+                    className="h-8 px-2"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    {currentPageActivos} / {totalPagesActivos}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setCurrentPageActivos(prev => Math.min(totalPagesActivos, prev + 1))}
+                    disabled={currentPageActivos === totalPagesActivos}
+                    className="h-8 px-2"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {activeEntries.map((entry) => (
+              {activosPaginados.map((entry) => (
                 <EntryCard key={entry.id} entry={entry} />
               ))}
             </div>
+            {activeEntries.length > itemsPerPage && (
+              <p className="text-xs text-muted-foreground text-center">
+                Mostrando {startIndexActivos + 1} - {Math.min(endIndexActivos, activeEntries.length)} de {activeEntries.length} activos
+              </p>
+            )}
           </div>
         )}
 
         {/* Inactive Entries */}
         {inactiveEntries.length > 0 && (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold">Inactivos</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Inactivos</h2>
+              {totalPagesInactivos > 1 && (
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setCurrentPageInactivos(prev => Math.max(1, prev - 1))}
+                    disabled={currentPageInactivos === 1}
+                    className="h-8 px-2"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    {currentPageInactivos} / {totalPagesInactivos}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setCurrentPageInactivos(prev => Math.min(totalPagesInactivos, prev + 1))}
+                    disabled={currentPageInactivos === totalPagesInactivos}
+                    className="h-8 px-2"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {inactiveEntries.map((entry) => (
+              {inactivosPaginados.map((entry) => (
                 <EntryCard key={entry.id} entry={entry} />
               ))}
             </div>
+            {inactiveEntries.length > itemsPerPage && (
+              <p className="text-xs text-muted-foreground text-center">
+                Mostrando {startIndexInactivos + 1} - {Math.min(endIndexInactivos, inactiveEntries.length)} de {inactiveEntries.length} inactivos
+              </p>
+            )}
           </div>
         )}
 
