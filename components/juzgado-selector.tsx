@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Building } from "lucide-react"
+import { Building, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -34,6 +34,8 @@ export function JuzgadoSelector({
   const [selectedEspecialidad, setSelectedEspecialidad] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [juzgadoSeleccionado, setJuzgadoSeleccionado] = useState<any>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
 
   // 1. Cargar distritos e instancias al abrir modal
   useEffect(() => {
@@ -54,6 +56,7 @@ export function JuzgadoSelector({
 
   // 3. Buscar juzgados cuando todos están seleccionados
   useEffect(() => {
+    setCurrentPage(1) // Resetear a página 1
     if (selectedDistrito && selectedInstancia && selectedEspecialidad) {
       buscarJuzgados()
     } else {
@@ -125,6 +128,12 @@ export function JuzgadoSelector({
     setSelectedInstancia("")
     setSelectedEspecialidad("")
   }
+
+  // Paginación
+  const totalPages = Math.ceil(juzgadosDisponibles.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const juzgadosPaginados = juzgadosDisponibles.slice(startIndex, endIndex)
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -207,8 +216,8 @@ export function JuzgadoSelector({
               {isLoading ? (
                 <p className="text-sm text-gray-500 p-4 text-center">Cargando juzgados...</p>
               ) : juzgadosDisponibles.length > 0 ? (
-                <div className="border rounded-md p-2 max-h-40 overflow-y-auto space-y-1">
-                  {juzgadosDisponibles.map((j) => (
+                <div className="border rounded-md p-2 space-y-1">
+                  {juzgadosPaginados.map((j) => (
                     <button
                       key={j.id}
                       onClick={() => handleSeleccionarJuzgado(j)}
@@ -221,6 +230,38 @@ export function JuzgadoSelector({
                 </div>
               ) : (
                 <p className="text-sm text-gray-500 p-4 text-center">No hay juzgados disponibles</p>
+              )}
+              
+              {/* Controles de paginación */}
+              {juzgadosDisponibles.length > itemsPerPage && (
+                <div className="flex items-center justify-between p-2 bg-muted/20 rounded-md">
+                  <p className="text-xs text-muted-foreground">
+                    {startIndex + 1} - {Math.min(endIndex, juzgadosDisponibles.length)} de {juzgadosDisponibles.length}
+                  </p>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1}
+                      className="h-6 px-2"
+                    >
+                      <ChevronLeft className="h-3 w-3" />
+                    </Button>
+                    <span className="text-xs text-muted-foreground px-2 py-1">
+                      {currentPage} / {totalPages}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      disabled={currentPage === totalPages}
+                      className="h-6 px-2"
+                    >
+                      <ChevronRight className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
               )}
             </div>
           )}
