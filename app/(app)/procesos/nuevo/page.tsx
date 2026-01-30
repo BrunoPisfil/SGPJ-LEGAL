@@ -63,6 +63,8 @@ export default function NuevoProcesoPage() {
     { value: "34", label: "UCAYALI" }
   ];
 
+  const [tipoProceso, setTipoProceso] = useState<"civil" | "penal" | "">("")
+
   const [formData, setFormData] = useState({
     expediente: "",
     materia: "",
@@ -77,6 +79,7 @@ export default function NuevoProcesoPage() {
     abogado: "",
     estado: "Activo" as ProcessStatus,
     estadoDescripcion: "",
+    carpetaFiscal: "", // Para procesos penales
     // IDs para los selectores
     clienteId: "",
     juzgadoId: "",
@@ -166,6 +169,7 @@ export default function NuevoProcesoPage() {
         estado: formData.estado,
         fecha_inicio: new Date().toISOString().split('T')[0], // Fecha actual en formato YYYY-MM-DD
         observaciones: formData.estadoDescripcion || undefined,
+        carpeta_fiscal: formData.carpetaFiscal || undefined,
       }
 
       // Llamar a la API para crear el proceso
@@ -228,8 +232,44 @@ export default function NuevoProcesoPage() {
         </div>
       </div>
 
+      {/* Selector de Tipo de Proceso */}
+      {!tipoProceso && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Selecciona el tipo de proceso</CardTitle>
+            <CardDescription>Elige si es un proceso civil o penal</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="h-auto p-6"
+                onClick={() => setTipoProceso("civil")}
+              >
+                <div className="flex flex-col gap-2">
+                  <span className="text-lg font-semibold">Proceso Civil</span>
+                  <span className="text-sm text-muted-foreground">Casos civiles, familia, comercial, etc.</span>
+                </div>
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="h-auto p-6"
+                onClick={() => setTipoProceso("penal")}
+              >
+                <div className="flex flex-col gap-2">
+                  <span className="text-lg font-semibold">Proceso Penal</span>
+                  <span className="text-sm text-muted-foreground">Casos penales con carpeta fiscal</span>
+                </div>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Form */}
-      <form onSubmit={handleSubmit}>
+      {tipoProceso && (
         <Card>
           <CardHeader>
             <CardTitle>Información del Proceso</CardTitle>
@@ -350,6 +390,22 @@ export default function NuevoProcesoPage() {
               </div>
             </div>
 
+            {/* Campo de Carpeta Fiscal para procesos penales */}
+            {tipoProceso === "penal" && (
+              <div className="space-y-2">
+                <Label htmlFor="carpetaFiscal">
+                  Carpeta Fiscal <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="carpetaFiscal"
+                  placeholder="Ej: CF-2024-1234567"
+                  value={formData.carpetaFiscal}
+                  onChange={(e) => setFormData({ ...formData, carpetaFiscal: e.target.value })}
+                  required={tipoProceso === "penal"}
+                />
+              </div>
+            )}
+
             <div className="grid gap-6 md:grid-cols-1">
               <div className="space-y-2">
                 <Label htmlFor="abogado">Abogado Responsable</Label>
@@ -376,6 +432,9 @@ export default function NuevoProcesoPage() {
 
         {/* Actions */}
         <div className="flex justify-end gap-4 mt-6">
+          <Button type="button" variant="outline" onClick={() => setTipoProceso("")} disabled={isLoading}>
+            Volver
+          </Button>
           <Button type="button" variant="outline" onClick={() => router.push("/procesos")} disabled={isLoading}>
             Cancelar
           </Button>
@@ -384,6 +443,7 @@ export default function NuevoProcesoPage() {
           </Button>
         </div>
       </form>
+      )}
     </div>
   )
 }
