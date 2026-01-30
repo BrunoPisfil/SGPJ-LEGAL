@@ -270,12 +270,13 @@ export default function NuevoProcesoPage() {
 
       {/* Form */}
       {tipoProceso && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Información del Proceso</CardTitle>
-            <CardDescription>Complete los datos del proceso judicial</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
+        <form onSubmit={handleSubmit}>
+          <Card>
+            <CardHeader>
+              <CardTitle>Información del Proceso</CardTitle>
+              <CardDescription>Complete los datos del proceso judicial</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="expediente">
@@ -442,7 +443,7 @@ export default function NuevoProcesoPage() {
             {isLoading ? "Guardando..." : "Crear Proceso"}
           </Button>
         </div>
-      </form>
+        </form>
       )}
     </div>
   )
