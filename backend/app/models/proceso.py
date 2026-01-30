@@ -42,6 +42,7 @@ class Proceso(Base):
     fecha_notificacion = Column(Date, nullable=True)
     fecha_ultima_revision = Column(Date, nullable=True)
     observaciones = Column(Text, nullable=True)
+    carpeta_fiscal = Column(String(120), nullable=True, description="Número de carpeta fiscal para procesos penales")
     
     # Referencias
     abogado_responsable_id = Column(BigInteger, ForeignKey('usuarios.id'), nullable=True)

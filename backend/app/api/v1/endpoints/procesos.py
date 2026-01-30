@@ -137,6 +137,7 @@ async def create_proceso(
         fecha_notificacion=proceso.fecha_notificacion,
         fecha_ultima_revision=proceso.fecha_ultima_revision,
         observaciones=proceso.observaciones,
+        carpeta_fiscal=proceso.carpeta_fiscal,
         abogado_responsable_id=current_user.id
     )
     
@@ -235,7 +236,7 @@ async def update_proceso(
     
     # Campos que se pueden actualizar directamente
     valid_fields = ['tipo', 'materia', 'estado', 'estado_juridico', 'monto_pretension', 
-                   'fecha_inicio', 'fecha_notificacion', 'fecha_ultima_revision', 'observaciones']
+                   'fecha_inicio', 'fecha_notificacion', 'fecha_ultima_revision', 'observaciones', 'carpeta_fiscal']
     
     # Registrar cambios en bitácora
     for field, value in update_data.items():

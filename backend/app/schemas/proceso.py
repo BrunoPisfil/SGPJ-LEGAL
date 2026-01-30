@@ -38,6 +38,7 @@ class ProcesoBase(BaseModel):
     fecha_notificacion: Optional[date] = Field(None, description="Fecha de notificación")
     fecha_ultima_revision: Optional[date] = Field(None, description="Fecha de última revisión")
     observaciones: Optional[str] = Field(None, description="Observaciones del proceso")
+    carpeta_fiscal: Optional[str] = Field(None, description="Número de carpeta fiscal para procesos penales")
 
 class ProcesoCreate(ProcesoBase):
     cliente_id: Optional[int] = Field(None, description="ID del cliente si es nuestro cliente")
@@ -56,6 +57,7 @@ class ProcesoUpdate(BaseModel):
     fecha_notificacion: Optional[date] = None
     fecha_ultima_revision: Optional[date] = None
     observaciones: Optional[str] = None
+    carpeta_fiscal: Optional[str] = None
 
 class ProcesoResponse(BaseModel):
     id: int
@@ -69,6 +71,7 @@ class ProcesoResponse(BaseModel):
     fecha_notificacion: Optional[date] = None
     fecha_ultima_revision: Optional[date] = None
     observaciones: Optional[str] = None
+    carpeta_fiscal: Optional[str] = None
     abogado_responsable_id: int
     created_at: datetime
     updated_at: Optional[datetime] = None
