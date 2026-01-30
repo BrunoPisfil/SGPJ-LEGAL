@@ -66,9 +66,9 @@ class APIClient {
       let timeoutId: NodeJS.Timeout | null = null;
       
       timeoutId = setTimeout(() => {
-        console.log('⏰ Request timeout after 15 seconds');
+        console.log('⏰ Request timeout after 30 seconds');
         controller.abort();
-      }, 15000);
+      }, 30000);
       
       try {
         const response = await fetch(url, {

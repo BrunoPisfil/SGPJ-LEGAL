@@ -1,10 +1,10 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, User, FileText, Phone, Mail } from "lucide-react"
+import { Search, User, FileText, Phone, Mail, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { clientesAPI, type Cliente } from "@/lib/clientes"
@@ -21,6 +21,8 @@ export function ClienteSelector({ selectedClienteId, onClienteSelect, trigger }:
   const [filteredClientes, setFilteredClientes] = useState<Cliente[]>([])
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
   
   // Cargar clientes cuando se abre el modal
   useEffect(() => {
@@ -47,6 +49,7 @@ export function ClienteSelector({ selectedClienteId, onClienteSelect, trigger }:
       })
       setFilteredClientes(filtered)
     }
+    setCurrentPage(1)
   }, [searchQuery, clientes])
 
   const loadClientes = async () => {
@@ -73,6 +76,12 @@ export function ClienteSelector({ selectedClienteId, onClienteSelect, trigger }:
       ? `${cliente.nombres} ${cliente.apellidos}`
       : cliente.razon_social || "Sin nombre"
   }
+
+  // Paginación
+  const totalPages = Math.ceil(filteredClientes.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const clientesPaginados = filteredClientes.slice(startIndex, endIndex)
 
   const selectedCliente = clientes.find(c => c.id.toString() === selectedClienteId)
 
@@ -103,6 +112,7 @@ export function ClienteSelector({ selectedClienteId, onClienteSelect, trigger }:
             <User className="h-5 w-5" />
             Seleccionar Cliente
           </DialogTitle>
+          <DialogDescription className="text-sm">Busca por nombre, documento, email o teléfono.</DialogDescription>
         </DialogHeader>
         
         <div className="px-6 pb-1 space-y-2 shrink-0">
@@ -178,7 +188,7 @@ export function ClienteSelector({ selectedClienteId, onClienteSelect, trigger }:
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredClientes.map((cliente) => (
+                      {clientesPaginados.map((cliente) => (
                         <TableRow 
                           key={cliente.id}
                           className="cursor-pointer hover:bg-muted/50"
@@ -241,23 +251,37 @@ export function ClienteSelector({ selectedClienteId, onClienteSelect, trigger }:
           </ScrollArea>
         </div>
         
-        {/* Footer con estadísticas */}
-        {!loading && (
-          <div className="px-6 py-2 border-t bg-muted/20 shrink-0">
+        {/* Footer con paginación */}
+        {!loading && filteredClientes.length > 0 && (
+          <div className="px-6 py-3 border-t bg-muted/20 shrink-0">
             <div className="flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
-                {filteredClientes.length === 0 ? (
-                  searchQuery ? "No se encontraron clientes" : "No hay clientes disponibles"
-                ) : searchQuery ? (
-                  `${filteredClientes.length} de ${clientes.length} clientes encontrados`
-                ) : (
-                  `${clientes.length} clientes disponibles`
-                )}
+                Mostrando {startIndex + 1} - {Math.min(endIndex, filteredClientes.length)} de {filteredClientes.length} clientes
               </p>
-              {filteredClientes.length > 10 && (
-                <p className="text-xs text-muted-foreground">
-                  📝 Desplázate para ver todos los resultados
-                </p>
+              {totalPages > 1 && (
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
+                    className="h-6 px-2"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    {currentPage} / {totalPages}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                    disabled={currentPage === totalPages}
+                    className="h-6 px-2"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
               )}
             </div>
           </div>

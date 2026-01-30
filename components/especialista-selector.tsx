@@ -1,10 +1,10 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, UserCheck, Building, Phone, Mail } from "lucide-react"
+import { Search, UserCheck, Building, Phone, Mail, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import directorioAPI, { type DirectorioEntry } from "@/lib/directorio"
@@ -31,6 +31,8 @@ export function EspecialistaSelector({ selectedEspecialistaId, onEspecialistaSel
   const [filteredEspecialistas, setFilteredEspecialistas] = useState<Especialista[]>([])
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
   
   // Cargar especialistas cuando se abre el modal
   useEffect(() => {
@@ -54,6 +56,7 @@ export function EspecialistaSelector({ selectedEspecialistaId, onEspecialistaSel
       })
       setFilteredEspecialistas(filtered)
     }
+    setCurrentPage(1)
   }, [searchQuery, especialistas])
 
   const loadEspecialistas = async () => {
@@ -99,6 +102,12 @@ export function EspecialistaSelector({ selectedEspecialistaId, onEspecialistaSel
     return `${especialista.nombres} ${especialista.apellidos}`
   }
 
+  // Paginación
+  const totalPages = Math.ceil(filteredEspecialistas.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const especialistasPaginados = filteredEspecialistas.slice(startIndex, endIndex)
+
   const selectedEspecialista = especialistas.find(e => e.id.toString() === selectedEspecialistaId)
 
   return (
@@ -128,6 +137,7 @@ export function EspecialistaSelector({ selectedEspecialistaId, onEspecialistaSel
             <UserCheck className="h-5 w-5" />
             Seleccionar Juez/Especialista
           </DialogTitle>
+          <DialogDescription className="text-sm">Busca por nombre, cargo, juzgado o email.</DialogDescription>
         </DialogHeader>
         
         <div className="px-6 pb-1 space-y-2 shrink-0">
@@ -219,7 +229,7 @@ export function EspecialistaSelector({ selectedEspecialistaId, onEspecialistaSel
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredEspecialistas.map((especialista) => (
+                      {especialistasPaginados.map((especialista) => (
                         <TableRow 
                           key={especialista.id}
                           className="cursor-pointer hover:bg-muted/50"
@@ -281,23 +291,37 @@ export function EspecialistaSelector({ selectedEspecialistaId, onEspecialistaSel
           </ScrollArea>
         </div>
         
-        {/* Footer con estadísticas */}
-        {!loading && (
-          <div className="px-6 py-2 border-t bg-muted/20 shrink-0">
+        {/* Footer con paginación */}
+        {!loading && filteredEspecialistas.length > 0 && (
+          <div className="px-6 py-3 border-t bg-muted/20 shrink-0">
             <div className="flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
-                {filteredEspecialistas.length === 0 ? (
-                  searchQuery ? "No se encontraron especialistas" : "No hay especialistas disponibles"
-                ) : searchQuery ? (
-                  `${filteredEspecialistas.length} de ${especialistas.length} especialistas encontrados`
-                ) : (
-                  `${especialistas.length} especialistas disponibles`
-                )}
+                Mostrando {startIndex + 1} - {Math.min(endIndex, filteredEspecialistas.length)} de {filteredEspecialistas.length} especialistas
               </p>
-              {filteredEspecialistas.length > 10 && (
-                <p className="text-xs text-muted-foreground">
-                  📝 Desplázate para ver todos los resultados
-                </p>
+              {totalPages > 1 && (
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
+                    className="h-6 px-2"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    {currentPage} / {totalPages}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                    disabled={currentPage === totalPages}
+                    className="h-6 px-2"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
               )}
             </div>
           </div>

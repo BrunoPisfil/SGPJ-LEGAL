@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Search, Scale, Calendar, User, Building, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -206,6 +206,7 @@ export function ProcessSelectorFinance({ selectedProcessId, onProcessSelect, tri
             <Scale className="h-5 w-5" />
             Seleccionar Proceso Judicial
           </DialogTitle>
+          <DialogDescription className="text-sm">Busca y selecciona el proceso para transacciones financieras.</DialogDescription>
         </DialogHeader>
 
         <div className="px-6 pb-2 shrink-0">

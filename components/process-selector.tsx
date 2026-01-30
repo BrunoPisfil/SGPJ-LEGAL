@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Search, FileText, Calendar, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -97,6 +97,7 @@ export function ProcessSelector({ selectedProcessId, onProcessSelect, trigger }:
             <FileText className="h-5 w-5" />
             Seleccionar Proceso Judicial
           </DialogTitle>
+          <DialogDescription className="text-sm">Busca y selecciona el proceso judicial.</DialogDescription>
         </DialogHeader>
         
         <div className="px-6 pb-1 space-y-2 shrink-0">

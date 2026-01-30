@@ -25,7 +25,7 @@ export default function SessionExpiredPage({
     : 'Sesión No Válida';
   
   const description = isInactivity
-    ? 'Tu sesión ha expirado debido a que no has realizado ninguna acción durante 15 minutos.'
+    ? 'Tu sesión ha expirado debido a que no has realizado ninguna acción durante 1 hora.'
     : 'Tu sesión no es válida o ha expirado. Por favor, inicia sesión nuevamente para continuar.';
 
   const handleGoToLogin = () => {
@@ -67,7 +67,7 @@ export default function SessionExpiredPage({
                 <>
                   <li className="flex gap-2">
                     <span>✓</span>
-                    <span>Detectamos 15 minutos de inactividad</span>
+                    <span>Detectamos 1 hora de inactividad</span>
                   </li>
                   <li className="flex gap-2">
                     <span>✓</span>

@@ -7,7 +7,7 @@ import { useInactivityTimeout } from '@/hooks/use-inactivity-timeout';
 
 /**
  * Componente que maneja la detección de sesión expirada
- * - Monitorea inactividad del usuario (15 minutos por defecto)
+ * - Monitorea inactividad del usuario (1 hora por defecto)
  * - Escucha eventos de No Autenticado (401) del API
  * - Redirige a página de sesión expirada cuando detecta inactividad
  */
@@ -15,9 +15,9 @@ export function SessionExpiredHandler() {
   const router = useRouter();
   const { sessionExpired, sessionExpiredReason, isAuthenticated } = useAuth();
 
-  // Configurar timeout de inactividad (15 minutos)
+  // Configurar timeout de inactividad (1 hora)
   useInactivityTimeout({
-    timeout: 15 * 60 * 1000, // 15 minutos
+    timeout: 60 * 60 * 1000, // 1 hora
     events: ['mousedown', 'keydown', 'scroll', 'touchstart', 'click'],
     onTimeout: () => {
       if (isAuthenticated) {

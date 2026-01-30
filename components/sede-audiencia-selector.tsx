@@ -6,8 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
   Dialog,
-  DialogContent,
-  DialogHeader,
+  DialogContent,  DialogDescription,  DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
@@ -133,6 +132,7 @@ export function SedeAudienciaSelector({
       <DialogContent className='max-w-lg w-[95vw] sm:max-w-2xl'>
         <DialogHeader>
           <DialogTitle>Seleccionar Sede Judicial</DialogTitle>
+          <DialogDescription className="text-sm">Busca la sede por nombre, distrito o dirección.</DialogDescription>
         </DialogHeader>
 
         <div className='space-y-4'>

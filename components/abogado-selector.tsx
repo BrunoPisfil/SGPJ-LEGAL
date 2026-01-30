@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Search, Briefcase, Phone, Mail, GraduationCap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import directorioAPI, { type DirectorioEntry } from "@/lib/directorio"
@@ -130,6 +130,7 @@ export function AbogadoSelector({ selectedAbogadoId, onAbogadoSelect, trigger }:
             <Briefcase className="h-5 w-5" />
             Seleccionar Abogado Responsable
           </DialogTitle>
+          <DialogDescription className="text-sm">Busca por nombre, especialidad, colegiatura o email.</DialogDescription>
         </DialogHeader>
         
         <div className="px-6 pb-1 space-y-2 shrink-0">

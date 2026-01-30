@@ -1,29 +1,24 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Building, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
-import { apiClient } from "@/lib/api"
-import type { Juzgado } from "@/lib/juzgados"
+import directorioAPI from "@/lib/directorio"
 
-interface JuzgadoSelectorProps {
-  selectedJuzgadoId?: string
-  selectedJuzgadoNombre?: string
-  onJuzgadoSelect: (juzgado: any) => void
-  trigger?: React.ReactNode
+interface ModalSeleccionarJuzgadoProps {
+  open: boolean
+  onClose: () => void
+  onSelect: (juzgado: any) => void
 }
 
-export function JuzgadoSelector({ 
-  selectedJuzgadoId, 
-  selectedJuzgadoNombre,
-  onJuzgadoSelect, 
-  trigger 
-}: JuzgadoSelectorProps) {
+export function ModalSeleccionarJuzgado({
+  open,
+  onClose,
+  onSelect,
+}: ModalSeleccionarJuzgadoProps) {
   const { toast } = useToast()
-  const [open, setOpen] = useState(false)
   const [distritos, setDistritos] = useState<any[]>([])
   const [instancias, setInstancias] = useState<any[]>([])
   const [especialidades, setEspecialidades] = useState<any[]>([])
@@ -33,19 +28,22 @@ export function JuzgadoSelector({
   const [selectedInstancia, setSelectedInstancia] = useState("")
   const [selectedEspecialidad, setSelectedEspecialidad] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [juzgadoSeleccionado, setJuzgadoSeleccionado] = useState<any>(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 10
 
-  // 1. Cargar distritos e instancias al abrir modal
+  // 1. Cargar distritos al abrir modal
   useEffect(() => {
     if (open) {
       cargarDistritos()
+    }
+  }, [open])
+
+  // 2. Cargar instancias (siempre disponibles)
+  useEffect(() => {
+    if (open && !instancias.length) {
       cargarInstancias()
     }
   }, [open])
 
-  // 2. Cargar especialidades cuando cambia instancia
+  // 3. Cargar especialidades cuando cambia instancia
   useEffect(() => {
     if (selectedInstancia) {
       cargarEspecialidades(parseInt(selectedInstancia))
@@ -54,9 +52,8 @@ export function JuzgadoSelector({
     }
   }, [selectedInstancia])
 
-  // 3. Buscar juzgados cuando todos están seleccionados
+  // 4. Buscar juzgados cuando todos están seleccionados
   useEffect(() => {
-    setCurrentPage(1) // Resetear a página 1
     if (selectedDistrito && selectedInstancia && selectedEspecialidad) {
       buscarJuzgados()
     } else {
@@ -66,7 +63,10 @@ export function JuzgadoSelector({
 
   const cargarDistritos = async () => {
     try {
-      const data = await apiClient.get<any[]>("/directorio/juzgados/distritos")
+      const response = await fetch(
+        "https://sgpj-legal-backend.vercel.app/api/v1/directorio/juzgados/distritos"
+      )
+      const data = await response.json()
       setDistritos(data)
     } catch (error) {
       console.error("Error cargando distritos:", error)
@@ -76,7 +76,10 @@ export function JuzgadoSelector({
 
   const cargarInstancias = async () => {
     try {
-      const data = await apiClient.get<any[]>("/directorio/juzgados/instancias")
+      const response = await fetch(
+        "https://sgpj-legal-backend.vercel.app/api/v1/directorio/juzgados/instancias"
+      )
+      const data = await response.json()
       setInstancias(data)
     } catch (error) {
       console.error("Error cargando instancias:", error)
@@ -86,9 +89,10 @@ export function JuzgadoSelector({
 
   const cargarEspecialidades = async (instanciaId: number) => {
     try {
-      const data = await apiClient.get<any[]>(
-        `/directorio/juzgados/especialidades-por-instancia/${instanciaId}`
+      const response = await fetch(
+        `https://sgpj-legal-backend.vercel.app/api/v1/directorio/juzgados/especialidades-por-instancia/${instanciaId}`
       )
+      const data = await response.json()
       setEspecialidades(data)
       setSelectedEspecialidad("") // Resetear especialidad seleccionada
     } catch (error) {
@@ -100,9 +104,10 @@ export function JuzgadoSelector({
   const buscarJuzgados = async () => {
     setIsLoading(true)
     try {
-      const data = await apiClient.get<any[]>(
-        `/directorio/juzgados/filtrados?distrito_id=${selectedDistrito}&instancia_id=${selectedInstancia}&especialidad_id=${selectedEspecialidad}`
+      const response = await fetch(
+        `https://sgpj-legal-backend.vercel.app/api/v1/directorio/juzgados/filtrados?distrito_id=${selectedDistrito}&instancia_id=${selectedInstancia}&especialidad_id=${selectedEspecialidad}`
       )
+      const data = await response.json()
       setJuzgadosDisponibles(data)
     } catch (error) {
       console.error("Error buscando juzgados:", error)
@@ -113,47 +118,17 @@ export function JuzgadoSelector({
   }
 
   const handleSeleccionarJuzgado = (juzgado: any) => {
-    setJuzgadoSeleccionado(juzgado)
-    onJuzgadoSelect({
-      id: juzgado.id,
-      nombre: juzgado.nombre,
-      distrito_judicial: juzgado.distrito_judicial,
-      direccion: juzgado.direccion,
-      telefono: juzgado.telefono,
-      email: juzgado.email
-    })
-    setOpen(false)
-    // Resetear selectores
-    setSelectedDistrito("")
-    setSelectedInstancia("")
-    setSelectedEspecialidad("")
+    onSelect(juzgado)
+    onClose()
   }
 
-  // Paginación
-  const totalPages = Math.ceil(juzgadosDisponibles.length / itemsPerPage)
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const endIndex = startIndex + itemsPerPage
-  const juzgadosPaginados = juzgadosDisponibles.slice(startIndex, endIndex)
-
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || (
-          <Button variant="outline" className="w-full justify-start text-left font-normal">
-            <Building className="mr-2 h-4 w-4" />
-            {juzgadoSeleccionado?.nombre || selectedJuzgadoNombre 
-              ? juzgadoSeleccionado?.nombre || selectedJuzgadoNombre
-              : "Seleccionar juzgado"
-            }
-          </Button>
-        )}
-      </DialogTrigger>
-
+    <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Seleccionar Juzgado</DialogTitle>
           <DialogDescription>
-            Elige el distrito, la instancia y la especialidad para filtrar los juzgados disponibles.
+            Selecciona el distrito, instancia y especialidad para ver los juzgados disponibles
           </DialogDescription>
         </DialogHeader>
 
@@ -216,8 +191,8 @@ export function JuzgadoSelector({
               {isLoading ? (
                 <p className="text-sm text-gray-500 p-4 text-center">Cargando juzgados...</p>
               ) : juzgadosDisponibles.length > 0 ? (
-                <div className="border rounded-md p-2 space-y-1">
-                  {juzgadosPaginados.map((j) => (
+                <div className="border rounded-md p-2 max-h-40 overflow-y-auto space-y-1">
+                  {juzgadosDisponibles.map((j) => (
                     <button
                       key={j.id}
                       onClick={() => handleSeleccionarJuzgado(j)}
@@ -231,38 +206,6 @@ export function JuzgadoSelector({
               ) : (
                 <p className="text-sm text-gray-500 p-4 text-center">No hay juzgados disponibles</p>
               )}
-              
-              {/* Controles de paginación */}
-              {juzgadosDisponibles.length > itemsPerPage && (
-                <div className="flex items-center justify-between p-2 bg-muted/20 rounded-md">
-                  <p className="text-xs text-muted-foreground">
-                    {startIndex + 1} - {Math.min(endIndex, juzgadosDisponibles.length)} de {juzgadosDisponibles.length}
-                  </p>
-                  <div className="flex gap-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                      disabled={currentPage === 1}
-                      className="h-6 px-2"
-                    >
-                      <ChevronLeft className="h-3 w-3" />
-                    </Button>
-                    <span className="text-xs text-muted-foreground px-2 py-1">
-                      {currentPage} / {totalPages}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                      disabled={currentPage === totalPages}
-                      className="h-6 px-2"
-                    >
-                      <ChevronRight className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </div>
-              )}
             </div>
           )}
 
@@ -270,7 +213,7 @@ export function JuzgadoSelector({
           <div className="flex gap-2 pt-4">
             <Button
               variant="outline"
-              onClick={() => setOpen(false)}
+              onClick={onClose}
             >
               Cancelar
             </Button>
@@ -280,3 +223,4 @@ export function JuzgadoSelector({
     </Dialog>
   )
 }
+
