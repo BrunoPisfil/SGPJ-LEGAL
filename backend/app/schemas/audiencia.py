@@ -38,9 +38,17 @@ class AudienciaUpdate(BaseModel):
     notificar: Optional[bool] = None
 
 
-class AudienciaResponse(AudienciaBase):
+class AudienciaResponse(BaseModel):
     """Schema para respuesta de audiencia"""
     id: int
+    proceso_id: int
+    tipo: str
+    fecha: date
+    hora: time
+    sede: Optional[str] = None
+    link: Optional[str] = None
+    notas: Optional[str] = None
+    notificar: bool = True
     fecha_hora: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
