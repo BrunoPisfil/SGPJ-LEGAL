@@ -184,6 +184,7 @@ export default function NuevaAudienciaPage() {
                   <SelectItem value="Audiencia de Pruebas">Audiencia de Pruebas</SelectItem>
                   <SelectItem value="Audiencia de Juzgamiento">Audiencia de Juzgamiento</SelectItem>
                   <SelectItem value="Audiencia de Saneamiento">Audiencia de Saneamiento</SelectItem>
+                  <SelectItem value="Audiencia de Vista de la causa">Audiencia de Vista de la causa</SelectItem>
                 </SelectContent>
               </Select>
             </div>
