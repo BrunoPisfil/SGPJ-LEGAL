@@ -57,7 +57,19 @@ export function JuzgadoSelector({
   // 3. Buscar juzgados cuando todos están seleccionados
   useEffect(() => {
     setCurrentPage(1) // Resetear a página 1
-    if (selectedDistrito && selectedInstancia && selectedEspecialidad) {
+    
+    // Si es Juzgado Penal, no necesita especialidad
+    if (selectedInstancia === "999") {
+      // Crear juzgado penal virtual
+      setJuzgadosDisponibles([{
+        id: 999,
+        nombre: "Juzgado Penal",
+        distrito_judicial: selectedDistrito ? distritos.find(d => d.id.toString() === selectedDistrito)?.nombre : "",
+        direccion: "Juzgado Penal",
+        telefono: "",
+        email: ""
+      }])
+    } else if (selectedDistrito && selectedInstancia && selectedEspecialidad) {
       buscarJuzgados()
     } else {
       setJuzgadosDisponibles([])
@@ -77,7 +89,12 @@ export function JuzgadoSelector({
   const cargarInstancias = async () => {
     try {
       const data = await apiClient.get<any[]>("/directorio/juzgados/instancias")
-      setInstancias(data)
+      // Agregar "Juzgado Penal" como opción especial
+      const instanciasConPenal = [
+        ...data,
+        { id: 999, nombre: "Juzgado Penal" } // ID especial para juzgado penal
+      ]
+      setInstancias(instanciasConPenal)
     } catch (error) {
       console.error("Error cargando instancias:", error)
       toast({ title: "Error", description: "No se pudieron cargar las instancias", variant: "destructive" })
@@ -192,25 +209,27 @@ export function JuzgadoSelector({
             </Select>
           </div>
 
-          {/* Selector de Especialidad */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Especialidad</label>
-            <Select value={selectedEspecialidad} onValueChange={setSelectedEspecialidad}>
-              <SelectTrigger disabled={!selectedInstancia}>
-                <SelectValue placeholder="Selecciona una especialidad..." />
-              </SelectTrigger>
-              <SelectContent>
-                {especialidades.map((e) => (
-                  <SelectItem key={e.id} value={e.id.toString()}>
-                    {e.nombre}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          {/* Selector de Especialidad - NO MOSTRAR si es Juzgado Penal */}
+          {selectedInstancia !== "999" && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Especialidad</label>
+              <Select value={selectedEspecialidad} onValueChange={setSelectedEspecialidad}>
+                <SelectTrigger disabled={!selectedInstancia}>
+                  <SelectValue placeholder="Selecciona una especialidad..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {especialidades.map((e) => (
+                    <SelectItem key={e.id} value={e.id.toString()}>
+                      {e.nombre}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {/* Lista de Juzgados Disponibles */}
-          {selectedDistrito && selectedInstancia && selectedEspecialidad && (
+          {selectedDistrito && selectedInstancia && (selectedEspecialidad || selectedInstancia === "999") && (
             <div className="space-y-2">
               <label className="text-sm font-medium">Juzgado</label>
               {isLoading ? (
@@ -224,7 +243,7 @@ export function JuzgadoSelector({
                       className="w-full text-left p-2 hover:bg-blue-50 rounded text-sm border hover:border-blue-300 transition"
                     >
                       <p className="font-medium">{j.nombre}</p>
-                      {j.direccion && <p className="text-xs text-gray-500">{j.direccion}</p>}
+                      {j.direccion && j.direccion !== "Juzgado Penal" && <p className="text-xs text-gray-500">{j.direccion}</p>}
                     </button>
                   ))}
                 </div>

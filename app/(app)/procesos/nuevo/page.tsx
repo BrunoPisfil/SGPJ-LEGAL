@@ -72,7 +72,7 @@ export default function NuevoProcesoPage() {
     tipo: "Civil" as TipoProceso,
     demandante: "",
     demandado: "",
-    clienteRol: "demandante" as "demandante" | "demandado", // Nuestro cliente es demandante o demandado
+    clienteRol: "demandante" as "demandante" | "demandado" | "denunciante" | "denunciado", // Para civil y penal
     clienteSeleccionado: "", // El cliente seleccionado
     parteContraria: "", // La parte contraria (texto libre)
     juzgado: "",
@@ -97,13 +97,18 @@ export default function NuevoProcesoPage() {
       ? `${cliente.nombres} ${cliente.apellidos}`
       : cliente.razon_social || ""
     
+    // Para procesos penales: denunciante/denunciado, para civiles: demandante/demandado
+    const isCivil = tipoProceso === "civil"
+    const demandanteRole = isCivil ? "demandante" : "denunciante"
+    const demandadoRole = isCivil ? "demandado" : "denunciado"
+    
     setFormData({ 
       ...formData, 
       clienteId: cliente.id.toString(),
       clienteSeleccionado: nombreCompleto,
       // Asignar automáticamente según el rol
-      demandante: formData.clienteRol === "demandante" ? nombreCompleto : formData.parteContraria,
-      demandado: formData.clienteRol === "demandado" ? nombreCompleto : formData.parteContraria
+      demandante: (formData.clienteRol === demandanteRole) ? nombreCompleto : formData.parteContraria,
+      demandado: (formData.clienteRol === demandadoRole) ? nombreCompleto : formData.parteContraria
     })
   }
 
@@ -159,12 +164,22 @@ export default function NuevoProcesoPage() {
       }
 
       // Preparar datos para enviar a la API
+      // Para procesos penales, demandante/demandado se llenan desde denunciante/denunciado
+      let demandante = formData.demandante
+      let demandado = formData.demandado
+      
+      if (tipoProceso === "penal") {
+        // Mapear denunciante/denunciado a demandante/demandado para la API
+        demandante = formData.clienteRol === "denunciante" ? formData.clienteSeleccionado : formData.parteContraria
+        demandado = formData.clienteRol === "denunciado" ? formData.clienteSeleccionado : formData.parteContraria
+      }
+      
       const procesoData: ProcesoCreate = {
         expediente: formData.expediente,
-        tipo: determinarTipoProceso(formData.materia), 
+        tipo: tipoProceso === "penal" ? "Penal" : determinarTipoProceso(formData.materia), 
         materia: formData.materia,
-        demandante: formData.demandante,
-        demandado: formData.demandado,
+        demandante: demandante,
+        demandado: demandado,
         cliente_id: formData.clienteId ? parseInt(formData.clienteId) : undefined,
         juzgado: formData.juzgado || "Sin asignar",
         juez: formData.especialista || undefined,
@@ -248,7 +263,10 @@ export default function NuevoProcesoPage() {
                 type="button"
                 variant="outline"
                 className="h-auto p-6"
-                onClick={() => setTipoProceso("civil")}
+                onClick={() => {
+                  setTipoProceso("civil")
+                  setFormData({ ...formData, clienteRol: "demandante" })
+                }}
               >
                 <div className="flex flex-col gap-2">
                   <span className="text-lg font-semibold">Proceso Civil</span>
@@ -259,7 +277,13 @@ export default function NuevoProcesoPage() {
                 type="button"
                 variant="outline"
                 className="h-auto p-6"
-                onClick={() => setTipoProceso("penal")}
+                onClick={() => {
+                  setTipoProceso("penal")
+                  setFormData({ 
+                    ...formData, 
+                    clienteRol: "denunciante"
+                  })
+                }}
               >
                 <div className="flex flex-col gap-2">
                   <span className="text-lg font-semibold">Proceso Penal</span>
@@ -312,7 +336,7 @@ export default function NuevoProcesoPage() {
                 <Label>Nuestro cliente es el:</Label>
                 <Select
                   value={formData.clienteRol}
-                  onValueChange={(value: "demandante" | "demandado") => setFormData({ 
+                  onValueChange={(value: any) => setFormData({ 
                     ...formData, 
                     clienteRol: value,
                     // Limpiar los campos cuando cambia el rol
@@ -327,15 +351,28 @@ export default function NuevoProcesoPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="demandante">Demandante</SelectItem>
-                    <SelectItem value="demandado">Demandado</SelectItem>
+                    {tipoProceso === "penal" ? (
+                      <>
+                        <SelectItem value="denunciante">Denunciante</SelectItem>
+                        <SelectItem value="denunciado">Denunciado</SelectItem>
+                      </>
+                    ) : (
+                      <>
+                        <SelectItem value="demandante">Demandante</SelectItem>
+                        <SelectItem value="demandado">Demandado</SelectItem>
+                      </>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="cliente">
-                  {formData.clienteRol === "demandante" ? "Cliente (Demandante)" : "Cliente (Demandado)"} <span className="text-destructive">*</span>
+                  {tipoProceso === "penal" ? (
+                    formData.clienteRol === "denunciante" ? "Cliente (Denunciante)" : "Cliente (Denunciado)"
+                  ) : (
+                    formData.clienteRol === "demandante" ? "Cliente (Demandante)" : "Cliente (Demandado)"
+                  )} <span className="text-destructive">*</span>
                 </Label>
                 <ClienteSelector
                   selectedClienteId={formData.clienteId}
@@ -348,7 +385,12 @@ export default function NuevoProcesoPage() {
                       <span className="font-medium">Nombre:</span> {formData.clienteSeleccionado}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      <span className="font-medium">Rol en el proceso:</span> {formData.clienteRol === "demandante" ? "Demandante" : "Demandado"}
+                      <span className="font-medium">Rol en el proceso:</span>
+                      {tipoProceso === "penal" ? (
+                        formData.clienteRol === "denunciante" ? " Denunciante" : " Denunciado"
+                      ) : (
+                        formData.clienteRol === "demandante" ? " Demandante" : " Demandado"
+                      )}
                     </p>
                   </div>
                 )}
@@ -357,20 +399,42 @@ export default function NuevoProcesoPage() {
             
             <div className="space-y-2">
               <Label htmlFor="parteContraria">
-                {formData.clienteRol === "demandante" ? "Demandado" : "Demandante"} <span className="text-destructive">*</span>
+                {tipoProceso === "penal" ? (
+                  formData.clienteRol === "denunciante" ? "Denunciado" : "Denunciante"
+                ) : (
+                  formData.clienteRol === "demandante" ? "Demandado" : "Demandante"
+                )} <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="parteContraria"
-                placeholder={`Nombre completo del ${formData.clienteRol === "demandante" ? "demandado" : "demandante"}`}
+                placeholder={tipoProceso === "penal" ? (
+                  `Nombre completo del ${formData.clienteRol === "denunciante" ? "denunciado" : "denunciante"}`
+                ) : (
+                  `Nombre completo del ${formData.clienteRol === "demandante" ? "demandado" : "demandante"}`
+                )}
                 value={formData.parteContraria}
                 onChange={(e) => {
                   const valor = e.target.value;
+                  
+                  // Determinar las variables según tipo de proceso
+                  let demandanteVal = formData.demandante
+                  let demandadoVal = formData.demandado
+                  
+                  if (tipoProceso === "penal") {
+                    // Para procesos penales
+                    demandanteVal = formData.clienteRol === "denunciante" ? formData.clienteSeleccionado : valor
+                    demandadoVal = formData.clienteRol === "denunciado" ? formData.clienteSeleccionado : valor
+                  } else {
+                    // Para procesos civiles
+                    demandanteVal = formData.clienteRol === "demandante" ? formData.clienteSeleccionado : valor
+                    demandadoVal = formData.clienteRol === "demandado" ? formData.clienteSeleccionado : valor
+                  }
+                  
                   setFormData({ 
                     ...formData, 
                     parteContraria: valor,
-                    // Asignar automáticamente según el rol
-                    demandante: formData.clienteRol === "demandante" ? formData.clienteSeleccionado : valor,
-                    demandado: formData.clienteRol === "demandado" ? formData.clienteSeleccionado : valor
+                    demandante: demandanteVal,
+                    demandado: demandadoVal
                   })
                 }}
                 required
