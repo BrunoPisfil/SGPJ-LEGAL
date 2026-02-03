@@ -16,18 +16,18 @@ ROLE_PERMISSIONS = {
         "directorio": ["read", "create", "update", "delete"],
         "notificaciones": ["read"],
         "finanzas": ["read", "create", "update", "delete"],
-        "bitacora": ["read"],
-        "dashboard": ["read"],
+        "bitacora": ["read"], # SOLO lectura
+        "dashboard": ["read"], # SOLO lectura
     },
     "practicante": {
-        "procesos": ["read"],
+        "procesos": ["read","create", "update"], # No delete
         "audiencias": ["read", "create", "update"],  # NO delete
-        "resoluciones": ["read"],  # SOLO lectura
-        "directorio": ["read", "create"],  # NO delete
-        "notificaciones": ["read"],
+        "resoluciones": ["read", "create", "update"],  # SOLO lectura
+        "directorio": ["read", "create", "update"],  # NO delete
+        "notificaciones": ["read"],# SOLO lectura
         "finanzas": [],  # SIN acceso
-        "bitacora": [],  # SIN acceso
-        "dashboard": [],  # SIN acceso
+        "bitacora": ["read"],  # SOLO lectura
+        "dashboard": ["read"],  # SOLO lectura
     }
 }
 
