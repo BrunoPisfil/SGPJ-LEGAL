@@ -18,7 +18,8 @@ import { AbogadoSelector } from "@/components/abogado-selector"
 import { useToast } from "@/hooks/use-toast"
 import type { ProcessStatus } from "@/components/process-status-badge"
 import type { Cliente } from "@/lib/clientes"
-import { procesosAPI, type ProcesoCreate, type TipoProceso } from "@/lib/procesos"
+import { procesosAPI, type ProcesoCreate, type TipoProceso, type EtapaProcesalType, type TipoComposicionType } from "@/lib/procesos"
+import { OPCIONES_ETAPAS_PROCESALES, OPCIONES_TIPOS_COMPOSICION, getOpcionesTipoComposicion } from "@/lib/etapas-procesales"
 import Link from "next/link"
 
 export default function NuevoProcesoPage() {
@@ -80,6 +81,8 @@ export default function NuevoProcesoPage() {
     estado: "Activo" as ProcessStatus,
     estadoDescripcion: "",
     carpetaFiscal: "", // Para procesos penales
+    etapaProcesalActual: undefined as EtapaProcesalType | undefined,
+    tipoComposicionActual: undefined as TipoComposicionType | undefined,
     // IDs para los selectores
     clienteId: "",
     juzgadoId: "",
@@ -164,12 +167,12 @@ export default function NuevoProcesoPage() {
         demandado: formData.demandado,
         cliente_id: formData.clienteId ? parseInt(formData.clienteId) : undefined,
         juzgado: formData.juzgado || "Sin asignar",
-        distrito_judicial: formData.distritoJudicial || undefined,
         juez: formData.especialista || undefined,
         estado: formData.estado,
+        etapa_procesal: formData.etapaProcesalActual,
+        tipo_composicion: formData.tipoComposicionActual,
         fecha_inicio: new Date().toISOString().split('T')[0], // Fecha actual en formato YYYY-MM-DD
         observaciones: formData.estadoDescripcion || undefined,
-        carpeta_fiscal: formData.carpetaFiscal || undefined,
       }
 
       // Llamar a la API para crear el proceso
@@ -390,6 +393,77 @@ export default function NuevoProcesoPage() {
                 />
               </div>
             </div>
+
+            {/* Campos de Etapa Procesal (solo para procesos penales) */}
+            {tipoProceso === "penal" && (
+              <>
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="etapaProcesalActual">
+                      Etapa Procesal
+                    </Label>
+                    <Select
+                      value={formData.etapaProcesalActual || ""}
+                      onValueChange={(value: string) => {
+                        const etapa = value as EtapaProcesalType;
+                        setFormData({ 
+                          ...formData, 
+                          etapaProcesalActual: etapa,
+                          // Limpiar tipo de composición si no aplica
+                          tipoComposicionActual: undefined
+                        })
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona etapa procesal" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {OPCIONES_ETAPAS_PROCESALES.map((opcion) => (
+                          <SelectItem key={opcion.value} value={opcion.value}>
+                            <div className="flex flex-col">
+                              <span>{opcion.label}</span>
+                              <span className="text-xs text-muted-foreground">{opcion.descripcion}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Tipo de Composición (solo para etapa intermedia) */}
+                  {getOpcionesTipoComposicion(formData.etapaProcesalActual).length > 0 && (
+                    <div className="space-y-2">
+                      <Label htmlFor="tipoComposicionActual">
+                        Tipo de Composición
+                      </Label>
+                      <Select
+                        value={formData.tipoComposicionActual || ""}
+                        onValueChange={(value: string) => {
+                          setFormData({ 
+                            ...formData, 
+                            tipoComposicionActual: value as TipoComposicionType
+                          })
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecciona tipo de composición" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {getOpcionesTipoComposicion(formData.etapaProcesalActual).map((opcion) => (
+                            <SelectItem key={opcion.value} value={opcion.value}>
+                              <div className="flex flex-col">
+                                <span>{opcion.label}</span>
+                                <span className="text-xs text-muted-foreground">{opcion.descripcion}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
 
             {/* Campo de Carpeta Fiscal para procesos penales */}
             {tipoProceso === "penal" && (

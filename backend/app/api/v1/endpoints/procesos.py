@@ -24,6 +24,8 @@ def proceso_to_response(proceso: Proceso) -> dict:
         "materia": proceso.materia,
         "estado": proceso.estado,
         "estado_juridico": proceso.estado_juridico,
+        "etapa_procesal": proceso.etapa_procesal,
+        "tipo_composicion": proceso.tipo_composicion,
         "monto_pretension": proceso.monto_pretension,
         "fecha_inicio": proceso.fecha_inicio,
         "fecha_notificacion": proceso.fecha_notificacion,
@@ -46,6 +48,7 @@ def proceso_to_response(proceso: Proceso) -> dict:
         "juzgado": proceso.juzgado_nombre,
         "juez": proceso.juez_nombre,
     }
+
 
 
 @router.get("/", response_model=List[ProcesoResponse])

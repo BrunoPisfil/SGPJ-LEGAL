@@ -37,6 +37,21 @@ class Proceso(Base):
         nullable=True, 
         default=None
     )
+    
+    # Etapa procesal y composición del tribunal
+    etapa_procesal = Column(
+        Enum('investigación_preparatoria', 'etapa_intermedia', 'juzgamiento',
+             name='etapa_procesal_enum'),
+        nullable=True,
+        default=None
+    )
+    tipo_composicion = Column(
+        Enum('unipersonal', 'colegiado',
+             name='tipo_composicion_enum'),
+        nullable=True,
+        default=None
+    )
+    
     monto_pretension = Column(Numeric(15, 2), nullable=True)
     fecha_inicio = Column(Date, nullable=False)
     fecha_notificacion = Column(Date, nullable=True)

@@ -15,6 +15,8 @@ export function transformProceso(proceso: any): Proceso {
 // Tipos para procesos
 export type EstadoProceso = 'Activo' | 'En trámite' | 'Suspendido' | 'Archivado' | 'Finalizado';
 export type EstadoJuridico = 'pendiente_impulsar' | 'pendiente_sentencia' | 'resolucion' | 'audiencia_programada';
+export type EtapaProcesalType = 'investigación_preparatoria' | 'etapa_intermedia' | 'juzgamiento';
+export type TipoComposicionType = 'unipersonal' | 'colegiado';
 export type TipoProceso = 'Civil' | 'Penal' | 'Laboral' | 'Administrativo' | 'Familia' | 'Comercial';
 
 export interface Proceso {
@@ -28,6 +30,8 @@ export interface Proceso {
   juez_nombre?: string;
   estado?: EstadoProceso;
   estado_juridico?: EstadoJuridico;
+  etapa_procesal?: EtapaProcesalType;
+  tipo_composicion?: TipoComposicionType;
   monto_pretension?: number;
   fecha_inicio: string;
   fecha_notificacion?: string;
@@ -54,6 +58,8 @@ export interface ProcesoCreate {
   juzgado: string;
   juez?: string;
   estado?: EstadoProceso;
+  etapa_procesal?: EtapaProcesalType;
+  tipo_composicion?: TipoComposicionType;
   monto_pretension?: number;
   fecha_inicio: string;
   fecha_notificacion?: string;
@@ -70,6 +76,8 @@ export interface ProcesoUpdate {
   juez?: string;
   estado?: EstadoProceso;
   estado_juridico?: EstadoJuridico;
+  etapa_procesal?: EtapaProcesalType;
+  tipo_composicion?: TipoComposicionType;
   monto_pretension?: number;
   fecha_inicio?: string;
   fecha_notificacion?: string;
