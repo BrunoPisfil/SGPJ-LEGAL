@@ -95,6 +95,12 @@ class APIClient {
           throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
         }
         
+        // Para status 204 No Content, retornar null
+        if (response.status === 204) {
+          console.log('Response: 204 No Content');
+          return null as any;
+        }
+        
         const data = await response.json();
         console.log('Response data:', data);
         return data;
