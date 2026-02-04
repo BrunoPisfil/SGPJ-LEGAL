@@ -8,7 +8,7 @@ from sqlalchemy.orm import relationship
 from datetime import datetime, date, time as datetime_time
 import enum
 
-from app.db.base import Base
+from app.core.database import Base
 
 
 class EstadoDiligencia(str, enum.Enum):
