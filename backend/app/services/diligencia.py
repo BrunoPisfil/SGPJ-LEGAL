@@ -27,6 +27,9 @@ class DiligenciaService:
             if not proceso:
                 raise ValueError(f"Proceso con ID {diligencia.proceso_id} no existe")
         
+        # Convertir estado a MAYÚSCULAS si es un string
+        estado_value = diligencia.estado.value if hasattr(diligencia.estado, 'value') else str(diligencia.estado).upper()
+        
         db_diligencia = Diligencia(
             proceso_id=diligencia.proceso_id,
             titulo=diligencia.titulo,
@@ -34,7 +37,7 @@ class DiligenciaService:
             fecha=diligencia.fecha,
             hora=diligencia.hora,
             descripcion=diligencia.descripcion,
-            estado=diligencia.estado,
+            estado=estado_value,
             notificar=diligencia.notificar
         )
         

@@ -3,7 +3,7 @@ Modelo para Diligencias en SGPJ Legal
 Diligencias son actividades u trámites dentro de un proceso judicial
 """
 
-from sqlalchemy import Column, Integer, BigInteger, String, DateTime, Date, Time, Text, Boolean, ForeignKey, Enum as SQLEnum, func
+from sqlalchemy import Column, Integer, BigInteger, String, DateTime, Date, Time, Text, Boolean, ForeignKey, func
 from sqlalchemy.orm import relationship
 from datetime import datetime, date, time as datetime_time
 import enum
@@ -20,7 +20,7 @@ class EstadoDiligencia(str, enum.Enum):
     
     @classmethod
     def _missing_(cls, value):
-        """Permitir valores en minúsculas"""
+        """Permitir valores en minúsculas y convertirlos a MAYÚSCULAS"""
         if isinstance(value, str):
             value_upper = value.upper()
             for member in cls:
@@ -46,7 +46,7 @@ class Diligencia(Base):
     hora = Column(Time, nullable=False)
     
     # Estado y control
-    estado = Column(SQLEnum(EstadoDiligencia, native_enum=False), default=EstadoDiligencia.PENDIENTE, index=True)
+    estado = Column(String(50), default=EstadoDiligencia.PENDIENTE.value, index=True)
     descripcion = Column(Text, nullable=True)
     
     # Notificación
