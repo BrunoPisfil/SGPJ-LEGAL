@@ -10,6 +10,7 @@ export function usePermission() {
     admin: {
       procesos: ['read', 'create', 'update', 'delete'],
       audiencias: ['read', 'create', 'update', 'delete'],
+      diligencias: ['read', 'create', 'update', 'delete'],
       resoluciones: ['read', 'create', 'update', 'delete'],
       directorio: ['read', 'create', 'update', 'delete'],
       notificaciones: ['read'],
@@ -20,6 +21,7 @@ export function usePermission() {
     practicante: {
       procesos: ['read', 'create', 'update'],
       audiencias: ['read', 'create', 'update'],
+      diligencias: ['read', 'create', 'update'],
       resoluciones: ['read', 'create', 'update'],
       directorio: ['read', 'create', 'update'],
       notificaciones: ['read'],

@@ -1,36 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { diligenciasAPI } from "@/lib/diligencias";
-import { procesosAPI } from "@/lib/procesos";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Loader2 } from "lucide-react";
-
-interface Proceso {
-  id: number;
-  expediente: string;
-}
 
 export default function NuevaDiligenciaPage() {
   const router = useRouter();
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
-    proceso_id: "",
     titulo: "",
     motivo: "",
     fecha: "",
@@ -39,42 +25,11 @@ export default function NuevaDiligenciaPage() {
     notificar: true,
   });
 
-  const [procesos, setProcesos] = useState<Proceso[]>([]);
-  const [cargandoProcesos, setCargandoProcesos] = useState(true);
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Cargar procesos
-  useEffect(() => {
-    const cargarProcesos = async () => {
-      try {
-        setCargandoProcesos(true);
-        const datos = await procesosAPI.obtenerTodos();
-        setProcesos(datos);
-      } catch (error) {
-        const mensaje = error instanceof Error ? error.message : "Error desconocido";
-        toast({
-          title: "Error",
-          description: `No se pudieron cargar los procesos: ${mensaje}`,
-          variant: "destructive",
-        });
-      } finally {
-        setCargandoProcesos(false);
-      }
-    };
-
-    cargarProcesos();
-  }, [toast]);
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -92,7 +47,7 @@ export default function NuevaDiligenciaPage() {
     e.preventDefault();
 
     // Validar campos obligatorios
-    if (!formData.proceso_id || !formData.titulo || !formData.motivo || !formData.fecha || !formData.hora) {
+    if (!formData.titulo || !formData.motivo || !formData.fecha || !formData.hora) {
       setError("Todos los campos son obligatorios");
       toast({
         title: "Error",
@@ -107,7 +62,6 @@ export default function NuevaDiligenciaPage() {
       setError(null);
 
       const nuevaDiligencia = await diligenciasAPI.crear({
-        proceso_id: parseInt(formData.proceso_id),
         titulo: formData.titulo,
         motivo: formData.motivo,
         fecha: formData.fecha,
@@ -158,36 +112,6 @@ export default function NuevaDiligenciaPage() {
             <p className="text-red-600 font-medium">Error: {error}</p>
           </div>
         )}
-
-        {/* Proceso */}
-        <div className="space-y-2">
-          <Label htmlFor="proceso_id">Proceso *</Label>
-          <Select
-            value={formData.proceso_id}
-            onValueChange={(value) => handleSelectChange("proceso_id", value)}
-          >
-            <SelectTrigger id="proceso_id">
-              <SelectValue placeholder="Selecciona un proceso" />
-            </SelectTrigger>
-            <SelectContent>
-              {cargandoProcesos ? (
-                <SelectItem disabled value="cargando">
-                  Cargando procesos...
-                </SelectItem>
-              ) : procesos.length === 0 ? (
-                <SelectItem disabled value="sin-procesos">
-                  No hay procesos disponibles
-                </SelectItem>
-              ) : (
-                procesos.map((proceso) => (
-                  <SelectItem key={proceso.id} value={proceso.id.toString()}>
-                    {proceso.expediente}
-                  </SelectItem>
-                ))
-              )}
-            </SelectContent>
-          </Select>
-        </div>
 
         {/* Título */}
         <div className="space-y-2">
@@ -280,7 +204,7 @@ export default function NuevaDiligenciaPage() {
           >
             Cancelar
           </Button>
-          <Button type="submit" disabled={cargando || cargandoProcesos}>
+          <Button type="submit" disabled={cargando}>
             {cargando ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
