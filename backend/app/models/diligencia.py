@@ -26,7 +26,7 @@ class Diligencia(Base):
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     
     # Relación con Proceso
-    proceso_id = Column(BigInteger, ForeignKey("procesos.id"), nullable=False, index=True)
+    proceso_id = Column(BigInteger, ForeignKey("procesos.id"), nullable=True, index=True)
     proceso = relationship("Proceso", back_populates="diligencias")
     
     # Campos básicos
