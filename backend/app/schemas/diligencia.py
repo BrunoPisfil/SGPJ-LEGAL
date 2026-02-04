@@ -29,7 +29,7 @@ class DiligenciaBase(BaseModel):
 
 class DiligenciaCreate(DiligenciaBase):
     """Schema para crear una diligencia"""
-    proceso_id: int = Field(..., description="ID del proceso asociado")
+    proceso_id: Optional[int] = Field(None, description="ID del proceso asociado (opcional)")
 
 
 class DiligenciaUpdate(BaseModel):

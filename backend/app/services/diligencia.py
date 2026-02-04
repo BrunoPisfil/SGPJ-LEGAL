@@ -21,10 +21,11 @@ class DiligenciaService:
     @staticmethod
     def crear_diligencia(db: Session, diligencia: DiligenciaCreate) -> Diligencia:
         """Crear una nueva diligencia"""
-        # Verificar que el proceso existe
-        proceso = db.query(Proceso).filter(Proceso.id == diligencia.proceso_id).first()
-        if not proceso:
-            raise ValueError(f"Proceso con ID {diligencia.proceso_id} no existe")
+        # Verificar que el proceso existe si es proporcionado
+        if diligencia.proceso_id:
+            proceso = db.query(Proceso).filter(Proceso.id == diligencia.proceso_id).first()
+            if not proceso:
+                raise ValueError(f"Proceso con ID {diligencia.proceso_id} no existe")
         
         db_diligencia = Diligencia(
             proceso_id=diligencia.proceso_id,
@@ -41,7 +42,7 @@ class DiligenciaService:
         db.commit()
         db.refresh(db_diligencia)
         
-        logger.info(f"Diligencia creada: ID {db_diligencia.id}, Proceso {diligencia.proceso_id}")
+        logger.info(f"Diligencia creada: ID {db_diligencia.id}")
         return db_diligencia
     
     @staticmethod
