@@ -3,7 +3,7 @@ Modelo para Diligencias en SGPJ Legal
 Diligencias son actividades u trámites dentro de un proceso judicial
 """
 
-from sqlalchemy import Column, Integer, String, DateTime, Date, Time, Text, Boolean, ForeignKey, Enum as SQLEnum, func
+from sqlalchemy import Column, Integer, BigInteger, String, DateTime, Date, Time, Text, Boolean, ForeignKey, Enum as SQLEnum, func
 from sqlalchemy.orm import relationship
 from datetime import datetime, date, time as datetime_time
 import enum
