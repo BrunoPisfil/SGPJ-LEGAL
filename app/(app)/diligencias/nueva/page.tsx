@@ -171,11 +171,11 @@ export default function NuevaDiligenciaPage() {
             </SelectTrigger>
             <SelectContent>
               {cargandoProcesos ? (
-                <SelectItem disabled value="">
+                <SelectItem disabled value="cargando">
                   Cargando procesos...
                 </SelectItem>
               ) : procesos.length === 0 ? (
-                <SelectItem disabled value="">
+                <SelectItem disabled value="sin-procesos">
                   No hay procesos disponibles
                 </SelectItem>
               ) : (

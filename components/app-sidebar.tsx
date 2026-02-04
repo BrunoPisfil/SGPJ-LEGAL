@@ -4,7 +4,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { LayoutDashboard, FileText, Calendar, Users, DollarSign, Bell, Settings, Scale, Gavel, X, Menu, LogOut } from "lucide-react"
+import { LayoutDashboard, FileText, Calendar, Users, DollarSign, Bell, Settings, Scale, Gavel, CheckCircle2, X, Menu, LogOut } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Sidebar } from "@/components/ui/sidebar"
 import { usePermission } from "@/hooks/use-permission"
@@ -16,6 +16,7 @@ const navItemsConfig = [
   { title: "Panel", url: "/dashboard", icon: LayoutDashboard, resource: "dashboard" },
   { title: "Procesos", url: "/procesos", icon: FileText, resource: "procesos" },
   { title: "Audiencias", url: "/audiencias", icon: Calendar, resource: "audiencias" },
+  { title: "Diligencias", url: "/diligencias", icon: CheckCircle2, resource: "diligencias" },
   { title: "Resoluciones", url: "/resoluciones", icon: Gavel, resource: "resoluciones" },
   { title: "Directorio", url: "/directorio", icon: Users, resource: "directorio" },
   { title: "Finanzas", url: "/finanzas", icon: DollarSign, resource: "finanzas" },
