@@ -27,17 +27,17 @@ import { es } from "date-fns/locale";
 import { Plus, Trash2, Edit2, AlertCircle } from "lucide-react";
 
 const ESTADO_COLORS: Record<EstadoDiligencia, string> = {
-  pendiente: "bg-yellow-100 text-yellow-800",
-  en_progreso: "bg-blue-100 text-blue-800",
-  completada: "bg-green-100 text-green-800",
-  cancelada: "bg-red-100 text-red-800",
+  PENDIENTE: "bg-yellow-100 text-yellow-800",
+  EN_PROGRESO: "bg-blue-100 text-blue-800",
+  COMPLETADA: "bg-green-100 text-green-800",
+  CANCELADA: "bg-red-100 text-red-800",
 };
 
 const ESTADO_LABELS: Record<EstadoDiligencia, string> = {
-  pendiente: "Pendiente",
-  en_progreso: "En Progreso",
-  completada: "Completada",
-  cancelada: "Cancelada",
+  PENDIENTE: "Pendiente",
+  EN_PROGRESO: "En Progreso",
+  COMPLETADA: "Completada",
+  CANCELADA: "Cancelada",
 };
 
 export default function DiligenciasPage() {
@@ -147,10 +147,10 @@ export default function DiligenciasPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="todas">Todos los estados</SelectItem>
-            <SelectItem value="pendiente">Pendiente</SelectItem>
-            <SelectItem value="en_progreso">En Progreso</SelectItem>
-            <SelectItem value="completada">Completada</SelectItem>
-            <SelectItem value="cancelada">Cancelada</SelectItem>
+            <SelectItem value="PENDIENTE">Pendiente</SelectItem>
+            <SelectItem value="EN_PROGRESO">En Progreso</SelectItem>
+            <SelectItem value="COMPLETADA">Completada</SelectItem>
+            <SelectItem value="CANCELADA">Cancelada</SelectItem>
           </SelectContent>
         </Select>
       </div>

@@ -10,10 +10,10 @@ from enum import Enum
 
 class EstadoDiligenciaEnum(str, Enum):
     """Estados posibles de una diligencia"""
-    PENDIENTE = "pendiente"
-    EN_PROGRESO = "en_progreso"
-    COMPLETADA = "completada"
-    CANCELADA = "cancelada"
+    PENDIENTE = "PENDIENTE"
+    EN_PROGRESO = "EN_PROGRESO"
+    COMPLETADA = "COMPLETADA"
+    CANCELADA = "CANCELADA"
 
 
 class DiligenciaBase(BaseModel):

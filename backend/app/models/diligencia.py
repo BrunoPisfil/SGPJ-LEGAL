@@ -13,10 +13,10 @@ from app.core.database import Base
 
 class EstadoDiligencia(str, enum.Enum):
     """Estados posibles de una diligencia"""
-    PENDIENTE = "pendiente"
-    EN_PROGRESO = "en_progreso"
-    COMPLETADA = "completada"
-    CANCELADA = "cancelada"
+    PENDIENTE = "PENDIENTE"
+    EN_PROGRESO = "EN_PROGRESO"
+    COMPLETADA = "COMPLETADA"
+    CANCELADA = "CANCELADA"
 
 
 class Diligencia(Base):
@@ -36,7 +36,7 @@ class Diligencia(Base):
     hora = Column(Time, nullable=False)
     
     # Estado y control
-    estado = Column(SQLEnum(EstadoDiligencia), default=EstadoDiligencia.PENDIENTE, index=True)
+    estado = Column(SQLEnum(EstadoDiligencia, native_enum=False), default=EstadoDiligencia.PENDIENTE, index=True)
     descripcion = Column(Text, nullable=True)
     
     # Notificación

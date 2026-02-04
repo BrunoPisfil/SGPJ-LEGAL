@@ -4,7 +4,7 @@
 
 import { apiClient } from "./api";
 
-export type EstadoDiligencia = "pendiente" | "en_progreso" | "completada" | "cancelada";
+export type EstadoDiligencia = "PENDIENTE" | "EN_PROGRESO" | "COMPLETADA" | "CANCELADA";
 
 export interface Diligencia {
   id: number;
