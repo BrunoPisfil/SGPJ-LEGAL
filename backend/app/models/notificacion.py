@@ -8,6 +8,7 @@ from app.core.database import Base
 class TipoNotificacion(str, Enum):
     AUDIENCIA_PROGRAMADA = "audiencia_programada"
     AUDIENCIA_RECORDATORIO = "audiencia_recordatorio" 
+    DILIGENCIA_RECORDATORIO = "diligencia_recordatorio"
     PROCESO_ACTUALIZADO = "proceso_actualizado"
     VENCIMIENTO_PLAZO = "vencimiento_plazo"
     SISTEMA = "sistema"
@@ -34,6 +35,7 @@ class Notificacion(Base):
     
     # Relacionado con la audiencia (opcional)
     audiencia_id = Column(BigInteger, ForeignKey('audiencias.id', ondelete='SET NULL'), nullable=True)
+    diligencia_id = Column(BigInteger, ForeignKey('diligencias.id', ondelete='SET NULL'), nullable=True)
     proceso_id = Column(BigInteger, ForeignKey('procesos.id', ondelete='CASCADE'), nullable=True)
     
     # Contenido de la notificación
@@ -71,6 +73,7 @@ class Notificacion(Base):
 
     # Relationships
     audiencia = relationship("Audiencia", back_populates="notificaciones")
+    diligencia = relationship("Diligencia", back_populates="notificaciones")
     proceso = relationship("Proceso", back_populates="notificaciones")
 
     def __repr__(self):

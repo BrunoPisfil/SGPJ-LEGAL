@@ -83,6 +83,7 @@ class Proceso(Base):
     
     # Relación con las partes del proceso (nueva estructura)
     partes = relationship("ParteProceso", back_populates="proceso", cascade="all, delete-orphan")
+    diligencias = relationship("Diligencia", back_populates="proceso", cascade="all, delete-orphan")
 
     @property
     def demandantes(self):

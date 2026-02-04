@@ -1,0 +1,78 @@
+"""
+Esquemas Pydantic para Diligencias
+"""
+
+from pydantic import BaseModel, Field
+from datetime import datetime, date, time
+from typing import Optional, List
+from enum import Enum
+
+
+class EstadoDiligenciaEnum(str, Enum):
+    """Estados posibles de una diligencia"""
+    PENDIENTE = "pendiente"
+    EN_PROGRESO = "en_progreso"
+    COMPLETADA = "completada"
+    CANCELADA = "cancelada"
+
+
+class DiligenciaBase(BaseModel):
+    """Base schema para Diligencia"""
+    titulo: str = Field(..., min_length=1, max_length=255, description="Título de la diligencia")
+    motivo: str = Field(..., min_length=1, description="Motivo o descripción de la diligencia")
+    fecha: date = Field(..., description="Fecha de la diligencia")
+    hora: time = Field(..., description="Hora de la diligencia")
+    descripcion: Optional[str] = Field(None, description="Descripción adicional")
+    estado: EstadoDiligenciaEnum = Field(default=EstadoDiligenciaEnum.PENDIENTE)
+    notificar: bool = Field(default=True, description="Si se debe enviar notificación automática")
+
+
+class DiligenciaCreate(DiligenciaBase):
+    """Schema para crear una diligencia"""
+    proceso_id: int = Field(..., description="ID del proceso asociado")
+
+
+class DiligenciaUpdate(BaseModel):
+    """Schema para actualizar una diligencia"""
+    titulo: Optional[str] = Field(None, min_length=1, max_length=255)
+    motivo: Optional[str] = Field(None, min_length=1)
+    fecha: Optional[date] = None
+    hora: Optional[time] = None
+    descripcion: Optional[str] = None
+    estado: Optional[EstadoDiligenciaEnum] = None
+    notificar: Optional[bool] = None
+
+
+class DiligenciaResponse(BaseModel):
+    """Schema para respuesta de Diligencia"""
+    id: int
+    proceso_id: int
+    titulo: str
+    motivo: str
+    fecha: date
+    hora: time
+    descripcion: Optional[str]
+    estado: EstadoDiligenciaEnum
+    notificar: bool
+    notificacion_enviada: bool
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class DiligenciaListResponse(BaseModel):
+    """Schema para lista de diligencias"""
+    id: int
+    proceso_id: int
+    titulo: str
+    fecha: date
+    hora: time
+    estado: EstadoDiligenciaEnum
+    notificar: bool
+    notificacion_enviada: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

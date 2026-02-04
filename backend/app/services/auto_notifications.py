@@ -2,19 +2,21 @@
 Servicio de notificaciones automáticas para SGPJ Legal
 Maneja:
 - Notificaciones de audiencias 24 horas antes
+- Notificaciones de diligencias 24 horas antes
 - Notificaciones de procesos sin revisar
 - Envío automático por email y sistema
 """
 
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from typing import List, Tuple
 import logging
 
 from app.core.config import settings
 from app.models.audiencia import Audiencia
 from app.models.proceso import Proceso
+from app.models.diligencia import Diligencia, EstadoDiligencia
 from app.models.notificacion import Notificacion, TipoNotificacion, CanalNotificacion, EstadoNotificacion
 from app.services.notificacion import NotificacionService
 from app.schemas.notificacion import EnviarNotificacionRequest
@@ -39,6 +41,7 @@ class AutoNotificationService:
         
         stats = {
             "audiencias": 0,
+            "diligencias": 0,
             "procesos": 0,
             "errors": []
         }
@@ -48,11 +51,15 @@ class AutoNotificationService:
             audiencias_notificadas = AutoNotificationService._check_audiencias_proximas(db)
             stats["audiencias"] = len(audiencias_notificadas)
             
+            # Notificar diligencias próximas
+            diligencias_notificadas = AutoNotificationService._check_diligencias_proximas(db)
+            stats["diligencias"] = len(diligencias_notificadas)
+            
             # Notificar procesos sin revisar
             procesos_notificados = AutoNotificationService._check_procesos_sin_revisar(db)
             stats["procesos"] = len(procesos_notificados)
             
-            logger.info(f"Notificaciones enviadas - Audiencias: {stats['audiencias']}, Procesos: {stats['procesos']}")
+            logger.info(f"Notificaciones enviadas - Audiencias: {stats['audiencias']}, Diligencias: {stats['diligencias']}, Procesos: {stats['procesos']}")
             
         except Exception as e:
             logger.error(f"Error en notificaciones automáticas: {e}")
@@ -117,6 +124,91 @@ class AutoNotificationService:
                 logger.error(f"Error notificando audiencia {audiencia.id}: {e}")
         
         return audiencias_notificadas
+    
+    @staticmethod
+    def _check_diligencias_proximas(db: Session) -> List[Notificacion]:
+        """Verificar diligencias que necesitan notificación 24h antes"""
+        
+        # Calcular el rango de tiempo (24 horas ± 1 hora para dar margen)
+        now = datetime.now()
+        today = now.date()
+        
+        # Calcular mañana a la hora actual (aprox en 24 horas)
+        tomorrow = today + timedelta(days=1)
+        target_date = tomorrow
+        
+        logger.info(f"Buscando diligencias próximas para notificar (fecha objetivo: {target_date})")
+        
+        # Buscar diligencias que ocurren mañana (en 24 horas) que no han sido notificadas
+        diligencias = db.query(Diligencia).filter(
+            and_(
+                Diligencia.fecha == target_date,
+                Diligencia.notificar == True,
+                Diligencia.notificacion_enviada == False,
+                Diligencia.estado.in_([EstadoDiligencia.PENDIENTE, EstadoDiligencia.EN_PROGRESO])
+            )
+        ).all()
+        
+        notificaciones_creadas = []
+        
+        for diligencia in diligencias:
+            try:
+                # Verificar si ya se envió notificación para esta diligencia
+                notificacion_existente = db.query(Notificacion).filter(
+                    and_(
+                        Notificacion.diligencia_id == diligencia.id,
+                        Notificacion.tipo == TipoNotificacion.DILIGENCIA_RECORDATORIO,
+                        Notificacion.estado.in_([EstadoNotificacion.ENVIADO, EstadoNotificacion.PENDIENTE])
+                    )
+                ).first()
+                
+                if notificacion_existente:
+                    logger.info(f"Diligencia {diligencia.id} ya tiene notificación automática")
+                    continue
+                
+                # Crear notificación de diligencia
+                hora_str = diligencia.hora.strftime('%H:%M') if diligencia.hora else "hora no especificada"
+                fecha_str = diligencia.fecha.strftime('%d/%m/%Y')
+                
+                notificacion = Notificacion(
+                    diligencia_id=diligencia.id,
+                    proceso_id=diligencia.proceso_id,
+                    tipo=TipoNotificacion.DILIGENCIA_RECORDATORIO,
+                    canal=CanalNotificacion.SISTEMA,
+                    titulo=f"Recordatorio: Diligencia {diligencia.titulo}",
+                    mensaje=f"Recordatorio automático: La diligencia '{diligencia.titulo}' está programada para las {hora_str} del {fecha_str}. Motivo: {diligencia.motivo}",
+                    destinatario=settings.default_notification_email,
+                    email_destinatario=settings.default_notification_email,
+                    estado=EstadoNotificacion.PENDIENTE
+                )
+                
+                db.add(notificacion)
+                db.flush()
+                
+                # Intentar enviar por email
+                try:
+                    # Enviar email
+                    NotificacionService._enviar_email(notificacion, None, None)
+                    notificacion.estado = EstadoNotificacion.ENVIADO
+                    notificacion.fecha_envio = datetime.now()
+                    
+                except Exception as e:
+                    logger.warning(f"No se pudo enviar email para diligencia {diligencia.id}: {e}")
+                    notificacion.estado = EstadoNotificacion.PENDIENTE
+                
+                # Marcar diligencia como notificada
+                diligencia.notificacion_enviada = True
+                
+                db.commit()
+                notificaciones_creadas.append(notificacion)
+                
+                logger.info(f"Notificación automática enviada para diligencia {diligencia.id}")
+                
+            except Exception as e:
+                logger.error(f"Error notificando diligencia {diligencia.id}: {e}")
+                db.rollback()
+        
+        return notificaciones_creadas
     
     @staticmethod
     def _check_procesos_sin_revisar(db: Session) -> List[Proceso]:
@@ -201,6 +293,8 @@ class AutoNotificationService:
         """Obtener resumen de notificaciones pendientes"""
         
         now = datetime.now()
+        today = now.date()
+        tomorrow = today + timedelta(days=1)
         target_time = now + timedelta(hours=settings.audiencia_notification_hours)
         limite_fecha = now - timedelta(days=settings.proceso_review_notification_days)
         
@@ -210,6 +304,16 @@ class AutoNotificationService:
                 Audiencia.fecha_hora >= now,
                 Audiencia.fecha_hora <= target_time + timedelta(hours=1),
                 Audiencia.notificar == True
+            )
+        ).count()
+        
+        # Contar diligencias próximas sin notificar
+        diligencias_pendientes = db.query(Diligencia).filter(
+            and_(
+                Diligencia.fecha == tomorrow,
+                Diligencia.notificar == True,
+                Diligencia.notificacion_enviada == False,
+                Diligencia.estado.in_([EstadoDiligencia.PENDIENTE, EstadoDiligencia.EN_PROGRESO])
             )
         ).count()
         
@@ -226,6 +330,7 @@ class AutoNotificationService:
         
         return {
             "audiencias_proximas": audiencias_pendientes,
+            "diligencias_proximas": diligencias_pendientes,
             "procesos_sin_revisar": procesos_pendientes,
             "next_check": now + timedelta(minutes=settings.notification_check_interval_minutes)
         }
