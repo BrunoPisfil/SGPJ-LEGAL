@@ -17,6 +17,16 @@ class EstadoDiligencia(str, enum.Enum):
     EN_PROGRESO = "EN_PROGRESO"
     COMPLETADA = "COMPLETADA"
     CANCELADA = "CANCELADA"
+    
+    @classmethod
+    def _missing_(cls, value):
+        """Permitir valores en minúsculas"""
+        if isinstance(value, str):
+            value_upper = value.upper()
+            for member in cls:
+                if member.value == value_upper:
+                    return member
+        return super()._missing_(value)
 
 
 class Diligencia(Base):

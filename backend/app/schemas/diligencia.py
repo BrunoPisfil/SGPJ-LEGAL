@@ -2,7 +2,7 @@
 Esquemas Pydantic para Diligencias
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from datetime import datetime, date, time
 from typing import Optional, List
 from enum import Enum
@@ -14,6 +14,16 @@ class EstadoDiligenciaEnum(str, Enum):
     EN_PROGRESO = "EN_PROGRESO"
     COMPLETADA = "COMPLETADA"
     CANCELADA = "CANCELADA"
+    
+    @classmethod
+    def _missing_(cls, value):
+        """Permitir valores en minúsculas"""
+        if isinstance(value, str):
+            value_upper = value.upper()
+            for member in cls:
+                if member.value == value_upper:
+                    return member
+        return super()._missing_(value)
 
 
 class DiligenciaBase(BaseModel):
@@ -25,6 +35,23 @@ class DiligenciaBase(BaseModel):
     descripcion: Optional[str] = Field(None, description="Descripción adicional")
     estado: EstadoDiligenciaEnum = Field(default=EstadoDiligenciaEnum.PENDIENTE)
     notificar: bool = Field(default=True, description="Si se debe enviar notificación automática")
+    
+    @field_validator('estado', mode='before')
+    @classmethod
+    def convert_estado(cls, v):
+        """Convertir estado a MAYÚSCULAS si viene en minúsculas"""
+        if isinstance(v, str):
+            v_upper = v.upper()
+            # Reemplazar guiones bajos si es necesario
+            if v_upper == "EN_PROGRESO":
+                return EstadoDiligenciaEnum.EN_PROGRESO
+            elif v_upper == "COMPLETADA":
+                return EstadoDiligenciaEnum.COMPLETADA
+            elif v_upper == "CANCELADA":
+                return EstadoDiligenciaEnum.CANCELADA
+            elif v_upper == "PENDIENTE":
+                return EstadoDiligenciaEnum.PENDIENTE
+        return v
 
 
 class DiligenciaCreate(DiligenciaBase):
