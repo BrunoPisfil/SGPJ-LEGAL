@@ -73,7 +73,7 @@ class DiligenciaUpdate(BaseModel):
 class DiligenciaResponse(BaseModel):
     """Schema para respuesta de Diligencia"""
     id: int
-    proceso_id: int
+    proceso_id: Optional[int] = None
     titulo: str
     motivo: str
     fecha: date
@@ -92,7 +92,7 @@ class DiligenciaResponse(BaseModel):
 class DiligenciaListResponse(BaseModel):
     """Schema para lista de diligencias"""
     id: int
-    proceso_id: int
+    proceso_id: Optional[int] = None
     titulo: str
     fecha: date
     hora: time
