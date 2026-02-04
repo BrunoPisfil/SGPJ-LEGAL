@@ -20,6 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { Diligencia, diligenciasAPI, EstadoDiligencia } from "@/lib/diligencias";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
@@ -51,6 +52,7 @@ export default function DiligenciasPage() {
   const [busqueda, setBusqueda] = useState("");
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
 
   // Cargar diligencias
   useEffect(() => {
@@ -87,13 +89,10 @@ export default function DiligenciasPage() {
 
   // Eliminar diligencia
   const handleEliminar = async (id: number) => {
-    if (!confirm("¿Está seguro de que desea eliminar esta diligencia?")) {
-      return;
-    }
-
     try {
       await diligenciasAPI.eliminar(id);
       setDiligencias(diligencias.filter((d) => d.id !== id));
+      setDeleteConfirmId(null);
       toast({
         title: "Éxito",
         description: "Diligencia eliminada correctamente",
@@ -239,7 +238,7 @@ export default function DiligenciasPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleEliminar(diligencia.id)}
+                        onClick={() => setDeleteConfirmId(diligencia.id)}
                         className="w-10 h-10 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -252,6 +251,18 @@ export default function DiligenciasPage() {
           </Table>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        open={deleteConfirmId !== null}
+        onOpenChange={(open) => !open && setDeleteConfirmId(null)}
+        title="Eliminar Diligencia"
+        description="¿Está seguro de que desea eliminar esta diligencia? Esta acción no se puede deshacer."
+        onConfirm={() => deleteConfirmId !== null && handleEliminar(deleteConfirmId)}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        variant="destructive"
+      />
     </div>
   );
 }
