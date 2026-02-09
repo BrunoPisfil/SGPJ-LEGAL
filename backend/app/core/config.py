@@ -68,9 +68,21 @@ class Settings(BaseSettings):
     default_notification_email: str = ""
     test_email_recipients: str = ""
     
+    # Emails para notificaciones automáticas (múltiples destinatarios)
+    notification_emails: List[str] = [
+        "ppisfil@hotmail.com",
+        "deyabeca22@gmail.com"
+    ]
+    
+    # Timezone
+    app_timezone: str = "America/Lima"  # UTC-5 (Perú)
+    
     # Configuración de notificaciones automáticas
     auto_notifications_enabled: bool = True
-    audiencia_notification_hours: int = 24
+    # Audiencias: notificar 24h y 12h antes
+    audiencia_notification_hours_list: List[int] = [24, 12]
+    # Diligencias: notificar 2h antes
+    diligencia_notification_hours: int = 2
     proceso_review_notification_days: int = 7
     notification_check_interval_minutes: int = 60
     

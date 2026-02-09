@@ -7,8 +7,10 @@ from sqlalchemy import Column, Integer, BigInteger, String, DateTime, Date, Time
 from sqlalchemy.orm import relationship
 from datetime import datetime, date, time as datetime_time
 import enum
+import pytz
 
 from app.core.database import Base
+from app.core.config import settings
 
 
 class EstadoDiligencia(str, enum.Enum):

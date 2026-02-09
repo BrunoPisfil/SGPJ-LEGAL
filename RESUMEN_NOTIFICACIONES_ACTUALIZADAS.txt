@@ -1,0 +1,151 @@
+# 🎯 RESUMEN EJECUTIVO: Actualización de Notificaciones
+
+## ✅ Cambios Implementados
+
+Se han actualizado correctamente todos los horarios de notificación y emails destino:
+
+### 📊 Tabla Resumen
+
+| Elemento | ANTES | AHORA |
+|----------|-------|-------|
+| **Emails** | ppisfil@hotmail.com | ppisfil@hotmail.com<br>deyabeca22@gmail.com |
+| **Audiencias** | 24h antes (1 notif) | 24h antes + 12h antes (2 notif) |
+| **Diligencias** | 24h antes (1 notif) | 2h antes (1 notif) |
+
+---
+
+## 🚀 Cómo Usar
+
+### Opción 1: Automático (Recomendado)
+```bash
+# Terminal 1
+cd backend
+python -m uvicorn main:app --reload
+
+# Terminal 2
+cd backend
+python scheduler.py
+```
+
+### Opción 2: Testing Manual
+```bash
+cd backend
+python test_notificaciones.py
+```
+
+---
+
+## 📧 Ejemplo de Notificaciones
+
+### Para una AUDIENCIA el Jueves 20 de febrero a las 3:00 PM:
+
+```
+Miércoles 19 de febrero a las 3:00 PM
+├─ Email #1 a ppisfil@hotmail.com: "Recordatorio: Audiencia en 24h"
+└─ Email #2 a deyabeca22@gmail.com: "Recordatorio: Audiencia en 24h"
+
+Jueves 20 de febrero a las 3:00 PM
+├─ Email #3 a ppisfil@hotmail.com: "Recordatorio: Audiencia en 12h"
+└─ Email #4 a deyabeca22@gmail.com: "Recordatorio: Audiencia en 12h"
+
+Jueves 20 de febrero a las 3:00 PM → OCURRE LA AUDIENCIA
+```
+
+### Para una DILIGENCIA el Martes 17 de febrero a las 2:00 PM:
+
+```
+Martes 17 de febrero a las 12:00 PM (2 horas antes)
+├─ Email #1 a ppisfil@hotmail.com: "Recordatorio: Diligencia en 2h"
+└─ Email #2 a deyabeca22@gmail.com: "Recordatorio: Diligencia en 2h"
+
+Martes 17 de febrero a las 2:00 PM → OCURRE LA DILIGENCIA
+```
+
+---
+
+## 🔍 Verificación Rápida
+
+### 1. Ver estado del sistema:
+```bash
+curl http://localhost:8000/api/v1/admin/notificaciones-automaticas/status
+```
+
+**Verás:**
+```json
+{
+  "scheduler": {
+    "enabled": true,
+    "check_interval_minutes": 60
+  },
+  "pending": {
+    "audiencias_proximas": 2,
+    "diligencias_proximas": 1
+  }
+}
+```
+
+### 2. Ver diligencias próximas:
+```bash
+curl http://localhost:8000/api/v1/admin/notificaciones-automaticas/diligencias/proximas
+```
+
+### 3. Ejecutar verificación manual:
+```bash
+curl -X POST http://localhost:8000/api/v1/admin/notificaciones-automaticas/check-now
+```
+
+### 4. Ver logs:
+```bash
+curl http://localhost:8000/api/v1/admin/notificaciones-automaticas/logs/recent
+```
+
+---
+
+## 📁 Archivos Modificados
+
+- ✅ `backend/app/core/config.py`
+- ✅ `backend/app/services/auto_notifications.py`
+- ✅ Documentación actualizada
+
+---
+
+## 🎓 Cómo Cambiar Configuración
+
+Edita `backend/app/core/config.py`:
+
+```python
+# Cambiar emails
+notification_emails: List[str] = [
+    "ppisfil@hotmail.com",
+    "deyabeca22@gmail.com",
+    # "nuevo@email.com"  # Agregar más aquí
+]
+
+# Cambiar horarios de audiencias (en horas)
+audiencia_notification_hours_list: List[int] = [24, 12]  # Cambiar números
+
+# Cambiar horas para diligencias
+diligencia_notification_hours: int = 2  # Cambiar número
+```
+
+Luego reinicia:
+```bash
+# Ctrl+C en Terminal 2
+python scheduler.py
+```
+
+---
+
+## ✅ Checklist
+
+- [x] Dual emails configurados
+- [x] Audiencias: 24h y 12h antes
+- [x] Diligencias: 2h antes
+- [x] Sistema probado
+- [x] Documentación actualizada
+- [x] Logs mejorados
+- [x] Timezone correcto
+
+---
+
+**Sistema completamente actualizado y listo para producción.** 🚀

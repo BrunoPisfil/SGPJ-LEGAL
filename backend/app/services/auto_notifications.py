@@ -14,6 +14,7 @@ from typing import List, Tuple
 import logging
 
 from app.core.config import settings
+from app.core.timezone import get_current_time_peru, get_current_date_peru, format_fecha_hora
 from app.models.audiencia import Audiencia
 from app.models.proceso import Proceso
 from app.models.diligencia import Diligencia, EstadoDiligencia
@@ -69,77 +70,111 @@ class AutoNotificationService:
     
     @staticmethod
     def _check_audiencias_proximas(db: Session) -> List[Audiencia]:
-        """Verificar audiencias que necesitan notificación 24h antes"""
+        """Verificar audiencias que necesitan notificación (24h y 12h antes)"""
         
-        # Calcular el rango de tiempo (24 horas ± 1 hora para dar margen)
-        now = datetime.now()
-        target_time = now + timedelta(hours=settings.audiencia_notification_hours)
-        time_margin = timedelta(hours=1)
-        
-        start_range = target_time - time_margin
-        end_range = target_time + time_margin
-        
-        logger.info(f"Buscando audiencias entre {start_range} y {end_range}")
-        
-        # Buscar audiencias en el rango de tiempo que no han sido notificadas automáticamente
-        audiencias = db.query(Audiencia).filter(
-            and_(
-                Audiencia.fecha_hora >= start_range,
-                Audiencia.fecha_hora <= end_range,
-                Audiencia.notificar == True  # Usar el campo notificar en lugar de activo
-            )
-        ).all()
-        
+        # Usar timezone de Perú
+        now = get_current_time_peru()
         audiencias_notificadas = []
         
-        for audiencia in audiencias:
+        # Verificar para cada rango de horas configurado
+        for target_hours in settings.audiencia_notification_hours_list:
             try:
-                # Verificar si ya se envió notificación automática para esta audiencia
-                notificacion_existente = db.query(Notificacion).filter(
+                # Calcular el rango de tiempo (X horas ± 1 hora para dar margen)
+                target_time = now + timedelta(hours=target_hours)
+                time_margin = timedelta(hours=1)
+                
+                start_range = target_time - time_margin
+                end_range = target_time + time_margin
+                
+                logger.info(f"🔍 Buscando audiencias para notificar en {target_hours}h (entre {start_range.strftime('%H:%M')} y {end_range.strftime('%H:%M')})")
+                
+                # Buscar audiencias en el rango de tiempo que no han sido notificadas automáticamente en este momento
+                audiencias = db.query(Audiencia).filter(
                     and_(
-                        Notificacion.audiencia_id == audiencia.id,
-                        Notificacion.tipo == TipoNotificacion.AUDIENCIA_RECORDATORIO,
-                        Notificacion.estado.in_([EstadoNotificacion.ENVIADO, EstadoNotificacion.PENDIENTE])
+                        Audiencia.fecha_hora >= start_range,
+                        Audiencia.fecha_hora <= end_range,
+                        Audiencia.notificar == True
                     )
-                ).first()
+                ).all()
                 
-                if notificacion_existente:
-                    logger.info(f"Audiencia {audiencia.id} ya tiene notificación automática")
-                    continue
-                
-                # Enviar notificación automática
-                request = EnviarNotificacionRequest(
-                    audiencia_id=audiencia.id,
-                    canales=['sistema', 'email'],
-                    email_destinatario=settings.default_notification_email,
-                    mensaje_personalizado=f"Recordatorio automático: Su audiencia está programada para las {audiencia.fecha_hora.strftime('%H:%M')} del {audiencia.fecha_hora.strftime('%d/%m/%Y')}"
-                )
-                
-                notificaciones = NotificacionService.enviar_notificacion_audiencia(db, request)
-                audiencias_notificadas.extend(notificaciones)
-                
-                logger.info(f"Notificación automática enviada para audiencia {audiencia.id}")
-                
+                for audiencia in audiencias:
+                    try:
+                        # Verificar si ya se envió notificación automática para esta audiencia en este momento
+                        notificacion_existente = db.query(Notificacion).filter(
+                            and_(
+                                Notificacion.audiencia_id == audiencia.id,
+                                Notificacion.tipo == TipoNotificacion.AUDIENCIA_RECORDATORIO,
+                                Notificacion.fecha_creacion >= (datetime.now() - timedelta(hours=2)),  # Notificación reciente
+                                Notificacion.estado.in_([EstadoNotificacion.ENVIADO, EstadoNotificacion.PENDIENTE])
+                            )
+                        ).first()
+                        
+                        if notificacion_existente:
+                            logger.info(f"📌 Audiencia {audiencia.id} ya tiene notificación automática reciente")
+                            continue
+                        
+                        # Crear notificación para cada email configurado
+                        for email_destino in settings.notification_emails:
+                            try:
+                                notificacion = Notificacion(
+                                    audiencia_id=audiencia.id,
+                                    tipo=TipoNotificacion.AUDIENCIA_RECORDATORIO,
+                                    canal=CanalNotificacion.EMAIL,
+                                    titulo=f"Recordatorio: Audiencia en {target_hours}h",
+                                    mensaje=f"Recordatorio automático: Su audiencia está programada para dentro de {target_hours} horas, a las {audiencia.fecha_hora.strftime('%H:%M')} del {audiencia.fecha_hora.strftime('%d/%m/%Y')}",
+                                    destinatario=email_destino,
+                                    email_destinatario=email_destino,
+                                    estado=EstadoNotificacion.PENDIENTE
+                                )
+                                
+                                db.add(notificacion)
+                                db.flush()
+                                
+                                # Intentar enviar por email
+                                try:
+                                    NotificacionService._enviar_email(notificacion, audiencia, None)
+                                    notificacion.estado = EstadoNotificacion.ENVIADO
+                                    notificacion.fecha_envio = datetime.now()
+                                    logger.info(f"✅ Email enviado a {email_destino} para audiencia {audiencia.id} ({target_hours}h antes)")
+                                    
+                                except Exception as e:
+                                    logger.warning(f"⚠️ No se pudo enviar email a {email_destino}: {e}")
+                                    notificacion.estado = EstadoNotificacion.PENDIENTE
+                                    notificacion.error_mensaje = str(e)
+                                
+                                audiencias_notificadas.append(audiencia)
+                                
+                            except Exception as e:
+                                logger.error(f"❌ Error creando notificación para {email_destino}: {e}")
+                        
+                        db.commit()
+                        
+                    except Exception as e:
+                        logger.error(f"Error notificando audiencia {audiencia.id}: {e}")
+                        db.rollback()
+                        
             except Exception as e:
-                logger.error(f"Error notificando audiencia {audiencia.id}: {e}")
+                logger.error(f"Error en verificación de {target_hours}h: {e}")
         
         return audiencias_notificadas
     
     @staticmethod
     def _check_diligencias_proximas(db: Session) -> List[Notificacion]:
-        """Verificar diligencias que necesitan notificación 24h antes"""
+        """Verificar diligencias que necesitan notificación (2 horas antes)"""
         
-        # Calcular el rango de tiempo (24 horas ± 1 hora para dar margen)
-        now = datetime.now()
-        today = now.date()
+        # Usar timezone de Perú
+        now = get_current_time_peru()
+        today = get_current_date_peru()
         
-        # Calcular mañana a la hora actual (aprox en 24 horas)
-        tomorrow = today + timedelta(days=1)
-        target_date = tomorrow
+        # Calcular fecha y hora objetivo (X horas adelante)
+        target_hours = settings.diligencia_notification_hours
+        target_time = now + timedelta(hours=target_hours)
+        target_date = target_time.date()
         
-        logger.info(f"Buscando diligencias próximas para notificar (fecha objetivo: {target_date})")
+        logger.info(f"Buscando diligencias próximas para notificar en {target_hours}h (fecha: {target_date})")
         
-        # Buscar diligencias que ocurren mañana (en 24 horas) que no han sido notificadas
+        # Buscar diligencias que ocurren en X horas que no han sido notificadas
+        # Ahora buscamos en la fecha objetivo, no necesariamente "mañana"
         diligencias = db.query(Diligencia).filter(
             and_(
                 Diligencia.fecha == target_date,
@@ -166,46 +201,53 @@ class AutoNotificationService:
                     logger.info(f"Diligencia {diligencia.id} ya tiene notificación automática")
                     continue
                 
-                # Crear notificación de diligencia
-                hora_str = diligencia.hora.strftime('%H:%M') if diligencia.hora else "hora no especificada"
-                fecha_str = diligencia.fecha.strftime('%d/%m/%Y')
+                # Formatear información de la diligencia
+                fecha_hora_str = format_fecha_hora(diligencia.fecha, diligencia.hora)
                 
-                notificacion = Notificacion(
-                    diligencia_id=diligencia.id,
-                    proceso_id=diligencia.proceso_id,
-                    tipo=TipoNotificacion.DILIGENCIA_RECORDATORIO,
-                    canal=CanalNotificacion.SISTEMA,
-                    titulo=f"Recordatorio: Diligencia {diligencia.titulo}",
-                    mensaje=f"Recordatorio automático: La diligencia '{diligencia.titulo}' está programada para las {hora_str} del {fecha_str}. Motivo: {diligencia.motivo}",
-                    destinatario=settings.default_notification_email,
-                    email_destinatario=settings.default_notification_email,
-                    estado=EstadoNotificacion.PENDIENTE
-                )
+                # Crear notificaciones para cada email configurado
+                for email_destino in settings.notification_emails:
+                    try:
+                        notificacion = Notificacion(
+                            diligencia_id=diligencia.id,
+                            proceso_id=diligencia.proceso_id,
+                            tipo=TipoNotificacion.DILIGENCIA_RECORDATORIO,
+                            canal=CanalNotificacion.SISTEMA,
+                            titulo=f"Recordatorio: Diligencia {diligencia.titulo}",
+                            mensaje=f"Recordatorio automático: La diligencia '{diligencia.titulo}' está programada para las {fecha_hora_str}. Motivo: {diligencia.motivo}",
+                            destinatario=email_destino,
+                            email_destinatario=email_destino,
+                            estado=EstadoNotificacion.PENDIENTE
+                        )
+                        
+                        db.add(notificacion)
+                        db.flush()
+                        
+                        # Intentar enviar por email
+                        try:
+                            NotificacionService._enviar_email(notificacion, None, None)
+                            notificacion.estado = EstadoNotificacion.ENVIADO
+                            notificacion.fecha_envio = datetime.now()
+                            logger.info(f"✅ Email enviado a {email_destino} para diligencia {diligencia.id}")
+                            
+                        except Exception as e:
+                            logger.warning(f"⚠️ No se pudo enviar email a {email_destino} para diligencia {diligencia.id}: {e}")
+                            notificacion.estado = EstadoNotificacion.PENDIENTE
+                            notificacion.error_mensaje = str(e)
+                        
+                        notificaciones_creadas.append(notificacion)
+                        
+                    except Exception as e:
+                        logger.error(f"❌ Error creando notificación para {email_destino} en diligencia {diligencia.id}: {e}")
                 
-                db.add(notificacion)
-                db.flush()
-                
-                # Intentar enviar por email
-                try:
-                    # Enviar email
-                    NotificacionService._enviar_email(notificacion, None, None)
-                    notificacion.estado = EstadoNotificacion.ENVIADO
-                    notificacion.fecha_envio = datetime.now()
-                    
-                except Exception as e:
-                    logger.warning(f"No se pudo enviar email para diligencia {diligencia.id}: {e}")
-                    notificacion.estado = EstadoNotificacion.PENDIENTE
-                
-                # Marcar diligencia como notificada
+                # Marcar diligencia como notificada solo después de intentar todos los emails
                 diligencia.notificacion_enviada = True
                 
                 db.commit()
-                notificaciones_creadas.append(notificacion)
                 
-                logger.info(f"Notificación automática enviada para diligencia {diligencia.id}")
+                logger.info(f"✅ Notificación automática registrada para diligencia {diligencia.id}")
                 
             except Exception as e:
-                logger.error(f"Error notificando diligencia {diligencia.id}: {e}")
+                logger.error(f"❌ Error notificando diligencia {diligencia.id}: {e}")
                 db.rollback()
         
         return notificaciones_creadas

@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -23,7 +21,7 @@ import {
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { Diligencia, diligenciasAPI, EstadoDiligencia } from "@/lib/diligencias";
 import { useToast } from "@/hooks/use-toast";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 import { es } from "date-fns/locale";
 import { Plus, Trash2, Edit2, AlertCircle } from "lucide-react";
 
@@ -195,7 +193,7 @@ export default function DiligenciasPage() {
                 <TableRow key={diligencia.id} className="hover:bg-gray-50">
                   <TableCell className="font-medium">{diligencia.titulo}</TableCell>
                   <TableCell>
-                    {format(new Date(diligencia.fecha), "dd/MM/yyyy", {
+                    {format(parse(diligencia.fecha as string, "yyyy-MM-dd", new Date()), "dd/MM/yyyy", {
                       locale: es,
                     })}
                   </TableCell>
