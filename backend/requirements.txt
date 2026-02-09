@@ -27,6 +27,7 @@ cryptography==42.0.8
 # Utilidades
 python-dotenv==1.0.0
 pytz==2023.3
+schedule==1.2.0
 
 # Procesamiento de documentos
 PyPDF2==3.0.1

@@ -6,9 +6,18 @@ from app.core.database import engine, SessionLocal
 from sqlalchemy import text
 from app.services.auto_notifications import AutoNotificationService
 import logging
-import schedule
 import threading
 import time
+import os
+
+# Solo importar schedule en desarrollo (no en Vercel)
+if os.getenv('VERCEL') is None:
+    try:
+        import schedule
+    except ImportError:
+        schedule = None
+else:
+    schedule = None
 
 # Configurar logging
 logger = logging.getLogger(__name__)
@@ -70,6 +79,10 @@ def ejecutar_notificaciones_automaticas():
 def scheduler_worker():
     """Worker del scheduler que corre en background"""
     
+    if schedule is None:
+        logger.warning("⚠️  Schedule no disponible, scheduler no iniciado")
+        return
+    
     logger.info(f"📅 Scheduler de notificaciones iniciado")
     logger.info(f"   Intervalo: {settings.notification_check_interval_minutes} minutos")
     logger.info(f"   Audiencias: {settings.audiencia_notification_hours_list}h antes")
@@ -103,8 +116,10 @@ async def startup_event():
     except Exception as e:
         logger.error(f"❌ Error de conexión a base de datos: {e}")
     
-    # Iniciar scheduler en thread de background
-    if settings.auto_notifications_enabled:
+    # Iniciar scheduler en thread de background (solo en desarrollo, no en Vercel)
+    is_vercel = os.getenv('VERCEL') is not None
+    
+    if settings.auto_notifications_enabled and not is_vercel and schedule is not None:
         scheduler_thread = threading.Thread(
             target=scheduler_worker,
             daemon=True,
@@ -112,7 +127,9 @@ async def startup_event():
         )
         scheduler_thread.start()
         logger.info("✅ Thread del scheduler iniciado")
-    else:
+    elif is_vercel:
+        logger.info("📌 En Vercel: Scheduler de notificaciones deshabilitado (usar cron job externo)")
+    elif not settings.auto_notifications_enabled:
         logger.warning("⚠️  Notificaciones automáticas deshabilitadas en config")
 
 
