@@ -28,10 +28,18 @@ export function UpcomingDiligenciasTable() {
       
       const upcoming = allDiligencias
         .filter((d) => {
-          const fecha = new Date(d.fecha)
-          return fecha > now && fecha < nextMonth
+          // Combinar fecha (DATE) + hora (TIME) para obtener datetime completo
+          const fechaHoraStr = `${d.fecha}T${d.hora}`
+          const fechaHora = new Date(fechaHoraStr)
+          
+          // Filtrar diligencias que comienzan ahora o en el futuro, pero antes de 30 días
+          return fechaHora >= now && fechaHora <= nextMonth
         })
-        .sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime())
+        .sort((a, b) => {
+          const aDateTime = new Date(`${a.fecha}T${a.hora}`)
+          const bDateTime = new Date(`${b.fecha}T${b.hora}`)
+          return aDateTime.getTime() - bDateTime.getTime()
+        })
         .slice(0, 10) // Mostrar solo las 10 próximas
 
       setUpcomingDiligencias(upcoming)

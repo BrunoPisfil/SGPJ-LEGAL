@@ -51,8 +51,9 @@ export default function DashboardPage() {
       // Cargar diligencias próximas (próximos 30 días)
       const diligencias = await diligenciasAPI.obtenerTodas(0, 500)
       const upcomingDiligenciasCount = diligencias.filter((d: any) => {
-        const fecha = new Date(d.fecha)
-        return fecha > now && fecha < nextMonth
+        const fechaHoraStr = `${d.fecha}T${d.hora}`
+        const fechaHora = new Date(fechaHoraStr)
+        return fechaHora >= now && fechaHora <= nextMonth
       }).length
 
       setStats((prev) => ({

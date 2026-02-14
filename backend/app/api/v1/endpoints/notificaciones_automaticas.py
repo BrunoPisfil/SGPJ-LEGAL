@@ -15,7 +15,7 @@ from app.services.auto_notifications import AutoNotificationService
 from app.models.notificacion import Notificacion, EstadoNotificacion
 from app.models.diligencia import Diligencia
 
-router = APIRouter(prefix="/api/v1/admin/notificaciones-automaticas", tags=["Admin - Notificaciones Automáticas"])
+router = APIRouter(prefix="/admin/notificaciones-automaticas", tags=["Admin - Notificaciones Automáticas"])
 
 logger = logging.getLogger(__name__)
 
