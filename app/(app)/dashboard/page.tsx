@@ -2,7 +2,6 @@
 
 import { FileText, Calendar, DollarSign, AlertCircle, Briefcase } from "lucide-react"
 import { KPICard } from "@/components/dashboard/kpi-card"
-import { ProcessStatusChart } from "@/components/dashboard/process-status-chart"
 import { UpcomingHearingsTable } from "@/components/dashboard/upcoming-hearings-table"
 import { UpcomingDiligenciasTable } from "@/components/dashboard/upcoming-diligencias-table"
 import { TopDebtsCard } from "@/components/dashboard/top-debts-card"
@@ -12,9 +11,9 @@ import { useState, useEffect } from "react"
 import { Loader } from "lucide-react"
 import { procesosAPI } from "@/lib/procesos"
 import { audienciasAPI } from "@/lib/audiencias"
+import { diligenciasAPI } from "@/lib/diligencias"
 import { contratosAPI } from "@/lib/contratos"
 import { resolucionesAPI } from "@/lib/resoluciones"
-import { apiClient } from "@/lib/api"
 
 export default function DashboardPage() {
   const [stats, setStats] = useState({
@@ -50,8 +49,7 @@ export default function DashboardPage() {
       }).length
 
       // Cargar diligencias próximas (próximos 30 días)
-      const diligenciasResponse = await apiClient.get("/diligencias", { limit: 500 })
-      const diligencias = Array.isArray(diligenciasResponse) ? diligenciasResponse : (diligenciasResponse.diligencias || [])
+      const diligencias = await diligenciasAPI.obtenerTodas(0, 500)
       const upcomingDiligenciasCount = diligencias.filter((d: any) => {
         const fecha = new Date(d.fecha)
         return fecha > now && fecha < nextMonth
@@ -148,13 +146,8 @@ export default function DashboardPage() {
       </div>
 
       {/* Charts and Tables - Responsive stacking */}
-      <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-1">
-          <ProcessStatusChart />
-        </div>
-        <div className="lg:col-span-2">
-          <TopDebtsCard />
-        </div>
+      <div className="grid gap-4 sm:gap-6">
+        <TopDebtsCard />
       </div>
 
       <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">

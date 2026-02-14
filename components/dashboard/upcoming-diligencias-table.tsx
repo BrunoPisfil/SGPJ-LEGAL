@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Calendar, ExternalLink, Loader, Briefcase } from "lucide-react"
 import { formatDate, formatTime } from "@/lib/format"
 import { useState, useEffect } from "react"
-import { apiClient } from "@/lib/api"
+import { diligenciasAPI } from "@/lib/diligencias"
 
 export function UpcomingDiligenciasTable() {
   const [upcomingDiligencias, setUpcomingDiligencias] = useState<any[]>([])
@@ -20,8 +20,7 @@ export function UpcomingDiligenciasTable() {
   const loadUpcomingDiligencias = async () => {
     try {
       setLoading(true)
-      const response = await apiClient.get("/diligencias", { limit: 500 })
-      const allDiligencias = Array.isArray(response) ? response : (response.diligencias || [])
+      const allDiligencias = await diligenciasAPI.obtenerTodas(0, 500)
       
       // Filtrar diligencias de los próximos 30 días
       const now = new Date()

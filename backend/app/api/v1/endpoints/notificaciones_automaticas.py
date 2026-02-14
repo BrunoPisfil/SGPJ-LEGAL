@@ -4,10 +4,12 @@ Endpoints para monitoreo y debugging de notificaciones automáticas
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from datetime import datetime, timedelta
 import logging
 
 from app.core.database import get_db
+from app.core.config import settings
 from app.core.timezone import get_current_time_peru
 from app.services.auto_notifications import AutoNotificationService
 from app.models.notificacion import Notificacion, EstadoNotificacion
@@ -46,12 +48,24 @@ async def run_notification_check_now(db: Session = Depends(get_db)):
     """
     Ejecutar verificación de notificaciones ahora (sin esperar al scheduler)
     """
+    logger.info("📧 [CHECK-NOW] Iniciando verificación manual de notificaciones...")
+    
     try:
+        # Verificar que la conexión DB está viva
+        logger.info("📧 [CHECK-NOW] Verificando conexión a base de datos...")
+        db.execute(text("SELECT 1"))
+        logger.info("📧 [CHECK-NOW] ✅ Conexión a DB OK")
+        
+        # Ejecutar el chequeo
+        logger.info("📧 [CHECK-NOW] Ejecutando AutoNotificationService.check_and_send_notifications()...")
         stats = AutoNotificationService.check_and_send_notifications(db)
         
-        return {
+        logger.info(f"📧 [CHECK-NOW] ✅ Verificación completada: Audiencias={stats.get('audiencias', 0)}, Diligencias={stats.get('diligencias', 0)}, Procesos={stats.get('procesos', 0)}")
+        
+        # Preparar respuesta
+        response = {
             "status": "ok",
-            "message": "Verificación completada",
+            "message": "Verificación completada exitosamente",
             "results": {
                 "audiencias_notificadas": stats.get("audiencias", 0),
                 "diligencias_notificadas": stats.get("diligencias", 0),
@@ -60,9 +74,25 @@ async def run_notification_check_now(db: Session = Depends(get_db)):
             },
             "timestamp": get_current_time_peru().isoformat()
         }
+        
+        logger.info(f"📧 [CHECK-NOW] Retornando respuesta: {response}")
+        return response
+        
     except Exception as e:
-        logger.error(f"Error en verificación manual: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"📧 [CHECK-NOW] ❌ ERROR: {type(e).__name__}: {str(e)}", exc_info=True)
+        
+        # Retornar error pero con status_code válido
+        return {
+            "status": "error",
+            "message": f"Error en verificación: {str(e)}",
+            "results": {
+                "audiencias_notificadas": 0,
+                "diligencias_notificadas": 0,
+                "procesos_notificados": 0,
+                "errors": [str(e)]
+            },
+            "timestamp": get_current_time_peru().isoformat() if settings else None
+        }
 
 
 @router.get("/logs/recent")
