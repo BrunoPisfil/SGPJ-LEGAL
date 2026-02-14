@@ -15,6 +15,8 @@ from app.services.auto_notifications import AutoNotificationService
 from app.models.notificacion import Notificacion, EstadoNotificacion
 from app.models.diligencia import Diligencia
 
+# Router para endpoints de notificaciones automáticas
+# El prefijo /api/v1 se agrega automáticamente en main.py
 router = APIRouter(prefix="/admin/notificaciones-automaticas", tags=["Admin - Notificaciones Automáticas"])
 
 logger = logging.getLogger(__name__)
