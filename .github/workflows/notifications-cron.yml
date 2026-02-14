@@ -1,0 +1,44 @@
+name: 📧 Notificaciones Automáticas - Cron Job
+
+on:
+  schedule:
+    # Ejecutar cada hora en la hora exacta
+    # 0 * * * * = Cada hora (UTC)
+    - cron: '0 * * * *'
+  
+  # Permite disparo manual desde GitHub Actions
+  workflow_dispatch:
+
+jobs:
+  check-notifications:
+    runs-on: ubuntu-latest
+    name: Verificar y enviar notificaciones
+    
+    steps:
+      - name: 📌 Información del Job
+        run: |
+          echo "🚀 Iniciando verificación de notificaciones automáticas"
+          echo "⏰ Hora actual (UTC): $(date -u '+%Y-%m-%d %H:%M:%S')"
+          echo "🔗 Backend: ${{ secrets.BACKEND_URL }}"
+
+      - name: 📧 Ejecutar verificación de notificaciones
+        run: |
+          curl -X POST \
+            "${{ secrets.BACKEND_URL }}/api/v1/admin/notificaciones-automaticas/check-now" \
+            -H "Content-Type: application/json" \
+            -w "\n✅ HTTP Status: %{http_code}\n" \
+            --max-time 30 \
+            --retry 3 \
+            --retry-delay 5 \
+            --retry-max-time 60
+        env:
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+        continue-on-error: true
+
+      - name: ✅ Notificación de éxito
+        if: success()
+        run: echo "✅ Verificación de notificaciones completada correctamente"
+
+      - name: ⚠️ Notificación de error (no bloqueante)
+        if: failure()
+        run: echo "⚠️ La verificación de notificaciones tuvo un problema (pero el job continúa)"

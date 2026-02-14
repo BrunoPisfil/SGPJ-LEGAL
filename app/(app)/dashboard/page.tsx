@@ -1,9 +1,10 @@
 "use client"
 
-import { FileText, Calendar, DollarSign, AlertCircle } from "lucide-react"
+import { FileText, Calendar, DollarSign, AlertCircle, Briefcase } from "lucide-react"
 import { KPICard } from "@/components/dashboard/kpi-card"
 import { ProcessStatusChart } from "@/components/dashboard/process-status-chart"
 import { UpcomingHearingsTable } from "@/components/dashboard/upcoming-hearings-table"
+import { UpcomingDiligenciasTable } from "@/components/dashboard/upcoming-diligencias-table"
 import { TopDebtsCard } from "@/components/dashboard/top-debts-card"
 import { ImpulsoControlCard } from "@/components/dashboard/impulso-control-card"
 import { PlazosCard } from "@/components/dashboard/plazos-card"
@@ -13,11 +14,13 @@ import { procesosAPI } from "@/lib/procesos"
 import { audienciasAPI } from "@/lib/audiencias"
 import { contratosAPI } from "@/lib/contratos"
 import { resolucionesAPI } from "@/lib/resoluciones"
+import { apiClient } from "@/lib/api"
 
 export default function DashboardPage() {
   const [stats, setStats] = useState({
     totalProcesses: 0,
     upcomingHearings: 0,
+    upcomingDiligencias: 0,
     totalDebt: 0,
     urgentProcesses: 0,
     loading: true,
@@ -46,9 +49,18 @@ export default function DashboardPage() {
         return fecha > now && fecha < nextMonth
       }).length
 
+      // Cargar diligencias próximas (próximos 30 días)
+      const diligenciasResponse = await apiClient.get("/diligencias", { limit: 500 })
+      const diligencias = Array.isArray(diligenciasResponse) ? diligenciasResponse : (diligenciasResponse.diligencias || [])
+      const upcomingDiligenciasCount = diligencias.filter((d: any) => {
+        const fecha = new Date(d.fecha)
+        return fecha > now && fecha < nextMonth
+      }).length
+
       setStats((prev) => ({
         ...prev,
         upcomingHearings: upcomingCount,
+        upcomingDiligencias: upcomingDiligenciasCount,
       }))
 
       // Cargar contratos para calcular deudas pendientes
@@ -107,12 +119,18 @@ export default function DashboardPage() {
       </div>
 
       {/* KPI Cards - Responsive grid */}
-      <div className="grid gap-3 sm:gap-4 md:gap-6 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:gap-4 md:gap-6 grid-cols-2 sm:grid-cols-2 lg:grid-cols-5">
         <KPICard title="Total Procesos" value={stats.totalProcesses} icon={FileText} description="Procesos activos" />
         <KPICard
           title="Audiencias Próximas"
           value={stats.upcomingHearings}
           icon={Calendar}
+          description="En los próximos 30 días"
+        />
+        <KPICard
+          title="Diligencias Próximas"
+          value={stats.upcomingDiligencias}
+          icon={Briefcase}
           description="En los próximos 30 días"
         />
         <KPICard
@@ -144,8 +162,11 @@ export default function DashboardPage() {
         <PlazosCard />
       </div>
 
-      {/* Upcoming Hearings */}
-      <UpcomingHearingsTable />
+      {/* Upcoming Hearings and Diligencias */}
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+        <UpcomingHearingsTable />
+        <UpcomingDiligenciasTable />
+      </div>
     </div>
   )
 }

@@ -11,12 +11,19 @@ import time
 import os
 
 # Solo importar schedule en desarrollo (no en Vercel)
-if os.getenv('VERCEL') is None:
+# Vercel siempre tiene VERCEL=true o VERCEL=1
+# En desarrollo local, VERCEL no existe
+is_vercel_env = os.getenv('VERCEL') in ('true', '1', 'True')
+
+if not is_vercel_env:
     try:
         import schedule
+        has_schedule = True
     except ImportError:
+        has_schedule = False
         schedule = None
 else:
+    has_schedule = False
     schedule = None
 
 # Configurar logging
@@ -79,14 +86,14 @@ def ejecutar_notificaciones_automaticas():
 def scheduler_worker():
     """Worker del scheduler que corre en background"""
     
-    if schedule is None:
-        logger.warning("⚠️  Schedule no disponible, scheduler no iniciado")
+    if schedule is None or not has_schedule:
+        logger.error("⚠️  Schedule no disponible, scheduler no puede iniciar")
         return
     
-    logger.info(f"📅 Scheduler de notificaciones iniciado")
-    logger.info(f"   Intervalo: {settings.notification_check_interval_minutes} minutos")
-    logger.info(f"   Audiencias: {settings.audiencia_notification_hours_list}h antes")
-    logger.info(f"   Diligencias: {settings.diligencia_notification_hours}h antes")
+    logger.info(f"📅 Scheduler configurado:")
+    logger.info(f"   ⏰ Intervalo de verificación: {settings.notification_check_interval_minutes} minutos")
+    logger.info(f"   📧 Audiencias: {settings.audiencia_notification_hours_list}h antes")
+    logger.info(f"   📋 Diligencias: {settings.diligencia_notification_hours}h antes")
     
     # Programar la tarea
     schedule.every(settings.notification_check_interval_minutes).minutes.do(
@@ -117,20 +124,20 @@ async def startup_event():
         logger.error(f"❌ Error de conexión a base de datos: {e}")
     
     # Iniciar scheduler en thread de background (solo en desarrollo, no en Vercel)
-    is_vercel = os.getenv('VERCEL') is not None
-    
-    if settings.auto_notifications_enabled and not is_vercel and schedule is not None:
+    if settings.auto_notifications_enabled and not is_vercel_env and has_schedule:
         scheduler_thread = threading.Thread(
             target=scheduler_worker,
             daemon=True,
             name="NotificationsScheduler"
         )
         scheduler_thread.start()
-        logger.info("✅ Thread del scheduler iniciado")
-    elif is_vercel:
-        logger.info("📌 En Vercel: Scheduler de notificaciones deshabilitado (usar cron job externo)")
+        logger.info("✅ Scheduler de notificaciones iniciado en background")
+    elif is_vercel_env:
+        logger.info("📌 Ejecutando en Vercel (serverless): Scheduler deshabilitado. Usar endpoint manual o cron job externo.")
+    elif not has_schedule:
+        logger.warning("⚠️  Módulo 'schedule' no disponible: Scheduler deshabilitado")
     elif not settings.auto_notifications_enabled:
-        logger.warning("⚠️  Notificaciones automáticas deshabilitadas en config")
+        logger.warning("⚠️  Notificaciones automáticas deshabilitadas en configuración")
 
 
 @app.on_event("shutdown")
