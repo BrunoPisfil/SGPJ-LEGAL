@@ -108,9 +108,6 @@ class AutoNotificationService:
                     logger.info(f"Audiencia {audiencia.id} ya tiene notificación automática")
                     continue
                 
-                # Formatear información de la audiencia
-                horas_restantes = (audiencia.fecha_hora - now).total_seconds() / 3600
-                
                 # Crear notificaciones para cada email configurado
                 for email_destino in settings.notification_emails:
                     try:
@@ -287,40 +284,47 @@ class AutoNotificationService:
                     logger.info(f"Proceso {proceso.id} ya tiene notificación reciente")
                     continue
                 
-                # Crear notificación de proceso sin revisar
+                # Crear notificación de proceso sin revisar para cada email configurado
                 dias_sin_revisar = (datetime.now() - proceso.updated_at).days
                 
-                notificacion = Notificacion(
-                    proceso_id=proceso.id,
-                    tipo=TipoNotificacion.PROCESO_ACTUALIZADO,
-                    canal=CanalNotificacion.SISTEMA,
-                    titulo=f"Proceso {proceso.expediente} - Requiere Revisión",
-                    mensaje=f"El proceso {proceso.expediente} lleva {dias_sin_revisar} días sin actualizaciones. Estado actual: {proceso.estado}. Se recomienda revisar y actualizar el estado.",
-                    destinatario=settings.default_notification_email,
-                    estado=EstadoNotificacion.PENDIENTE,
-                    expediente=proceso.expediente
-                )
-                
-                db.add(notificacion)
-                db.flush()
-                
-                # Enviar por email también
-                try:
-                    proceso_audiencia = db.query(Audiencia).filter(Audiencia.proceso_id == proceso.id).first()
-                    NotificacionService._enviar_email(notificacion, proceso_audiencia, proceso)
-                    
-                    notificacion.estado = EstadoNotificacion.ENVIADO
-                    notificacion.fecha_envio = datetime.now()
-                    
-                except Exception as e:
-                    logger.error(f"Error enviando email para proceso {proceso.id}: {e}")
-                    notificacion.estado = EstadoNotificacion.ERROR
-                    notificacion.error_mensaje = str(e)
+                for email_destino in settings.notification_emails:
+                    try:
+                        notificacion = Notificacion(
+                            proceso_id=proceso.id,
+                            tipo=TipoNotificacion.PROCESO_ACTUALIZADO,
+                            canal=CanalNotificacion.EMAIL,
+                            titulo=f"Proceso {proceso.expediente} - Requiere Revisión",
+                            mensaje=f"El proceso {proceso.expediente} lleva {dias_sin_revisar} días sin actualizaciones. Estado actual: {proceso.estado}. Se recomienda revisar y actualizar el estado.",
+                            destinatario=email_destino,
+                            email_destinatario=email_destino,
+                            estado=EstadoNotificacion.PENDIENTE,
+                            expediente=proceso.expediente
+                        )
+                        
+                        db.add(notificacion)
+                        db.flush()
+                        
+                        # Intentar enviar por email
+                        try:
+                            proceso_audiencia = db.query(Audiencia).filter(Audiencia.proceso_id == proceso.id).first()
+                            NotificacionService._enviar_email(notificacion, proceso_audiencia, proceso)
+                            
+                            notificacion.estado = EstadoNotificacion.ENVIADO
+                            notificacion.fecha_envio = datetime.now()
+                            logger.info(f"✅ Email enviado a {email_destino} para proceso {proceso.id}")
+                            
+                        except Exception as e:
+                            logger.warning(f"⚠️ No se pudo enviar email a {email_destino} para proceso {proceso.id}: {e}")
+                            notificacion.estado = EstadoNotificacion.PENDIENTE
+                            notificacion.error_mensaje = str(e)
+                        
+                    except Exception as e:
+                        logger.error(f"❌ Error creando notificación para {email_destino} en proceso {proceso.id}: {e}")
                 
                 db.commit()
                 procesos_notificados.append(proceso)
                 
-                logger.info(f"Notificación de revisión enviada para proceso {proceso.id}")
+                logger.info(f"✅ Notificación automática registrada para proceso {proceso.id}")
                 
             except Exception as e:
                 logger.error(f"Error notificando proceso {proceso.id}: {e}")
