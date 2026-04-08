@@ -111,13 +111,49 @@ class AutoNotificationService:
                 # Crear notificaciones para cada email configurado
                 for email_destino in settings.notification_emails:
                     try:
+                        # Obtener información del proceso
+                        proceso = audiencia.proceso
+                        
+                        # Preparar lista de demandantes y demandados
+                        demandantes = ", ".join([p.nombre for p in proceso.demandantes]) if proceso.demandantes else "No especificado"
+                        demandados = ", ".join([p.nombre for p in proceso.demandados]) if proceso.demandados else "No especificado"
+                        
+                        # Determinar tipo de audiencia (virtual o presencial)
+                        ubicacion = ""
+                        if audiencia.link:
+                            ubicacion = f"💻 Enlace virtual: {audiencia.link}"
+                        elif audiencia.sede:
+                            ubicacion = f"🏛️ Sede: {audiencia.sede}"
+                        else:
+                            ubicacion = "📍 Ubicación: No especificada"
+                        
+                        # Construir el mensaje detallado
+                        mensaje = f"""Se le recuerda que tiene una audiencia programada:
+
+📋 Expediente: {proceso.expediente}
+
+📅 Fecha: {audiencia.fecha.strftime('%d/%m/%Y')}
+
+⏰ Hora: {audiencia.hora.strftime('%H:%M')}
+
+📍 Tipo: {audiencia.tipo}
+
+🏛️ Materia: {proceso.materia}
+
+Demandante(s): {demandantes}
+
+Demandado(s): {demandados}
+
+{ubicacion}
+"""
+                        
                         notificacion = Notificacion(
                             audiencia_id=audiencia.id,
                             proceso_id=audiencia.proceso_id,
                             tipo=TipoNotificacion.AUDIENCIA_RECORDATORIO,
                             canal=CanalNotificacion.EMAIL,
-                            titulo=f"Recordatorio: Audiencia en {target_hours}h",
-                            mensaje=f"Recordatorio automático: Su audiencia está programada para las {audiencia.fecha_hora.strftime('%H:%M')} del {audiencia.fecha_hora.strftime('%d/%m/%Y')}.",
+                            titulo=f"Recordatorio: {audiencia.tipo}",
+                            mensaje=mensaje,
                             destinatario=email_destino,
                             email_destinatario=email_destino,
                             estado=EstadoNotificacion.PENDIENTE
