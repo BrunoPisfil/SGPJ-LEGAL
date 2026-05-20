@@ -10,6 +10,7 @@ Maneja:
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_
 from datetime import datetime, timedelta, date
+from dateutil.relativedelta import relativedelta
 from typing import List, Tuple
 import logging
 
@@ -115,8 +116,8 @@ class AutoNotificationService:
                         proceso = audiencia.proceso
                         
                         # Preparar lista de demandantes y demandados
-                        demandantes = ", ".join([p.nombre for p in proceso.demandantes]) if proceso.demandantes else "No especificado"
-                        demandados = ", ".join([p.nombre for p in proceso.demandados]) if proceso.demandados else "No especificado"
+                        demandantes = ", ".join([p.nombre_mostrar for p in proceso.demandantes]) if proceso.demandantes else "No especificado"
+                        demandados = ", ".join([p.nombre_mostrar for p in proceso.demandados]) if proceso.demandados else "No especificado"
                         
                         # Determinar tipo de audiencia (virtual o presencial)
                         ubicacion = ""
@@ -285,17 +286,24 @@ Demandado(s): {demandados}
     
     @staticmethod
     def _check_procesos_sin_revisar(db: Session) -> List[Proceso]:
-        """Verificar procesos que llevan tiempo sin revisar"""
+        """Verificar procesos que llevan más de 1 mes sin revisar (fecha_ultima_revision)"""
         
-        # Calcular fecha límite (N días atrás)
-        limite_fecha = datetime.now() - timedelta(days=settings.proceso_review_notification_days)
+        # Calcular fecha límite: hace 1 mes desde hoy
+        hoje = date.today()
+        limite_fecha = hoje - relativedelta(months=1)
         
-        logger.info(f"Buscando procesos sin actualizar desde {limite_fecha}")
+        logger.info(f"Buscando procesos sin revisar desde hace más de 1 mes (límite: {limite_fecha})")
         
-        # Buscar procesos sin actualizar en el tiempo especificado
+        # Buscar procesos donde:
+        # 1. fecha_ultima_revision sea NULL (nunca revisados) 
+        # 2. O fecha_ultima_revision sea anterior al límite (más de 1 mes sin revisar)
+        # Y el proceso esté en estado activo o en trámite
         procesos = db.query(Proceso).filter(
             and_(
-                Proceso.updated_at < limite_fecha,
+                or_(
+                    Proceso.fecha_ultima_revision == None,  # Nunca revisados
+                    Proceso.fecha_ultima_revision < limite_fecha  # Más de 1 mes sin revisar
+                ),
                 or_(
                     Proceso.estado == "En trámite",
                     Proceso.estado == "Activo"
@@ -307,7 +315,7 @@ Demandado(s): {demandados}
         
         for proceso in procesos:
             try:
-                # Verificar si ya se envió notificación de revisión reciente para este proceso
+                # Verificar si ya se envió notificación reciente para este proceso
                 notificacion_reciente = db.query(Notificacion).filter(
                     and_(
                         Notificacion.proceso_id == proceso.id,
@@ -321,16 +329,21 @@ Demandado(s): {demandados}
                     continue
                 
                 # Crear notificación de proceso sin revisar para cada email configurado
-                dias_sin_revisar = (datetime.now() - proceso.updated_at).days
+                if proceso.fecha_ultima_revision:
+                    dias_sin_revisar = (hoje - proceso.fecha_ultima_revision).days
+                else:
+                    dias_sin_revisar = "nunca"
                 
                 for email_destino in settings.notification_emails:
                     try:
+                        mensaje_dias = f"{dias_sin_revisar} días" if isinstance(dias_sin_revisar, int) else "nunca ha sido revisado"
+                        
                         notificacion = Notificacion(
                             proceso_id=proceso.id,
                             tipo=TipoNotificacion.PROCESO_ACTUALIZADO,
                             canal=CanalNotificacion.EMAIL,
                             titulo=f"Proceso {proceso.expediente} - Requiere Revisión",
-                            mensaje=f"El proceso {proceso.expediente} lleva {dias_sin_revisar} días sin actualizaciones. Estado actual: {proceso.estado}. Se recomienda revisar y actualizar el estado.",
+                            mensaje=f"El proceso {proceso.expediente} lleva {mensaje_dias} sin actualizaciones. Estado actual: {proceso.estado}. Se recomienda revisar y actualizar el estado.",
                             destinatario=email_destino,
                             email_destinatario=email_destino,
                             estado=EstadoNotificacion.PENDIENTE,
@@ -397,10 +410,16 @@ Demandado(s): {demandados}
             )
         ).count()
         
-        # Contar procesos sin revisar
+        # Contar procesos sin revisar (más de 1 mes desde última revisión)
+        hoje = date.today()
+        limite_fecha_procesos = hoje - relativedelta(months=1)
+        
         procesos_pendientes = db.query(Proceso).filter(
             and_(
-                Proceso.updated_at < limite_fecha,
+                or_(
+                    Proceso.fecha_ultima_revision == None,  # Nunca revisados
+                    Proceso.fecha_ultima_revision < limite_fecha_procesos  # Más de 1 mes
+                ),
                 or_(
                     Proceso.estado == "En trámite",
                     Proceso.estado == "Activo"

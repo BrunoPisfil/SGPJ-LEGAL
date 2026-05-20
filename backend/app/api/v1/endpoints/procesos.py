@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from datetime import date
 from typing import List, Optional
 from app.core.database import get_db
 from app.models.proceso import Proceso
@@ -276,6 +277,9 @@ async def update_proceso(
     
     # TODO: Manejar actualización de demandante, demandado, juzgado (requiere lógica especial)
     # Por ahora, solo actualizamos campos básicos
+    
+    # Actualizar automáticamente fecha_ultima_revision al guardar cambios
+    proceso.fecha_ultima_revision = date.today()
     
     db.commit()
     db.refresh(proceso)

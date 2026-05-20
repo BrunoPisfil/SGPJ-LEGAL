@@ -38,7 +38,7 @@ class AudienciaService:
             query = query.filter(Audiencia.tipo.ilike(f"%{tipo}%"))
 
         total = query.count()
-        audiencias = query.order_by(Audiencia.fecha_hora.desc()).offset(skip).limit(limit).all()
+        audiencias = query.order_by(Audiencia.fecha_hora.asc()).offset(skip).limit(limit).all()
         
         return audiencias, total
 
