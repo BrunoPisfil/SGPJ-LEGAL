@@ -50,9 +50,7 @@ export default function EditarAudienciaPage() {
   const loadAudiencia = async () => {
     try {
       setIsLoadingData(true)
-      console.log('📡 Cargando audiencia con ID:', params.id)
       const data = await audienciasAPI.getById(parseInt(params.id as string))
-      console.log('✅ Audiencia cargada:', data)
       setAudiencia(data)
       
       // Llenar el formulario con los datos de la audiencia
@@ -68,7 +66,6 @@ export default function EditarAudienciaPage() {
         notas: data.notas || "",
       })
     } catch (error) {
-      console.error('❌ Error cargando audiencia:', error)
       toast({
         title: "Error",
         description: "No se pudo cargar la audiencia",
@@ -156,7 +153,6 @@ export default function EditarAudienciaPage() {
       })
       router.push(`/audiencias`)
     } catch (error: any) {
-      console.error('Error updating audiencia:', error)
       toast({
         title: "Error",
         description: error.message || "No se pudo actualizar la audiencia",
