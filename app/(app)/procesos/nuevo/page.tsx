@@ -200,7 +200,6 @@ export default function NuevoProcesoPage() {
       
       router.push("/procesos")
     } catch (error) {
-      console.error('Error creating proceso:', error)
       toast({
         title: "Error al crear el proceso",
         description: "Ocurrió un error al guardar el proceso. Por favor intente nuevamente.",
