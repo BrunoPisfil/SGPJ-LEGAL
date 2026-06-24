@@ -59,8 +59,7 @@ export function ClienteSelector({ selectedClienteId, onClienteSelect, trigger }:
       setClientes(data)
       setFilteredClientes(data)
     } catch (error) {
-      console.error('Error loading clientes:', error)
-    } finally {
+      } finally {
       setLoading(false)
     }
   }
