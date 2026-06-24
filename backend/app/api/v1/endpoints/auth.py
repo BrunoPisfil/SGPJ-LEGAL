@@ -44,9 +44,10 @@ async def login(
 @router.post("/register", response_model=UsuarioSchema)
 async def register(
     user_data: UsuarioCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
 ):
-    """Registro de nuevos usuarios"""
+    """Crear nuevo usuario (requiere rol admin)"""
     # Solo admin puede crear usuarios
     if current_user.rol != "admin":
         raise HTTPException(
