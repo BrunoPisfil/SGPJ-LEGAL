@@ -31,7 +31,6 @@ export default function ResolucionesPage() {
       const data = await resolucionesAPI.getAll()
       setResoluciones(data)
     } catch (error) {
-      console.error('Error loading resoluciones:', error)
       setError('No se pudieron cargar las resoluciones')
     } finally {
       setLoading(false)
