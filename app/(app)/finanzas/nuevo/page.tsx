@@ -76,13 +76,8 @@ export default function NuevoContratoPage() {
         estado: 'activo' as const
       }
       
-      console.log('📝 Datos a enviar:', contratoData)
-      console.log('🌐 URL de API:', 'http://localhost:8001/api/v1/finanzas/contratos')
-      
       const nuevoContrato = await contratosAPI.create(contratoData)
       
-      console.log('✅ Respuesta del servidor:', nuevoContrato)
-
       // Verificar que la respuesta sea válida
       if (nuevoContrato && (nuevoContrato.codigo || nuevoContrato.id)) {
         toast({
@@ -97,8 +92,6 @@ export default function NuevoContratoPage() {
       }
       
     } catch (error) {
-      console.error('❌ Error al crear contrato:', error)
-      
       // Mostrar error específico si está disponible
       const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
       
@@ -143,7 +136,6 @@ export default function NuevoContratoPage() {
               <ClientSelector
                 selectedClientId={selectedCliente?.id.toString()}
                 onClientSelect={(cliente) => {
-                  console.log('Cliente seleccionado:', cliente)
                   setSelectedCliente(cliente)
                 }}
               />
@@ -157,7 +149,6 @@ export default function NuevoContratoPage() {
               <ProcessSelectorFinance
                 selectedProcessId={selectedProceso?.id.toString()}
                 onProcessSelect={(proceso) => {
-                  console.log('Proceso seleccionado:', proceso)
                   setSelectedProceso(proceso)
                 }}
               />
