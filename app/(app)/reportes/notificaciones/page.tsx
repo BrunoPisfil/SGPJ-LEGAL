@@ -1,10 +1,11 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import {
   Bell, Download, RefreshCw, TrendingUp, CheckCircle,
-  Clock, AlertCircle, BarChart2, Filter, Calendar, ShieldAlert
+  Clock, AlertCircle, BarChart2, Filter, Calendar,
+  ShieldAlert, ChevronLeft, ChevronRight
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -19,17 +20,13 @@ import { formatDate } from "@/lib/format"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/hooks/use-auth"
 
-// ── Tipos ─────────────────────────────────────────────────────────────────────
-interface Resumen {
-  total: number; enviadas: number; pendientes: number; errores: number; tasaExito: number
-}
-interface GrupoPorTipo { tipo: string; cantidad: number; porcentaje: number }
-
 // ── Constantes ────────────────────────────────────────────────────────────────
+const ITEMS_PER_PAGE = 10
+
 const TIPO_LABELS: Record<string, string> = {
   audiencia_programada:    "Audiencia programada",
-  audiencia_recordatorio:  "Recordatorio de audiencia",
-  diligencia_recordatorio: "Recordatorio de diligencia",
+  audiencia_recordatorio:  "Recordatorio audiencia",
+  diligencia_recordatorio: "Recordatorio diligencia",
   proceso_actualizado:     "Proceso actualizado",
   vencimiento_plazo:       "Vencimiento de plazo",
   sistema:                 "Sistema",
@@ -43,7 +40,7 @@ const ESTADO_CONFIG: Record<string, { label: string; variant: "default"|"seconda
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-function calcularResumen(n: Notificacion[]): Resumen {
+function calcularResumen(n: Notificacion[]) {
   const total      = n.length
   const enviadas   = n.filter(x => ["ENVIADO","LEIDO"].includes(x.estado?.toUpperCase())).length
   const pendientes = n.filter(x => x.estado?.toUpperCase() === "PENDIENTE").length
@@ -51,7 +48,7 @@ function calcularResumen(n: Notificacion[]): Resumen {
   return { total, enviadas, pendientes, errores, tasaExito: total > 0 ? Math.round((enviadas/total)*100) : 0 }
 }
 
-function agruparPorTipo(notificaciones: Notificacion[]): GrupoPorTipo[] {
+function agruparPorTipo(notificaciones: Notificacion[]) {
   const conteo: Record<string, number> = {}
   notificaciones.forEach(n => { const t = TIPO_LABELS[n.tipo] ?? n.tipo; conteo[t] = (conteo[t]??0)+1 })
   const total = notificaciones.length || 1
@@ -103,7 +100,6 @@ function TarjetaStat({ titulo, valor, sub, icon, color }: { titulo:string; valor
   )
 }
 
-// ── Pantalla de acceso denegado ───────────────────────────────────────────────
 function AccesoDenegado() {
   const router = useRouter()
   return (
@@ -112,9 +108,7 @@ function AccesoDenegado() {
         <ShieldAlert className="h-12 w-12 text-destructive" />
       </div>
       <h2 className="text-2xl font-bold">Acceso restringido</h2>
-      <p className="text-muted-foreground max-w-sm">
-        Este módulo de reportes es exclusivo para administradores del sistema.
-      </p>
+      <p className="text-muted-foreground max-w-sm">Este módulo de reportes es exclusivo para administradores.</p>
       <Button variant="outline" onClick={() => router.back()}>Volver</Button>
     </div>
   )
@@ -130,9 +124,9 @@ export default function ReporteNotificacionesPage() {
   const [busqueda, setBusqueda]             = useState("")
   const [ordenCampo, setOrdenCampo]         = useState<keyof Notificacion>("created_at")
   const [ordenDir, setOrdenDir]             = useState<"asc"|"desc">("desc")
+  const [currentPage, setCurrentPage]       = useState(1)
   const { toast } = useToast()
 
-  // ── Guard: solo admin ─────────────────────────────────────────────────────
   const esAdmin = user?.rol?.toLowerCase() === "admin"
 
   const cargar = useCallback(async () => {
@@ -149,7 +143,40 @@ export default function ReporteNotificacionesPage() {
 
   useEffect(() => { if (esAdmin) cargar() }, [esAdmin, cargar])
 
-  // Esperar auth
+  // Resetear página al cambiar filtros
+  useEffect(() => { setCurrentPage(1) }, [filtroEstado, filtroTipo, busqueda])
+
+  // Filtrado y ordenado con useMemo para evitar recálculos
+  const filtradas = useMemo(() => notificaciones.filter(n => {
+    const eOk = filtroEstado === "todos" || n.estado?.toUpperCase() === filtroEstado.toUpperCase()
+    const tOk = filtroTipo   === "todos" || n.tipo === filtroTipo
+    const bOk = !busqueda ||
+      n.titulo?.toLowerCase().includes(busqueda.toLowerCase()) ||
+      n.mensaje?.toLowerCase().includes(busqueda.toLowerCase()) ||
+      n.email_destinatario?.toLowerCase().includes(busqueda.toLowerCase())
+    return eOk && tOk && bOk
+  }), [notificaciones, filtroEstado, filtroTipo, busqueda])
+
+  const ordenadas = useMemo(() => [...filtradas].sort((a, b) => {
+    const va = String(a[ordenCampo]??""), vb = String(b[ordenCampo]??"")
+    return ordenDir === "asc" ? va.localeCompare(vb) : vb.localeCompare(va)
+  }), [filtradas, ordenCampo, ordenDir])
+
+  // Paginación
+  const totalPages  = Math.ceil(ordenadas.length / ITEMS_PER_PAGE)
+  const startIndex  = (currentPage - 1) * ITEMS_PER_PAGE
+  const endIndex    = startIndex + ITEMS_PER_PAGE
+  const paginadas   = ordenadas.slice(startIndex, endIndex)
+
+  const toggleOrden = (campo: keyof Notificacion) => {
+    if (ordenCampo === campo) setOrdenDir(d => d==="asc"?"desc":"asc")
+    else { setOrdenCampo(campo); setOrdenDir("asc") }
+    setCurrentPage(1)
+  }
+
+  const resumen = useMemo(() => calcularResumen(notificaciones), [notificaciones])
+  const porTipo = useMemo(() => agruparPorTipo(notificaciones), [notificaciones])
+
   if (authLoading) {
     return (
       <div className="space-y-6">
@@ -161,32 +188,7 @@ export default function ReporteNotificacionesPage() {
     )
   }
 
-  // Bloquear si no es admin
   if (!esAdmin) return <AccesoDenegado />
-
-  // Filtrado
-  const filtradas = notificaciones.filter(n => {
-    const eOk = filtroEstado === "todos" || n.estado?.toUpperCase() === filtroEstado.toUpperCase()
-    const tOk = filtroTipo   === "todos" || n.tipo === filtroTipo
-    const bOk = !busqueda ||
-      n.titulo?.toLowerCase().includes(busqueda.toLowerCase()) ||
-      n.mensaje?.toLowerCase().includes(busqueda.toLowerCase()) ||
-      n.email_destinatario?.toLowerCase().includes(busqueda.toLowerCase())
-    return eOk && tOk && bOk
-  })
-
-  const ordenadas = [...filtradas].sort((a, b) => {
-    const va = String(a[ordenCampo]??""), vb = String(b[ordenCampo]??"")
-    return ordenDir === "asc" ? va.localeCompare(vb) : vb.localeCompare(va)
-  })
-
-  const toggleOrden = (campo: keyof Notificacion) => {
-    if (ordenCampo === campo) setOrdenDir(d => d==="asc"?"desc":"asc")
-    else { setOrdenCampo(campo); setOrdenDir("asc") }
-  }
-
-  const resumen = calcularResumen(notificaciones)
-  const porTipo = agruparPorTipo(notificaciones)
 
   if (isLoading) {
     return (
@@ -209,9 +211,7 @@ export default function ReporteNotificacionesPage() {
             <BarChart2 className="h-7 w-7 text-primary" />
             Reporte de Notificaciones
           </h1>
-          <p className="text-muted-foreground mt-1">
-            Análisis y detalle de todas las notificaciones del sistema
-          </p>
+          <p className="text-muted-foreground mt-1">Análisis y detalle de todas las notificaciones del sistema</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={cargar} disabled={isLoading}>
@@ -225,11 +225,11 @@ export default function ReporteNotificacionesPage() {
 
       {/* Tarjetas */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <TarjetaStat titulo="Total notificaciones" valor={resumen.total} sub="Registro completo"
+        <TarjetaStat titulo="Total" valor={resumen.total} sub="Registro completo"
           icon={<Bell className="h-5 w-5 text-primary" />} color="bg-primary/10" />
         <TarjetaStat titulo="Enviadas / Leídas" valor={resumen.enviadas} sub={`${resumen.tasaExito}% tasa de éxito`}
           icon={<CheckCircle className="h-5 w-5 text-green-600" />} color="bg-green-100 dark:bg-green-900/30" />
-        <TarjetaStat titulo="Pendientes" valor={resumen.pendientes} sub="En cola de envío"
+        <TarjetaStat titulo="Pendientes" valor={resumen.pendientes} sub="En cola"
           icon={<Clock className="h-5 w-5 text-yellow-600" />} color="bg-yellow-100 dark:bg-yellow-900/30" />
         <TarjetaStat titulo="Con error" valor={resumen.errores} sub="Requieren revisión"
           icon={<AlertCircle className="h-5 w-5 text-red-600" />} color="bg-red-100 dark:bg-red-900/30" />
@@ -240,7 +240,7 @@ export default function ReporteNotificacionesPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Distribución por tipo</CardTitle>
-            <CardDescription>Volumen de notificaciones según su categoría</CardDescription>
+            <CardDescription>Volumen por categoría</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {porTipo.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">Sin datos</p>}
@@ -259,7 +259,7 @@ export default function ReporteNotificacionesPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Estado general</CardTitle>
-            <CardDescription>Proporción de estados en el período completo</CardDescription>
+            <CardDescription>Proporción de estados</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {[
@@ -292,7 +292,7 @@ export default function ReporteNotificacionesPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <Filter className="h-4 w-4" />Filtros de tabla
+            <Filter className="h-4 w-4" />Filtros
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -319,9 +319,6 @@ export default function ReporteNotificacionesPage() {
               </SelectContent>
             </Select>
           </div>
-          <p className="text-xs text-muted-foreground mt-2">
-            Mostrando {ordenadas.length} de {notificaciones.length} notificaciones
-          </p>
         </CardContent>
       </Card>
 
@@ -358,13 +355,13 @@ export default function ReporteNotificacionesPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {ordenadas.length === 0 ? (
+                {paginadas.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
                       No hay notificaciones que coincidan con los filtros aplicados.
                     </TableCell>
                   </TableRow>
-                ) : ordenadas.map(n => {
+                ) : paginadas.map(n => {
                   const cfg = ESTADO_CONFIG[n.estado?.toUpperCase()??""] ?? { label:n.estado, variant:"outline" as const, icon:null }
                   return (
                     <TableRow key={n.id}>
@@ -395,6 +392,49 @@ export default function ReporteNotificacionesPage() {
             </Table>
           </div>
         </CardContent>
+      </Card>
+
+      {/* Paginación */}
+      <Card className="p-3 sm:p-4">
+        <div className="flex items-center justify-between">
+          <div className="text-xs sm:text-sm text-muted-foreground">
+            Mostrando {ordenadas.length === 0 ? 0 : startIndex + 1} - {Math.min(endIndex, ordenadas.length)} de {ordenadas.length} notificaciones
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm"
+              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let page: number
+                if (totalPages <= 5) {
+                  page = i + 1
+                } else if (currentPage <= 3) {
+                  page = i + 1
+                } else if (currentPage >= totalPages - 2) {
+                  page = totalPages - 4 + i
+                } else {
+                  page = currentPage - 2 + i
+                }
+                return (
+                  <Button key={page}
+                    variant={currentPage === page ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setCurrentPage(page)}>
+                    {page}
+                  </Button>
+                )
+              })}
+            </div>
+            <Button variant="outline" size="sm"
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage === totalPages || totalPages === 0}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
       </Card>
     </div>
   )
