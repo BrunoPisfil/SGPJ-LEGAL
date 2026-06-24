@@ -22,7 +22,6 @@ export function SessionExpiredHandler() {
     onTimeout: () => {
       if (isAuthenticated) {
         // Redirigir a página de sesión expirada por inactividad
-        console.log('🕐 Timeout de inactividad disparado - redirigiendo');
         router.push('/session-expired?reason=inactivity');
       }
     },
@@ -31,7 +30,6 @@ export function SessionExpiredHandler() {
   // Redirigir cuando hay error 401 del API
   useEffect(() => {
     if (sessionExpired) {
-      console.log('🔒 Error de autenticación detectado - redirigiendo');
       router.push(`/session-expired?reason=${sessionExpiredReason}`);
     }
   }, [sessionExpired, sessionExpiredReason, router]);
