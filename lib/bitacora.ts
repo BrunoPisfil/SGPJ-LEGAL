@@ -28,9 +28,7 @@ export interface BitacoraCreate {
 export const bitacoraAPI = {
   // Obtener historial de un proceso
   async getByProceso(procesoId: number): Promise<BitacoraEntry[]> {
-    console.log('🔍 Solicitando bitácora para proceso:', procesoId)
     const response = await apiClient.get(`/procesos/${procesoId}/bitacora`)
-    console.log('📡 Respuesta de bitácora:', response)
     return response.data || response
   },
 
