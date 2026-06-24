@@ -52,8 +52,7 @@ export function ProcessStatusChart() {
 
       setData(chartData.length > 0 ? chartData : [{ name: "Sin datos", value: 1, color: "#d1d5db" }])
     } catch (error) {
-      console.error("Error cargando datos de procesos:", error)
-    } finally {
+      } finally {
       setLoading(false)
     }
   }
