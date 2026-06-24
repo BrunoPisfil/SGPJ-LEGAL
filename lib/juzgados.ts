@@ -15,7 +15,6 @@ class JuzgadosAPI {
       const response = await apiClient.get<Juzgado[]>('/directorio/juzgados');
       return Array.isArray(response) ? response : [];
     } catch (error) {
-      console.error('Error fetching juzgados:', error);
       throw error;
     }
   }
@@ -25,7 +24,6 @@ class JuzgadosAPI {
       const response = await apiClient.get<Juzgado>(`/directorio/${id}`);
       return response;
     } catch (error) {
-      console.error(`Error fetching juzgado ${id}:`, error);
       throw error;
     }
   }
@@ -38,7 +36,6 @@ class JuzgadosAPI {
       });
       return response;
     } catch (error) {
-      console.error('Error creating juzgado:', error);
       throw error;
     }
   }
@@ -48,7 +45,6 @@ class JuzgadosAPI {
       const response = await apiClient.put<Juzgado>(`/directorio/${id}`, juzgado);
       return response;
     } catch (error) {
-      console.error(`Error updating juzgado ${id}:`, error);
       throw error;
     }
   }
@@ -57,7 +53,6 @@ class JuzgadosAPI {
     try {
       await apiClient.delete(`/directorio/${id}`);
     } catch (error) {
-      console.error(`Error deleting juzgado ${id}:`, error);
       throw error;
     }
   }
