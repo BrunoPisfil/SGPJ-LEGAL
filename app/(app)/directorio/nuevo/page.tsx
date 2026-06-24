@@ -114,7 +114,6 @@ export default function NuevoDirectorioPage() {
       })
       router.push(`/directorio/${result.id}`)
     } catch (err) {
-      console.error("Error creating entry:", err)
       toast({
         title: "Error",
         description: "No se pudo crear el registro",
