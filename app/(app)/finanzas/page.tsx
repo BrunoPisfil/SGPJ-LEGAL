@@ -37,20 +37,14 @@ export default function FinanzasPage() {
   const loadData = async () => {
     try {
       setLoading(true)
-      console.log("🔄 Cargando contratos y estadísticas...")
-      
       const [contratosData, statsData] = await Promise.all([
         contratosAPI.getAll(),
         contratosAPI.getStats()
       ])
       
-      console.log("✅ Contratos cargados:", contratosData)
-      console.log("✅ Estadísticas cargadas:", statsData)
-      
       setContratos(contratosData)
       setStats(statsData)
     } catch (error) {
-      console.error("❌ Error cargando datos:", error)
       toast({
         title: "Error",
         description: "No se pudieron cargar los contratos",
