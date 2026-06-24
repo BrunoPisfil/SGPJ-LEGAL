@@ -56,7 +56,6 @@ export default function AudienciasPage() {
               notificacionEnviada: false // Por defecto false, esto podría venir del backend
             }
           } catch (error) {
-            console.error(`Error loading proceso ${audiencia.proceso_id}:`, error)
             return {
               ...audiencia,
               expediente: `Proceso ${audiencia.proceso_id}`,
@@ -68,7 +67,6 @@ export default function AudienciasPage() {
       
       setAudiencias(audienciasConProceso)
     } catch (error) {
-      console.error('Error loading audiencias:', error)
       toast({
         title: "Error",
         description: "No se pudieron cargar las audiencias",
@@ -92,7 +90,6 @@ export default function AudienciasPage() {
       await loadAudiencias()
       
     } catch (error: any) {
-      console.error('Error sending notification:', error)
       toast({
         title: "Error",
         description: error.message || "No se pudo enviar la notificación",
