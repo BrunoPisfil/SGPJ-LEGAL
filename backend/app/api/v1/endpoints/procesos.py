@@ -57,7 +57,8 @@ async def get_procesos(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
     estado: Optional[str] = Query(None),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
 ):
     """Obtener lista de procesos"""
     query = db.query(Proceso)
