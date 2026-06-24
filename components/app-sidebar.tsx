@@ -4,7 +4,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { LayoutDashboard, FileText, Calendar, Users, DollarSign, Bell, Settings, Scale, Gavel, CheckCircle2, X, Menu, LogOut } from "lucide-react"
+import { LayoutDashboard, FileText, Calendar, Users, DollarSign, Bell, Settings, Scale, Gavel, CheckCircle2, X, Menu, LogOut, BarChart2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Sidebar } from "@/components/ui/sidebar"
 import { usePermission } from "@/hooks/use-permission"
@@ -21,6 +21,7 @@ const navItemsConfig = [
   { title: "Directorio", url: "/directorio", icon: Users, resource: "directorio" },
   { title: "Finanzas", url: "/finanzas", icon: DollarSign, resource: "finanzas" },
   { title: "Notificaciones", url: "/notificaciones", icon: Bell, resource: "notificaciones" },
+  { title: "Reportes", url: "/reportes/notificaciones", icon: BarChart2, resource: "notificaciones", soloAdmin: true },
 ]
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -39,7 +40,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   // Filtrar items según permisos del usuario
   const visibleNavItems = navItemsConfig.filter(item => {
-    return hasPermission(item.resource, "read")
+    if (!hasPermission(item.resource, "read")) return false
+    if ((item as any).soloAdmin && user?.rol?.toLowerCase() !== "admin") return false
+    return true
   })
 
   const handleLogout = () => {
