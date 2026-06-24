@@ -35,9 +35,7 @@ export default function AudienciaDetailPage() {
             throw new Error('ID de audiencia inválido')
           }
           
-          console.log('🔍 Cargando audiencia ID:', audienciaId)
           const audienciaData = await audienciasAPI.getById(audienciaId)
-          console.log('✅ Audiencia cargada:', audienciaData)
           setAudiencia(audienciaData)
 
           // Cargar información del proceso
@@ -45,11 +43,9 @@ export default function AudienciaDetailPage() {
             const procesoData = await procesosAPI.getById(audienciaData.proceso_id)
             setProceso(procesoData)
           } catch (procesoErr) {
-            console.warn('No se pudo cargar el proceso:', procesoErr)
-          }
+            }
         }
       } catch (err) {
-        console.error('❌ Error fetching audiencia:', err)
         setError('Error al cargar la audiencia')
         toast({
           title: "Error",
@@ -113,7 +109,6 @@ export default function AudienciaDetailPage() {
       })
       router.push('/audiencias')
     } catch (error) {
-      console.error('Error deleting audiencia:', error)
       toast({
         title: "Error",
         description: "No se pudo eliminar la audiencia",
