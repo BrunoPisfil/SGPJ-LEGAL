@@ -37,8 +37,7 @@ export function UpcomingHearingsTable() {
 
       setUpcomingHearings(upcoming)
     } catch (error) {
-      console.error("Error cargando audiencias:", error)
-    } finally {
+      } finally {
       setLoading(false)
     }
   }
