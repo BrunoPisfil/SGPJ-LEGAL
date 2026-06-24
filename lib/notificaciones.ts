@@ -5,7 +5,7 @@ export interface Notificacion {
   id: number;
   audiencia_id?: number;
   proceso_id?: number;
-  tipo: 'audiencia_programada' | 'audiencia_recordatorio' | 'proceso_actualizado' | 'vencimiento_plazo' | 'sistema';
+  tipo: 'audiencia_programada' | 'audiencia_recordatorio' | 'diligencia_recordatorio' | 'proceso_actualizado' | 'vencimiento_plazo' | 'sistema';
   canal: 'email' | 'sms' | 'sistema';
   titulo: string;
   mensaje: string;
