@@ -53,11 +53,9 @@ export default function DirectorioDetailPage() {
           )
           setRelatedProcesses(filtered)
         } catch (err) {
-          console.warn('Error loading related processes:', err)
-        }
+          }
       }
     } catch (err) {
-      console.error('Error loading directorio entry:', err)
       setError('Registro no encontrado')
     } finally {
       setLoading(false)
@@ -117,7 +115,6 @@ export default function DirectorioDetailPage() {
       })
       router.push("/directorio")
     } catch (err) {
-      console.error('Error deleting entry:', err)
       toast({
         title: "Error",
         description: "No se pudo eliminar el registro",
@@ -137,7 +134,6 @@ export default function DirectorioDetailPage() {
         description: `El registro ha sido ${entrada.activo ? "desactivado" : "activado"} exitosamente`,
       })
     } catch (err) {
-      console.error('Error updating entry:', err)
       toast({
         title: "Error",
         description: "No se pudo actualizar el estado del registro",
