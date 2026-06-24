@@ -26,9 +26,7 @@ export default function ResolucionDetailPage() {
     try {
       setLoading(true)
       setError(null)
-      console.log('📡 Cargando resolución con ID:', params.id)
       const data = await resolucionesAPI.getById(parseInt(params.id as string))
-      console.log('✅ Resolución cargada:', data)
       setResolucion(data)
 
       // Cargar el proceso relacionado si existe
@@ -37,11 +35,9 @@ export default function ResolucionDetailPage() {
           const procesoData = await procesosAPI.getById(data.proceso_id)
           setProceso(procesoData)
         } catch (err) {
-          console.warn('Advertencia: No se pudo cargar el proceso relacionado')
-        }
+          }
       }
     } catch (err: any) {
-      console.error('❌ Error cargando resolución:', err)
       setError(err.message || 'No se pudo cargar la resolución')
     } finally {
       setLoading(false)
