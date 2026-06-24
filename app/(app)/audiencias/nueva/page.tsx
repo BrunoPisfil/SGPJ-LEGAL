@@ -90,7 +90,6 @@ export default function NuevaAudienciaPage() {
       
       router.push("/audiencias")
     } catch (error: any) {
-      console.error('Error creating audiencia:', error)
       toast({
         title: "Error",
         description: error.message || "No se pudo crear la audiencia",
