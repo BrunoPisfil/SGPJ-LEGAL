@@ -69,7 +69,6 @@ export function ModalSeleccionarJuzgado({
       const data = await response.json()
       setDistritos(data)
     } catch (error) {
-      console.error("Error cargando distritos:", error)
       toast({ title: "Error", description: "No se pudieron cargar los distritos", variant: "destructive" })
     }
   }
@@ -82,7 +81,6 @@ export function ModalSeleccionarJuzgado({
       const data = await response.json()
       setInstancias(data)
     } catch (error) {
-      console.error("Error cargando instancias:", error)
       toast({ title: "Error", description: "No se pudieron cargar las instancias", variant: "destructive" })
     }
   }
@@ -96,7 +94,6 @@ export function ModalSeleccionarJuzgado({
       setEspecialidades(data)
       setSelectedEspecialidad("") // Resetear especialidad seleccionada
     } catch (error) {
-      console.error("Error cargando especialidades:", error)
       toast({ title: "Error", description: "No se pudieron cargar las especialidades", variant: "destructive" })
     }
   }
@@ -110,7 +107,6 @@ export function ModalSeleccionarJuzgado({
       const data = await response.json()
       setJuzgadosDisponibles(data)
     } catch (error) {
-      console.error("Error buscando juzgados:", error)
       toast({ title: "Error", description: "No se pudieron cargar los juzgados", variant: "destructive" })
     } finally {
       setIsLoading(false)
