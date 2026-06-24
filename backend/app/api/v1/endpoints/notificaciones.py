@@ -21,8 +21,8 @@ async def get_notificaciones(
     tipo: Optional[TipoNotificacionEnum] = Query(None),
     canal: Optional[CanalNotificacionEnum] = Query(None),
     solo_no_leidas: bool = Query(False),
-    db: Session = Depends(get_db)
-    # current_user = Depends(get_current_user)  # Temporalmente deshabilitado para pruebas
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
 ):
     """Obtener lista de notificaciones con filtros opcionales"""
     try:
@@ -120,8 +120,8 @@ async def marcar_notificacion_leida(
 @router.delete("/{notificacion_id}")
 async def eliminar_notificacion(
     notificacion_id: int,
-    db: Session = Depends(get_db)
-    # current_user = Depends(get_current_user)  # Temporalmente deshabilitado para pruebas
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
 ):
     """Eliminar notificación"""
     try:
