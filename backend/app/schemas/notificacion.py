@@ -6,7 +6,8 @@ from enum import Enum
 
 class TipoNotificacionEnum(str, Enum):
     AUDIENCIA_PROGRAMADA = "audiencia_programada"
-    AUDIENCIA_RECORDATORIO = "audiencia_recordatorio" 
+    AUDIENCIA_RECORDATORIO = "audiencia_recordatorio"
+    DILIGENCIA_RECORDATORIO = "diligencia_recordatorio"
     PROCESO_ACTUALIZADO = "proceso_actualizado"
     VENCIMIENTO_PLAZO = "vencimiento_plazo"
     SISTEMA = "sistema"
