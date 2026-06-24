@@ -68,7 +68,6 @@ export default function EditarDirectorioPage() {
         numero_colegiado: data.numero_colegiado || "",
       })
     } catch (err) {
-      console.error('Error loading entrada:', err)
       setError('Registro no encontrado')
     } finally {
       setLoading(false)
@@ -87,7 +86,6 @@ export default function EditarDirectorioPage() {
         setProcesosCliente(data || [])
       }
     } catch (err) {
-      console.error('Error loading procesos:', err)
       // No mostrar error toast ya que los procesos son opcionales
     }
   }
@@ -120,7 +118,6 @@ export default function EditarDirectorioPage() {
         })
       }
     } catch (err) {
-      console.error('Error updating tipo_parte:', err)
       toast({
         title: "Error",
         description: "Error al actualizar el rol",
@@ -200,7 +197,6 @@ export default function EditarDirectorioPage() {
       })
       router.push(`/directorio/${params.id}`)
     } catch (err) {
-      console.error('Error updating entry:', err)
       toast({
         title: "Error",
         description: "No se pudo actualizar el registro",
