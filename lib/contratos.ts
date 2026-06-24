@@ -59,11 +59,9 @@ export const contratosAPI = {
     }
     
     const url = params.toString() ? `/finanzas?${params.toString()}` : '/finanzas';
-    console.log('🚀 Getting contratos from:', url);
     
     try {
       const response = await apiClient.get(url);
-      console.log('✅ Contratos API response:', response);
       
       // La respuesta puede venir directamente como array o en response.contratos
       if (Array.isArray(response)) {
@@ -71,38 +69,29 @@ export const contratosAPI = {
       } else if (response.contratos && Array.isArray(response.contratos)) {
         return response.contratos;
       } else {
-        console.warn('⚠️ Unexpected response format:', response);
         return [];
       }
     } catch (error) {
-      console.error('❌ Error in getAll:', error);
       throw error;
     }
   },
 
   // Obtener un contrato por ID
   async getById(id: number): Promise<Contrato> {
-    console.log('🚀 Getting contrato by ID:', id);
     
     try {
       const response = await apiClient.get<Contrato>(`/finanzas/contratos/${id}`);
-      console.log('✅ Contrato by ID response:', response);
       return response;
     } catch (error) {
-      console.error('❌ Error in getById:', error);
       throw error;
     }
   },
 
   // Crear un nuevo contrato
   async create(contrato: ContratoCreate): Promise<Contrato> {
-    console.log('🚀 contratosAPI.create called with:', contrato);
     
     try {
       const response = await apiClient.post('/finanzas/contratos', contrato);
-      console.log('✅ API response received:', response);
-      console.log('✅ Response type:', typeof response);
-      console.log('✅ Response keys:', Object.keys(response || {}));
       
       if (!response) {
         throw new Error('Response is null or undefined');
@@ -111,7 +100,6 @@ export const contratosAPI = {
       // La respuesta del apiClient.request ya es el objeto directo, no tiene .data
       return response as Contrato;
     } catch (error) {
-      console.error('❌ Error in contratosAPI.create:', error);
       throw error;
     }
   },
@@ -122,7 +110,6 @@ export const contratosAPI = {
       const response = await apiClient.put<Contrato>(`/finanzas/contratos/${id}`, contrato);
       return response as Contrato;
     } catch (error) {
-      console.error('❌ Error in update:', error);
       throw error;
     }
   },
@@ -132,7 +119,6 @@ export const contratosAPI = {
     try {
       await apiClient.delete(`/finanzas/contratos/${id}`);
     } catch (error) {
-      console.error('❌ Error in delete:', error);
       throw error;
     }
   },
@@ -146,7 +132,6 @@ export const contratosAPI = {
     monto_pagado: number;
     monto_pendiente: number;
   }> {
-    console.log('🚀 Getting contract stats...');
     
     try {
       const response = await apiClient.get<{
@@ -157,10 +142,8 @@ export const contratosAPI = {
         monto_pagado: number;
         monto_pendiente: number;
       }>('/finanzas/contratos/stats');
-      console.log('✅ Stats API response:', response);
       return response;
     } catch (error) {
-      console.error('❌ Error in getStats:', error);
       throw error;
     }
   },
@@ -171,7 +154,6 @@ export const contratosAPI = {
       const response = await apiClient.get<Contrato[]>(`/finanzas/contratos/search?q=${encodeURIComponent(query)}`);
       return Array.isArray(response) ? response : [];
     } catch (error) {
-      console.error('❌ Error in search:', error);
       throw error;
     }
   }
