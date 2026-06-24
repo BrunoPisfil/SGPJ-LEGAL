@@ -40,9 +40,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   // Filtrar items según permisos del usuario
   const visibleNavItems = navItemsConfig.filter(item => {
-    if (!hasPermission(item.resource, "read")) return false
-    if ((item as any).soloAdmin && user?.rol?.toLowerCase() !== "admin") return false
-    return true
+    // Items exclusivos de admin: mostrar solo si el usuario es admin
+    if ((item as any).soloAdmin) return user?.rol?.toLowerCase() === "admin"
+    // Resto de items: filtrar por permisos normales
+    return hasPermission(item.resource, "read")
   })
 
   const handleLogout = () => {
