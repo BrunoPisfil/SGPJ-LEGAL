@@ -107,17 +107,10 @@ export default function NotificacionesPage() {
         filters.estado = filtroEstado
       }
       
-      console.log('🔍 Cargando notificaciones con filtros:', filters)
-
       const response = await notificacionesAPI.getAll(filters)
-      console.log('🔍 Respuesta del API:', response)
-      console.log('📋 Notificaciones recibidas:', response.notificaciones)
-      console.log('📊 Total:', response.total, 'No leídas:', response.no_leidas)
       setNotificaciones(response.notificaciones)
     } catch (error) {
-      console.error('❌ Error loading notifications:', error)
-      console.error('❌ Error completo:', JSON.stringify(error, null, 2))
-    } finally {
+      } finally {
       setIsLoading(false)
     }
   }
@@ -134,7 +127,6 @@ export default function NotificacionesPage() {
         description: `Se ha eliminado "${titulo}" correctamente.`,
       })
     } catch (error) {
-      console.error('❌ Error eliminando notificación:', error)
       toast({
         title: "Error",
         description: "No se pudo eliminar la notificación",
