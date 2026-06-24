@@ -31,7 +31,6 @@ export function useInactivityTimeout({
 
     // Configurar nuevo timeout
     timeoutIdRef.current = setTimeout(() => {
-      console.log('⏰ Timeout de inactividad alcanzado');
       onTimeout?.();
     }, timeout);
   }, [timeout, onTimeout]);
@@ -42,7 +41,6 @@ export function useInactivityTimeout({
 
     // Listener para detectar actividad
     const handleActivity = () => {
-      console.log('👆 Actividad detectada - reseteando timer de inactividad');
       resetTimeout();
     };
 
@@ -64,7 +62,6 @@ export function useInactivityTimeout({
 
   // Función para resetear manualmente si es necesario
   const reset = useCallback(() => {
-    console.log('🔄 Reseteando timeout manualmente');
     resetTimeout();
   }, [resetTimeout]);
 
