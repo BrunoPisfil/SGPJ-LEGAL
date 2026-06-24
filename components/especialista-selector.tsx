@@ -84,7 +84,6 @@ export function EspecialistaSelector({ selectedEspecialistaId, onEspecialistaSel
       setEspecialistas(especialistasFormateados)
       setFilteredEspecialistas(especialistasFormateados)
     } catch (error) {
-      console.error('Error loading especialistas:', error)
       setEspecialistas([])
       setFilteredEspecialistas([])
     } finally {
