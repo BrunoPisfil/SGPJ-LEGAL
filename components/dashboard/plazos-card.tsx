@@ -36,8 +36,7 @@ export function PlazosCard() {
 
       setResolucionesConPlazos(conPlazos)
     } catch (error) {
-      console.error("Error cargando plazos:", error)
-    } finally {
+      } finally {
       setLoading(false)
     }
   }
