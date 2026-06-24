@@ -10,6 +10,8 @@ import logging
 
 from app.core.database import get_db
 from app.core.config import settings
+from app.api.deps import get_current_active_admin
+from app.models.usuario import Usuario
 from app.core.timezone import get_current_time_peru
 from app.services.auto_notifications import AutoNotificationService
 from app.models.notificacion import Notificacion, EstadoNotificacion
@@ -23,7 +25,8 @@ logger = logging.getLogger(__name__)
 
 
 @router.get("/status")
-async def get_notification_status(db: Session = Depends(get_db)):
+async def get_notification_status(db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_active_admin)):
     """
     Obtener estado actual del sistema de notificaciones automáticas
     """
@@ -46,7 +49,8 @@ async def get_notification_status(db: Session = Depends(get_db)):
 
 
 @router.post("/check-now")
-async def run_notification_check_now(db: Session = Depends(get_db)):
+async def run_notification_check_now(db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_active_admin)):
     """
     Ejecutar verificación de notificaciones ahora (sin esperar al scheduler)
     """
@@ -140,7 +144,8 @@ async def get_recent_notification_logs(
 
 
 @router.get("/diligencias/proximas")
-async def get_diligencias_proximas_a_notificar(db: Session = Depends(get_db)):
+async def get_diligencias_proximas_a_notificar(db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_active_admin)):
     """
     Obtener diligencias que se notificarán en el próximo ciclo
     """
@@ -185,7 +190,8 @@ async def get_diligencias_proximas_a_notificar(db: Session = Depends(get_db)):
 
 
 @router.get("/notificaciones/por-diligencia/{diligencia_id}")
-async def get_notificaciones_diligencia(diligencia_id: int, db: Session = Depends(get_db)):
+async def get_notificaciones_diligencia(diligencia_id: int, db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_active_admin)):
     """
     Obtener todas las notificaciones asociadas a una diligencia
     """
