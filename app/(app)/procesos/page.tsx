@@ -48,7 +48,6 @@ export default function ProcesosPage() {
       setAllProcesos(data)
       setCurrentPage(1)
     } catch (err) {
-      console.error('Error loading procesos:', err)
       setError('Error al cargar los procesos')
       toast({
         title: "Error",
