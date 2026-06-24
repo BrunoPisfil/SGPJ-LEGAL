@@ -151,7 +151,6 @@ export function ProcessSelectorFinance({ selectedProcessId, onProcessSelect, tri
       setProcesos(data)
       setFilteredProcesos(data)
     } catch (error) {
-      console.error('Error loading procesos:', error)
       // Si falla, usar datos de muestra como fallback
       setProcesos(sampleProcesos)
       setFilteredProcesos(sampleProcesos)
