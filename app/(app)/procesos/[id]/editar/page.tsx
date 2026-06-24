@@ -80,7 +80,6 @@ export default function EditarProcesoPage() {
         // Cargar partes del proceso
         await loadPartes(Number(params.id))
       } catch (error) {
-        console.error('Error al cargar proceso:', error)
         toast({
           title: "Error",
           description: "No se pudo cargar el proceso",
@@ -99,9 +98,7 @@ export default function EditarProcesoPage() {
     try {
       const data = await apiClient.get<Parte[]>(`/procesos/${procesoId}/partes`)
       setPartes(data || [])
-      console.log('✅ Partes cargadas:', data)
-    } catch (err) {
-      console.error('Error loading partes:', err)
+      } catch (err) {
       // No mostrar error ya que las partes son opcionales
     }
   }
@@ -122,7 +119,6 @@ export default function EditarProcesoPage() {
       })
       setEditingParteId(null)
     } catch (err) {
-      console.error('Error updating parte:', err)
       toast({
         title: "Error",
         description: "Error al actualizar la parte",
@@ -177,7 +173,6 @@ export default function EditarProcesoPage() {
       })
       router.push(`/procesos/${params.id}`)
     } catch (error) {
-      console.error('Error al actualizar proceso:', error)
       toast({
         title: "Error",
         description: "No se pudo actualizar el proceso",
