@@ -56,8 +56,7 @@ export function ProcessSelector({ selectedProcessId, onProcessSelect, trigger }:
       setProcesos(data)
       setFilteredProcesos(data)
     } catch (error) {
-      console.error('Error loading procesos:', error)
-    } finally {
+      } finally {
       setLoading(false)
     }
   }
