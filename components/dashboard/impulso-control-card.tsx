@@ -26,13 +26,6 @@ export function ImpulsoControlCard() {
       const audiencias = Array.isArray(response) ? response : (response.audiencias || [])
 
       // Debug: log all processes to see their states
-      console.log("🔍 All processes:", procesos.map((p: any) => ({
-        id: p.id,
-        expediente: p.expediente,
-        estado_juridico: p.estado_juridico,
-        estado: p.estado
-      })))
-
       // Procesos que requieren impulso son aquellos con estado_juridico="pendiente_impulsar"
       // No necesitan cumplir condiciones adicionales de audiencias
       const needingReview = procesos
@@ -42,11 +35,9 @@ export function ImpulsoControlCard() {
         })
         .slice(0, 5)
 
-      console.log("✅ Processes needing review:", needingReview.map((p: any) => ({ id: p.id, expediente: p.expediente })))
       setProcessesNeedingReview(needingReview)
     } catch (error) {
-      console.error("Error cargando procesos:", error)
-    } finally {
+      } finally {
       setLoading(false)
     }
   }
