@@ -47,7 +47,6 @@ export default function DirectorioPage() {
           setDirectorio(data)
         }
       } catch (err) {
-        console.error('Error loading directorio:', err)
         setError('Error al cargar datos del directorio')
       } finally {
         setLoading(false)
