@@ -5,7 +5,7 @@ export const API_CONFIG = {
     : typeof window !== 'undefined' && window.location.hostname.includes('vercel.app')
       ? 'https://sgpj-legal-backend.vercel.app/api/v1'
       : 'http://localhost:8000/api/v1',
-  TIMEOUT: 30000,
+  TIMEOUT: 10000,
 } as const;
 
 
@@ -28,7 +28,6 @@ class APIClient {
   constructor() {
     this.baseURL = API_CONFIG.BASE_URL;
     this.timeout = API_CONFIG.TIMEOUT;
-    console.log('🌐 API Client initialized with baseURL:', this.baseURL);
   }
 
   private async makeRequest<T>(
@@ -47,28 +46,23 @@ class APIClient {
 
     // Agregar token si está disponible
     const token = this.getToken();
-    console.log('🔑 Token disponible:', token ? 'SÍ' : 'NO');
     if (token) {
       config.headers = {
         ...config.headers,
         Authorization: `Bearer ${token}`,
       };
-      console.log('✅ Token agregado a headers');
     } else {
-      console.log('❌ No hay token disponible - request sin autenticación');
     }
 
     try {
-      console.log('Making request to:', url, 'with config:', config);
       
       // Agregar timeout manual
       const controller = new AbortController();
       let timeoutId: NodeJS.Timeout | null = null;
       
       timeoutId = setTimeout(() => {
-        console.log('⏰ Request timeout after 30 seconds');
         controller.abort();
-      }, 30000);
+      }, 10000);
       
       try {
         const response = await fetch(url, {
@@ -77,11 +71,9 @@ class APIClient {
         });
         
         if (timeoutId) clearTimeout(timeoutId);
-        console.log('Response status:', response.status);
         
         // Manejar error 401 - No autenticado
         if (response.status === 401) {
-          console.error('❌ Error 401: Not authenticated');
           // Limpiar token
           this.removeToken();
           // Ejecutar callback de no autorizado
@@ -91,25 +83,21 @@ class APIClient {
         
         if (!response.ok) {
           const errorText = await response.text();
-          console.error('API Error Response:', errorText);
           throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
         }
         
         // Para status 204 No Content, retornar null
         if (response.status === 204) {
-          console.log('Response: 204 No Content');
           return null as any;
         }
         
         const data = await response.json();
-        console.log('Response data:', data);
         return data;
       } catch (fetchError) {
         if (timeoutId) clearTimeout(timeoutId);
         throw fetchError;
       }
     } catch (error) {
-      console.error('API Error:', error);
       if (error instanceof Error && error.name === 'AbortError') {
         throw new Error('La solicitud fue cancelada. Intenta nuevamente.');
       }
@@ -149,17 +137,14 @@ class APIClient {
 
   // Gestión de tokens
   setToken(token: string) {
-    console.log('💾 Guardando token:', token);
     if (typeof window !== 'undefined') {
       localStorage.setItem('sgpj_token', token);
-      console.log('✅ Token guardado en localStorage');
     }
   }
 
   getToken(): string | null {
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('sgpj_token');
-      console.log('🔑 Token obtenido de localStorage:', token ? 'EXISTE' : 'NO EXISTE');
       return token;
     }
     return null;
