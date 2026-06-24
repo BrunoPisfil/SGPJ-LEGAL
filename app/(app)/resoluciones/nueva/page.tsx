@@ -64,7 +64,6 @@ export default function NuevaResolucionPage() {
 
       router.push("/resoluciones")
     } catch (error) {
-      console.error('Error creating resolucion:', error)
       toast({
         title: "Error",
         description: "No se pudo crear la resolución. Intente nuevamente.",
