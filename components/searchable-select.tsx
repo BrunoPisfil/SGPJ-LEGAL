@@ -83,7 +83,6 @@ export function SearchableSelect({
       const results = await onSearch(query)
       setSearchResults(results)
     } catch (error) {
-      console.error('Error searching:', error)
       setSearchResults([])
     } finally {
       setIsLoading(false)
@@ -100,7 +99,6 @@ export function SearchableSelect({
   // Cargar elementos iniciales cuando se abre el dropdown
   const loadInitialResults = useCallback(async () => {
     if (onSearch && searchResults.length === 0 && !searchQuery.trim() && !isLoading) {
-      console.log('🔄 Cargando elementos iniciales...')
       await performSearch('')
     }
   }, [onSearch, searchResults.length, searchQuery, isLoading, performSearch])
