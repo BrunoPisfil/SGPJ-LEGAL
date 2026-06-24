@@ -44,8 +44,7 @@ export function TopDebtsCard() {
       setTopDebts(debts)
       setTotalDeuda(total)
     } catch (error) {
-      console.error("Error cargando deudas:", error)
-    } finally {
+      } finally {
       setLoading(false)
     }
   }
