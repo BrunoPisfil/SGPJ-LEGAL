@@ -35,18 +35,14 @@ export interface AuthResponse {
 export const authAPI = {
   // Iniciar sesión
   async login(credentials: LoginRequest): Promise<AuthResponse> {
-    console.log('🔐 Iniciando login con:', credentials);
     try {
       const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
-      console.log('✅ Login exitoso:', response);
       
       // Guardar token automáticamente
       apiClient.setToken(response.access_token);
-      console.log('💾 Token guardado');
       
       return response;
     } catch (error) {
-      console.error('❌ Error en login:', error);
       throw error;
     }
   },
