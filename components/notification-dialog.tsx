@@ -81,8 +81,7 @@ export function NotificationDialog({
       setMensajePersonalizado("")
       
     } catch (error) {
-      console.error('Error sending notification:', error)
-    } finally {
+      } finally {
       setLoading(false)
     }
   }
