@@ -83,7 +83,6 @@ export function AbogadoSelector({ selectedAbogadoId, onAbogadoSelect, trigger }:
       setAbogados(abogadosFormateados)
       setFilteredAbogados(abogadosFormateados)
     } catch (error) {
-      console.error('Error loading abogados:', error)
       setAbogados([])
       setFilteredAbogados([])
     } finally {
