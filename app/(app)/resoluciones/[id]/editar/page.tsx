@@ -42,20 +42,16 @@ export default function EditarResolucionPage() {
   const loadResolucion = async () => {
     try {
       setIsLoadingData(true)
-      console.log('📡 Cargando resolución para editar:', params.id)
       const data = await resolucionesAPI.getById(parseInt(params.id as string))
-      console.log('✅ Resolución cargada:', data)
       setResolucion(data)
       
       // Cargar el proceso asociado
       if (data.proceso_id) {
         try {
           const procesoData = await procesosAPI.getById(data.proceso_id)
-          console.log('✅ Proceso cargado:', procesoData)
           setSelectedProceso(procesoData)
         } catch (err) {
-          console.warn('Advertencia: No se pudo cargar el proceso relacionado')
-        }
+          }
       }
       
       // Llenar el formulario
@@ -69,7 +65,6 @@ export default function EditarResolucionPage() {
         notas: data.notas || "",
       })
     } catch (error) {
-      console.error('❌ Error cargando resolución:', error)
       toast({
         title: "Error",
         description: "No se pudo cargar la resolución",
@@ -117,7 +112,6 @@ export default function EditarResolucionPage() {
 
       router.push("/resoluciones")
     } catch (error: any) {
-      console.error('Error updating resolución:', error)
       toast({
         title: "Error",
         description: error.message || "No se pudo actualizar la resolución",
