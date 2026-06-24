@@ -5,6 +5,7 @@ from app.core.auth import verify_password, get_password_hash, create_access_toke
 from app.models.usuario import Usuario
 from app.schemas.usuario import LoginRequest, TokenResponse, UsuarioCreate, Usuario as UsuarioSchema
 from app.api.deps import get_current_user
+from fastapi import HTTPException, status
 
 router = APIRouter()
 
@@ -46,6 +47,13 @@ async def register(
     db: Session = Depends(get_db)
 ):
     """Registro de nuevos usuarios"""
+    # Solo admin puede crear usuarios
+    if current_user.rol != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Solo los administradores pueden crear nuevas cuentas"
+        )
+
     # Verificar si el email ya existe
     existing_user = db.query(Usuario).filter(Usuario.email == user_data.email).first()
     if existing_user:
