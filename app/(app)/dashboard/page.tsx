@@ -74,8 +74,7 @@ export default function DashboardPage() {
           totalDebt: totalDebt,
         }))
       } catch (error) {
-        console.warn("No se pudieron cargar los contratos:", error)
-      }
+        }
 
       // Contar procesos que requieren atención (pendientes)
       const urgentCount = procesos.filter((p) => {
@@ -90,7 +89,6 @@ export default function DashboardPage() {
         loading: false,
       }))
     } catch (error) {
-      console.error("Error cargando datos del dashboard:", error)
       setStats((prev) => ({
         ...prev,
         loading: false,
