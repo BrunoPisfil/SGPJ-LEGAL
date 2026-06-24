@@ -126,7 +126,6 @@ export function ClientSelector({ selectedClientId, onClientSelect, trigger }: Cl
       setClientes(data)
       setFilteredClientes(data)
     } catch (error) {
-      console.error('Error loading clientes:', error)
       // Fallback a datos de muestra si falla
       setClientes(sampleClientes)
       setFilteredClientes(sampleClientes)
