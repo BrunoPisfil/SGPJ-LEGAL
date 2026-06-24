@@ -63,13 +63,10 @@ export default function ContratoDetailPage() {
         throw new Error("ID de contrato inválido")
       }
       
-      console.log("🔄 Cargando contrato ID:", contratoId)
       const contratoData = await contratosAPI.getById(contratoId)
       
-      console.log("✅ Contrato cargado:", contratoData)
       setContrato(contratoData)
     } catch (error) {
-      console.error("❌ Error cargando contrato:", error)
       toast({
         title: "Error",
         description: "No se pudo cargar el contrato",
@@ -88,13 +85,10 @@ export default function ContratoDetailPage() {
         return
       }
       
-      console.log("🔄 Cargando pagos para contrato ID:", contratoId)
       const pagosData = await pagosAPI.getByContrato(contratoId)
       
-      console.log("✅ Pagos cargados:", pagosData)
       setPagos(pagosData)
     } catch (error) {
-      console.error("❌ Error cargando pagos:", error)
       // No mostrar error toast para pagos, ya que puede ser normal que no haya pagos
     }
   }
@@ -128,8 +122,6 @@ export default function ContratoDetailPage() {
   const handleDelete = async () => {
     try {
       setIsLoading(true)
-      console.log("🗑️ Eliminando contrato ID:", contrato.id)
-      
       await contratosAPI.delete(contrato.id)
       
       toast({
@@ -138,7 +130,6 @@ export default function ContratoDetailPage() {
       })
       router.push("/finanzas")
     } catch (error) {
-      console.error("❌ Error eliminando contrato:", error)
       toast({
         title: "Error",
         description: "No se pudo eliminar el contrato",
@@ -171,8 +162,6 @@ export default function ContratoDetailPage() {
 
     try {
       setIsLoading(true)
-      console.log("💳 Registrando pago:", pagoData)
-      
       const pagoCreate = {
         monto: Number.parseFloat(pagoData.monto),
         medio: pagoData.medio,
@@ -181,8 +170,6 @@ export default function ContratoDetailPage() {
       }
       
       const nuevoPago = await pagosAPI.create(contrato!.id, pagoCreate)
-      
-      console.log("✅ Pago registrado:", nuevoPago)
       
       toast({
         title: "Pago registrado",
@@ -198,7 +185,6 @@ export default function ContratoDetailPage() {
       await loadPagos()     // Para mostrar el nuevo pago
       
     } catch (error) {
-      console.error("❌ Error registrando pago:", error)
       toast({
         title: "Error",
         description: "No se pudo registrar el pago",
