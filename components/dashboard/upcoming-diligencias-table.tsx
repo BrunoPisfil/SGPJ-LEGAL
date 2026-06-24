@@ -44,8 +44,7 @@ export function UpcomingDiligenciasTable() {
 
       setUpcomingDiligencias(upcoming)
     } catch (error) {
-      console.error("Error cargando diligencias:", error)
-    } finally {
+      } finally {
       setLoading(false)
     }
   }
