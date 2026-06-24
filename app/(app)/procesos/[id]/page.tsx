@@ -46,7 +46,6 @@ export default function ProcesoDetailPage() {
         await loadAudiencias(Number(params.id))
         
       } catch (err) {
-        console.error('Error fetching process:', err)
         setError('Error al cargar el proceso')
       } finally {
         setLoading(false)
@@ -60,16 +59,11 @@ export default function ProcesoDetailPage() {
 
   const loadBitacora = async (procesoId: number) => {
     try {
-      console.log('🔄 Cargando bitácora para proceso:', procesoId)
       setLoadingBitacora(true)
       const data = await bitacoraAPI.getByProceso(procesoId)
-      console.log('✅ Bitácora cargada:', data)
-      console.log('📊 Número de entradas:', data?.length || 0)
       setBitacora(data)
     } catch (err) {
-      console.error('❌ Error loading bitácora:', err)
-      console.error('❌ Error details:', err)
-    } finally {
+      } finally {
       setLoadingBitacora(false)
     }
   }
@@ -80,8 +74,7 @@ export default function ProcesoDetailPage() {
       const data = await audienciasAPI.getByProceso(procesoId)
       setAudiencias(data)
     } catch (err) {
-      console.error('Error loading audiencias:', err)
-    } finally {
+      } finally {
       setLoadingAudiencias(false)
     }
   }
@@ -135,7 +128,6 @@ export default function ProcesoDetailPage() {
       })
       router.push("/procesos")
     } catch (err) {
-      console.error('Error deleting process:', err)
       toast({
         title: "Error",
         description: "No se pudo eliminar el proceso",
