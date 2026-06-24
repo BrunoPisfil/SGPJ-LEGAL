@@ -34,7 +34,6 @@ export function SedeAudienciaSelector({
   // Cargar sedes cuando se abre el modal
   useEffect(() => {
     if (open) {
-      console.log('🔓 Modal de sedes abierto, cargando datos...')
       loadSedes()
     }
   }, [open])
@@ -58,17 +57,13 @@ export function SedeAudienciaSelector({
   const loadSedes = async () => {
     try {
       setLoading(true)
-      console.log('📡 Cargando sedes desde /directorio/juzgados...')
       const data = await juzgadosAPI.getAll()
-      console.log('✅ Sedes cargadas:', data)
       setSedes(data)
       setFilteredSedes(data)
       
       if (data.length === 0) {
-        console.warn('⚠️ No hay sedes en la BD, usando data de fallback para testing')
-      }
+        }
     } catch (error) {
-      console.error('❌ Error loading sedes:', error)
       // Usar data de fallback para testing si hay error
       const fallbackSedes: Juzgado[] = [
         {
@@ -104,8 +99,7 @@ export function SedeAudienciaSelector({
       ]
       setSedes(fallbackSedes)
       setFilteredSedes(fallbackSedes)
-      console.log('⚠️ Usando sedes de fallback para testing')
-    } finally {
+      } finally {
       setLoading(false)
     }
   }
