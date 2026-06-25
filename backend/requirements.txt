@@ -21,6 +21,7 @@ bcrypt==4.0.0
 cryptography==42.0.8
 
 # CORS y middleware
+slowapi==0.1.9
 
 # Utilidades
 python-dotenv==1.0.0
