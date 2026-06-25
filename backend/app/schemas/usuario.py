@@ -8,7 +8,7 @@ class UsuarioBase(BaseModel):
     nombre: str
     email: EmailStr
     telefono: Optional[str] = None
-    rol: str = "abogado"
+    rol: str = "practicante"  # Debe coincidir con el enum de BD: admin | practicante
 
 
 class UsuarioCreate(UsuarioBase):
