@@ -30,12 +30,16 @@ else:
 logger = logging.getLogger(__name__)
 
 # Crear la instancia de FastAPI
+# En producción (Vercel) se deshabilitan los docs públicos
+_docs_url = None if is_vercel_env else "/docs"
+_redoc_url = None if is_vercel_env else "/redoc"
+
 app = FastAPI(
     title=settings.app_name,
     version=settings.version,
     description="API para el Sistema de Gestión de Procesos Judiciales",
-    docs_url="/docs",
-    redoc_url="/redoc"
+    docs_url=_docs_url,
+    redoc_url=_redoc_url
 )
 
 # Configurar CORS
@@ -43,8 +47,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "Accept"],
 )
 
 # Incluir las rutas de la API
