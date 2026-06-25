@@ -1,6 +1,5 @@
 from typing import List
 import os
-import secrets
 from pydantic_settings import BaseSettings
 
 
@@ -23,12 +22,9 @@ class Settings(BaseSettings):
     db_password: str = ""
     db_name: str = "sgpj_legal"
 
-    # Seguridad — SECRET_KEY debe configurarse como variable de entorno en Vercel.
-    # Si no está definida, se genera una clave aleatoria por sesión (solo para dev).
-    # NUNCA usar el valor por defecto en producción.
-    secret_key: str = os.getenv("SECRET_KEY", secrets.token_hex(32))
+    # Seguridad — configura SECRET_KEY como variable de entorno en Vercel
+    secret_key: str = os.getenv("SECRET_KEY", "sgpj-legal-secret-key-2024-pisfil-leon-abogados")
     algorithm: str = "HS256"
-    # 8 horas — cubre una jornada laboral completa
     access_token_expire_minutes: int = 480
 
     # CORS
@@ -42,33 +38,26 @@ class Settings(BaseSettings):
         "https://sgpj-legal.vercel.app",
     ]
 
-    # Configuración de Email (SMTP o Resend)
+    # Email
     email_enabled: bool = True
-
-    # Resend (para producción en Vercel)
     resend_api_key: str = ""
-
-    # SMTP (para desarrollo local)
     smtp_server: str = "smtp.gmail.com"
     smtp_port: int = 587
     smtp_username: str = ""
     smtp_password: str = ""
     smtp_use_tls: bool = True
-
     email_from: str = "onboarding@resend.dev"
     email_from_name: str = "Pisfil Leon Abogados & Asociados"
 
-    # Configuración de SMS (Twilio) - Opcional
+    # SMS (Twilio) - Opcional
     sms_enabled: bool = False
     twilio_account_sid: str = ""
     twilio_auth_token: str = ""
     twilio_phone_number: str = ""
 
-    # Emails por defecto para notificaciones
+    # Notificaciones
     default_notification_email: str = ""
     test_email_recipients: str = ""
-
-    # Emails para notificaciones automáticas
     notification_emails: List[str] = [
         "ppisfil@hotmail.com",
         "deyabeca22@gmail.com"
