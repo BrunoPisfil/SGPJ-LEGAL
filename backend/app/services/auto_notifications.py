@@ -8,7 +8,7 @@ Maneja:
 """
 
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, or_, func
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 from typing import List, Tuple
@@ -291,11 +291,12 @@ Demandado(s): {demandados}
         # Calcular fecha límite: hace 1 mes desde hoy
         hoje = date.today()
         limite_fecha = hoje - relativedelta(months=1)
-        
+        now = get_current_time_peru()
+
         logger.info(f"Buscando procesos sin revisar desde hace más de 1 mes (límite: {limite_fecha})")
-        
+
         # Buscar procesos donde:
-        # 1. fecha_ultima_revision sea NULL (nunca revisados) 
+        # 1. fecha_ultima_revision sea NULL (nunca revisados)
         # 2. O fecha_ultima_revision sea anterior al límite (más de 1 mes sin revisar)
         # Y el proceso esté en estado activo o en trámite
         procesos = db.query(Proceso).filter(
@@ -310,11 +311,28 @@ Demandado(s): {demandados}
                 )
             )
         ).all()
-        
+
         procesos_notificados = []
-        
+
         for proceso in procesos:
             try:
+                # Excluir procesos de materia "alimentos" que tengan una audiencia próxima
+                # programada: se debe esperar a que se realice la audiencia antes de
+                # pedir revisión, ya que el seguimiento depende de su resultado.
+                if proceso.materia and "aliment" in proceso.materia.lower():
+                    tiene_audiencia_proxima = db.query(Audiencia).filter(
+                        and_(
+                            Audiencia.proceso_id == proceso.id,
+                            Audiencia.fecha_hora >= now
+                        )
+                    ).first()
+
+                    if tiene_audiencia_proxima:
+                        logger.info(
+                            f"Proceso {proceso.id} (alimentos) omitido: tiene audiencia "
+                            f"próxima programada, se espera su resultado antes de revisar"
+                        )
+                        continue
                 # Verificar si ya se envió notificación reciente para este proceso
                 notificacion_reciente = db.query(Notificacion).filter(
                     and_(
